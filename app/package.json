@@ -8,7 +8,8 @@
     "build": "tsc -b && vite build",
     "lint": "oxlint",
     "preview": "vite preview",
-    "checar": "node scripts/checar-conteudo.mjs"
+    "checar": "node scripts/checar-conteudo.mjs",
+    "numeros": "node scripts/numeros-sem-fonte.mjs"
   },
   "dependencies": {
     "@xyflow/react": "^12.12.1",

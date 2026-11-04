@@ -22,7 +22,7 @@ para estudo, que mostra:
 | Fórmulas | **KaTeX** | Renderiza LaTeX rápido; cada passo da resolução é um bloco animado |
 | Gráficos interativos | **D3.js** ou **Mafs** | Visualizar funções (sigmoid, perda, gradiente), árvores de busca etc. |
 | Estado global | **Zustand** | Guarda posição na timeline, nó aberto, progresso de estudo |
-| Estilo | **Tailwind CSS** | Visual rápido e consistente, tema escuro |
+| Estilo | **Tailwind CSS** | Visual rápido e consistente, tema escuro e claro |
 | Conteúdo | **Markdown/MDX + JSON** | Um arquivo por tópico; fácil de editar sem mexer no código |
 | Leitura do Moodle | **pdf.js / pdftotext** (script Node/Python) | Extrair texto dos PDFs/slides baixados |
 | Progresso local | **localStorage** | Lembrar onde você parou e exercícios feitos |
@@ -50,8 +50,8 @@ MDX, Live Preview (ou só `npm run dev`).
 - [x] Conteúdo em dados TS (`app/src/content/`): tópicos, conexões, fórmulas, calculadoras, exercícios e explicações em camadas. `npm run checar` valida tudo
 - [x] Escrever cada fórmula em LaTeX, dividida em passos (montagem → substituição → resultado) → 32 fórmulas em `formulas.ts`
 - [x] Ligar cada exercício ao(s) tópico(s) que ele usa
-- [~] Escrever a resolução passo a passo de cada exercício: 27 com passos (listas U4/U5, P1, P2, Lista U2 Q17–18, GraphPlan). Faltam os que dependem de figura e os gabaritos longos da Lista U2
-- [~] Redesenhar as figuras dos exercícios como dados: mapa da Romênia feito (`lib/romenia.ts`). Faltam mapa do RS (E1), grafo S→G, árvore da Q22, rede n0–n20, gráfico KNN, divisões da P2
+- [x] Escrever a resolução passo a passo de cada exercício: 36 com passos, incluindo os de figura (E1 Q1–Q6, Lista U2 Q8, Q10, Q11, Q22, Lista 5 Q3, P2 Q6). Os outros são V/F ou discursivos com resposta direta
+- [x] Redesenhar as figuras dos exercícios como dados: Romênia, RS e grafo S→G (`lib/busca.ts`), árvores da Q22 e do E1 (`lib/arvore.ts`), rede n0–n20 (`lib/hill.ts`), gráfico KNN (`lib/knn.ts`). `npm run checar` confere que os motores batem com os gabaritos
 - [x] Escrever os tópicos sem slide (regressão, gradiente, redes neurais, métricas): resumo, explicação em camadas e fórmulas
 
 ### Fase 2 — Montar o projeto
@@ -76,12 +76,12 @@ MDX, Live Preview (ou só `npm run dev`).
 ### Fase 5 — Página de conceito (dentro de cada nó)
 - [x] Explicação em camadas: intuição → definição → detalhe técnico (+ "cuidado" com pegadinhas de prova)
 - [x] Botão "mostrar mais" para abrir cada camada
-- [~] Exemplos visuais/interativos: busca passo a passo no mapa da Romênia (BFS, DFS, UCS, gulosa, A*). Faltam KNN, roleta, GraphPlan, árvore com Gini
+- [x] Exemplos visuais/interativos: busca passo a passo em 3 grafos (BFS, DFS, UCS, gulosa, A*), minimax/alfa-beta com ordem invertida, Hill Climbing com reinício e KNN arrastável. Ideias para depois: roleta, GraphPlan, árvore com Gini
 - [x] Links para conceitos relacionados (volta ao mapa)
 
 ### Fase 6 — Fórmulas animadas
-- [ ] Componente que mostra a fórmula sendo montada termo a termo
-- [ ] Explicação de cada termo ao passar o mouse
+- [x] Componente que mostra a fórmula sendo montada termo a termo (14 fórmulas em `content/termos.ts`)
+- [x] Explicação de cada termo ao passar o mouse (ou tocar)
 - [x] Resolução passo a passo: avançar, voltar, mostrar tudo e recomeçar
 - [x] Campos para trocar os valores e ver o resultado mudar (26 das 32 fórmulas)
 
@@ -92,12 +92,12 @@ MDX, Live Preview (ou só `npm run dev`).
 - [x] Mostrar no mapa quais tópicos ainda têm exercícios pendentes (número no canto do nó; ? = dúvida)
 
 ### Fase 8 — Extras de estudo
-- [x] Busca por conceito (tecla /). Falta buscar fórmula
+- [x] Busca por conceito e por fórmula (tecla /)
 - [x] Salvar progresso: etapa da barra, tópicos estudados e exercícios feitos/dúvida no localStorage
-- [ ] Modo revisão (flashcards a partir das definições e fórmulas)
-- [ ] Tema claro/escuro e funcionar bem em tela pequena
+- [x] Modo revisão: cartões de conceito, pegadinha e fórmula com caixas de Leitner (botão "revisar")
+- [x] Tema claro/escuro (☀/☾) e layout de celular
 
 ### Fase 9 — Finalizar
-- [ ] Revisar todo o conteúdo contra o material original
-- [ ] Testar navegação completa do início ao fim
-- [ ] Gerar build (`npm run build`) e, se quiser, publicar (GitHub Pages / Vercel)
+- [~] Revisar o conteúdo contra o material original: `npm run numeros` lista os números sem correspondência no texto extraído. Os que restam são contas derivadas (conferidas por amostragem), valores de figuras (conferidos pelos motores) ou fatos históricos. Falta uma leitura humana das explicações
+- [x] Testar navegação completa: 82 tópicos por link, 132 exercícios abertos, as 7 demos internas até o fim e a revisão, sem erros de console
+- [~] Gerar build (`npm run build`, caminhos relativos: o `dist/` funciona em qualquer servidor estático). Publicar fica para quando quiser

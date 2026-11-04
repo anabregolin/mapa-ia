@@ -12,7 +12,7 @@ export function Tex({ latex, display = false }: { latex: string; display?: boole
 }
 
 /** Junta as partes marcando cada termo com \htmlData para achar no DOM depois. */
-export function latexComTermos(partes: Parte[]) {
+function latexComTermos(partes: Parte[]) {
   let i = 0
   return partes.map((p) => (typeof p === 'string' ? p : `\\htmlData{termo=${i++}}{${p[0]}}`)).join('')
 }
