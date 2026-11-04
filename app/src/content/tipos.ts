@@ -124,6 +124,8 @@ export interface Exercicio {
   status: StatusExercicio
   /** depende de uma figura do PDF que ainda precisa ser redesenhada */
   figura?: boolean
+  /** id de uma demo (DEMOS) que redesenha a figura */
+  demo?: string
   enunciado?: string
   dica?: string
   passos?: PassoExercicio[]

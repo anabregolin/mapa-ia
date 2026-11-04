@@ -18,11 +18,11 @@ function Calculo({ calc }: { calc: Calculadora }) {
   const r = invalido ? null : calc.calcular(numeros)
 
   return (
-    <div className="mt-3 border-t border-white/10 pt-2">
+    <div className="mt-3 border-t border-tinta/10 pt-2">
       <div className="text-xs text-slate-500">Troque os valores</div>
       <div className="mt-1.5 flex flex-wrap gap-2">
         {calc.entradas.map((e) => (
-          <label key={e.id} className="flex items-center gap-1 rounded-md bg-white/5 px-2 py-1 text-xs text-slate-300">
+          <label key={e.id} className="flex items-center gap-1 rounded-md bg-tinta/5 px-2 py-1 text-xs text-slate-300">
             {e.rotulo}
             <input
               type="number"
@@ -32,7 +32,7 @@ function Calculo({ calc }: { calc: Calculadora }) {
               max={e.max}
               step={e.passo ?? 'any'}
               onChange={(ev) => setValores((v) => ({ ...v, [e.id]: ev.target.value }))}
-              className="w-16 rounded bg-slate-950 px-1 py-0.5 text-right text-slate-100 outline-none ring-1 ring-white/10 focus:ring-violet-400/60"
+              className="w-16 rounded bg-slate-950 px-1 py-0.5 text-right text-slate-100 outline-none ring-1 ring-tinta/10 focus:ring-violet-400/60"
             />
           </label>
         ))}
@@ -62,7 +62,7 @@ export function FormulaAnimada({ formula }: { formula: Formula }) {
   const calc = CALCULADORAS[formula.id]
 
   return (
-    <div className="rounded-xl border border-white/10 bg-slate-900/70 p-3">
+    <div className="rounded-xl border border-tinta/10 bg-slate-900/70 p-3">
       <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-violet-300">{formula.nome}</div>
       <div className="overflow-x-auto py-1 text-slate-100">
         <Tex latex={formula.latex} display />
@@ -81,7 +81,7 @@ export function FormulaAnimada({ formula }: { formula: Formula }) {
       {formula.aviso && <div className="mt-2 rounded-md bg-amber-400/10 px-2 py-1 text-xs text-amber-300">⚠ {formula.aviso}</div>}
 
       {formula.exemplo && (
-        <div className="mt-3 border-t border-white/10 pt-2">
+        <div className="mt-3 border-t border-tinta/10 pt-2">
           <div className="text-xs text-slate-300">
             <span className="text-slate-500">Exemplo:</span> {formula.exemplo.titulo}
           </div>
@@ -94,7 +94,7 @@ export function FormulaAnimada({ formula }: { formula: Formula }) {
                   animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.35 }}
-                  className={`rounded-lg px-2 py-1.5 ${i === passos.length - 1 ? 'bg-emerald-400/10 ring-1 ring-emerald-400/30' : 'bg-white/5'}`}
+                  className={`rounded-lg px-2 py-1.5 ${i === passos.length - 1 ? 'bg-emerald-400/10 ring-1 ring-emerald-400/30' : 'bg-tinta/5'}`}
                 >
                   <div className="text-[10px] uppercase tracking-wider text-slate-500">{p.rotulo}</div>
                   <div className="overflow-x-auto text-slate-100">
@@ -107,7 +107,7 @@ export function FormulaAnimada({ formula }: { formula: Formula }) {
           </div>
           <div className="mt-2 flex flex-wrap gap-2">
             {mostrados > 0 && (
-              <button className="rounded-md px-2 py-1 text-xs text-slate-300 hover:bg-white/10" onClick={() => setMostrados((m) => m - 1)} aria-label="Passo anterior">
+              <button className="rounded-md px-2 py-1 text-xs text-slate-300 hover:bg-tinta/10" onClick={() => setMostrados((m) => m - 1)} aria-label="Passo anterior">
                 ◀ voltar
               </button>
             )}
@@ -117,12 +117,12 @@ export function FormulaAnimada({ formula }: { formula: Formula }) {
               </button>
             )}
             {!fim && mostrados > 0 && (
-              <button className="rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-white/10" onClick={() => setMostrados(passos.length)}>
+              <button className="rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-tinta/10" onClick={() => setMostrados(passos.length)}>
                 mostrar tudo
               </button>
             )}
             {mostrados > 0 && (
-              <button className="rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-white/10" onClick={() => setMostrados(0)}>
+              <button className="rounded-md px-2 py-1 text-xs text-slate-400 hover:bg-tinta/10" onClick={() => setMostrados(0)}>
                 recomeçar
               </button>
             )}

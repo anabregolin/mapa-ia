@@ -37,10 +37,10 @@ export function BarraTempo() {
   const corDe = (u?: string) => (u ? unidadePorId.get(u as never)!.cor : '#e2e8f0')
 
   return (
-    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 border-t border-white/10 bg-slate-950/85 px-4 pb-3 pt-2 backdrop-blur-md sm:px-8">
+    <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 border-t border-tinta/10 bg-slate-950/85 px-4 pb-3 pt-2 backdrop-blur-md sm:px-8">
       <div className="mb-1 flex items-center gap-3 text-sm">
         <button
-          className="rounded px-2 py-0.5 text-slate-300 hover:bg-white/10 disabled:opacity-30"
+          className="rounded px-2 py-0.5 text-slate-300 hover:bg-tinta/10 disabled:opacity-30"
           onClick={() => setEtapa(etapa - 1, 'barra')}
           disabled={etapa === 0}
           aria-label="Etapa anterior"
@@ -55,7 +55,7 @@ export function BarraTempo() {
           <span className="ml-2 text-slate-400">{atual.aulas === '—' ? 'avaliação' : `aula ${atual.aulas}`}</span>
         </motion.div>
         <button
-          className="rounded px-2 py-0.5 text-slate-300 hover:bg-white/10 disabled:opacity-30"
+          className="rounded px-2 py-0.5 text-slate-300 hover:bg-tinta/10 disabled:opacity-30"
           onClick={() => setEtapa(etapa + 1, 'barra')}
           disabled={etapa === ULTIMA_ETAPA}
           aria-label="Próxima etapa"
@@ -66,7 +66,7 @@ export function BarraTempo() {
           <input type="checkbox" checked={revelar} onChange={(e) => setRevelar(e.target.checked)} className="accent-violet-400" />
           revelar aos poucos
         </label>
-        <button className="rounded border border-white/15 px-2 py-0.5 text-xs text-slate-300 hover:bg-white/10" onClick={() => setEtapa(ULTIMA_ETAPA, 'barra')}>
+        <button className="rounded border border-tinta/15 px-2 py-0.5 text-xs text-slate-300 hover:bg-tinta/10" onClick={() => setEtapa(ULTIMA_ETAPA, 'barra')}>
           ver tudo
         </button>
       </div>

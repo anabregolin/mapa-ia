@@ -1,13 +1,13 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { demosDoTopico, exerciciosDoTopico } from '../content/exercicios'
+import { DEMOS, demosDoTopico, exerciciosDoTopico } from '../content/exercicios'
 import { formulasDoTopico } from '../content/formulas'
 import { grupoPorId, topicoPorId, unidadePorId } from '../content/topicos'
 import { EXPLICACOES } from '../content/explicacoes'
 import type { Demo, Exercicio, StatusExercicio } from '../content/tipos'
 import { dependentesDe, parecidosDe, prereqsDe } from '../lib/grafo'
 import { useMapa } from '../store/useMapa'
-import { DemoRomenia } from './DemoRomenia'
+import { DEMOS_INTERNAS } from './demos'
 import { FormulaAnimada, Tex } from './FormulaAnimada'
 import { COR_NIVEL, NOME_NIVEL } from './NoMapa'
 import { Texto } from './Texto'
@@ -29,7 +29,7 @@ function Chip({ id, cor }: { id: string; cor: string }) {
       onClick={() => selecionar(id)}
       onMouseEnter={() => setHover(id)}
       onMouseLeave={() => setHover(null)}
-      className="rounded-full border px-2 py-0.5 text-xs text-slate-200 hover:bg-white/10"
+      className="rounded-full border px-2 py-0.5 text-xs text-slate-200 hover:bg-tinta/10"
       style={{ borderColor: cor }}
     >
       {tp.titulo}
@@ -46,7 +46,7 @@ function Secao({ titulo, children }: { titulo: string; children: React.ReactNode
   )
 }
 
-function ItemExercicio({ ex }: { ex: Exercicio }) {
+function ItemExercicio({ ex, abrirDemo }: { ex: Exercicio; abrirDemo: (id: string) => void }) {
   const progresso = useMapa((s) => s.exercicios[ex.id])
   const marcar = useMapa((s) => s.marcarExercicio)
   const [aberto, setAberto] = useState(false)
@@ -55,17 +55,17 @@ function ItemExercicio({ ex }: { ex: Exercicio }) {
   const [resposta, setResposta] = useState(false)
   const st = STATUS[ex.status]
   const total = ex.passos?.length ?? 0
-  const temConteudo = !!(ex.enunciado || ex.dica || total || ex.resposta)
+  const temConteudo = !!(ex.enunciado || ex.dica || total || ex.resposta || ex.demo)
 
   return (
-    <li className={`rounded-lg px-3 py-2 text-sm ${progresso === 'feito' ? 'bg-emerald-400/5 ring-1 ring-emerald-400/20' : progresso === 'duvida' ? 'bg-amber-400/5 ring-1 ring-amber-400/20' : 'bg-white/5'}`}>
+    <li className={`rounded-lg px-3 py-2 text-sm ${progresso === 'feito' ? 'bg-emerald-400/5 ring-1 ring-emerald-400/20' : progresso === 'duvida' ? 'bg-amber-400/5 ring-1 ring-amber-400/20' : 'bg-tinta/5'}`}>
       <button className="flex w-full items-start justify-between gap-2 text-left disabled:cursor-default" onClick={() => setAberto((a) => !a)} disabled={!temConteudo}>
         <div>
           {progresso === 'feito' && <span className="mr-1 text-emerald-400">✓</span>}
           {progresso === 'duvida' && <span className="mr-1 text-amber-400">?</span>}
           <span className="text-slate-400">{ex.fonte} · </span>
           <span className="text-slate-200">{ex.questao}</span>
-          {ex.figura && <span className="ml-1 text-xs text-slate-500" title="depende de uma figura do PDF">🖼️</span>}
+          {ex.figura && !ex.demo && <span className="ml-1 text-xs text-slate-500" title="depende de uma figura do PDF">🖼️</span>}
         </div>
         <span className="flex shrink-0 items-center gap-1.5">
           <span className="rounded-full px-1.5 py-0.5 text-[10px]" style={{ color: st.cor, background: `${st.cor}1a` }}>
@@ -78,7 +78,7 @@ function ItemExercicio({ ex }: { ex: Exercicio }) {
       <AnimatePresence initial={false}>
         {aberto && (
           <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="overflow-hidden">
-            <div className="mt-2 space-y-2 border-t border-white/10 pt-2">
+            <div className="mt-2 space-y-2 border-t border-tinta/10 pt-2">
               {ex.enunciado && (
                 <p className="text-[13px] leading-relaxed text-slate-300">
                   <Texto>{ex.enunciado}</Texto>
@@ -92,7 +92,7 @@ function ItemExercicio({ ex }: { ex: Exercicio }) {
               )}
 
               {ex.passos?.slice(0, passos).map((ps, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="rounded-md bg-white/5 px-2 py-1.5 text-[13px] text-slate-200">
+                <motion.div key={i} initial={{ opacity: 0, y: -4 }} animate={{ opacity: 1, y: 0 }} className="rounded-md bg-tinta/5 px-2 py-1.5 text-[13px] text-slate-200">
                   <span className="mr-1 text-[10px] text-slate-500">{i + 1}.</span>
                   <Texto>{ps.texto}</Texto>
                   {ps.latex && (
@@ -110,6 +110,11 @@ function ItemExercicio({ ex }: { ex: Exercicio }) {
               )}
 
               <div className="flex flex-wrap gap-1.5 text-xs">
+                {ex.demo && (
+                  <button className="rounded-md bg-violet-500/15 px-2 py-1 text-violet-200 hover:bg-violet-500/25" onClick={() => abrirDemo(ex.demo!)}>
+                    ▶ figura animada
+                  </button>
+                )}
                 {ex.dica && !dica && (
                   <button className="rounded-md bg-sky-400/15 px-2 py-1 text-sky-200 hover:bg-sky-400/25" onClick={() => setDica(true)}>
                     dica
@@ -121,13 +126,13 @@ function ItemExercicio({ ex }: { ex: Exercicio }) {
                   </button>
                 )}
                 {passos > 0 && (
-                  <button className="rounded-md px-2 py-1 text-slate-300 hover:bg-white/10" onClick={() => setPassos((n) => n - 1)}>
+                  <button className="rounded-md px-2 py-1 text-slate-300 hover:bg-tinta/10" onClick={() => setPassos((n) => n - 1)}>
                     ◀ voltar
                   </button>
                 )}
                 {(passos < total || (ex.resposta && !resposta)) && (
                   <button
-                    className="rounded-md px-2 py-1 text-slate-300 hover:bg-white/10"
+                    className="rounded-md px-2 py-1 text-slate-300 hover:bg-tinta/10"
                     onClick={() => {
                       setPassos(total)
                       setResposta(true)
@@ -187,12 +192,12 @@ function CamadasTopico({ id }: { id: string }) {
       )}
       <div className="flex gap-2 text-xs">
         {nivel < 3 && (
-          <button className="rounded-md bg-white/10 px-2.5 py-1 text-slate-200 hover:bg-white/15" onClick={() => setNivel((n) => n + 1)}>
+          <button className="rounded-md bg-tinta/10 px-2.5 py-1 text-slate-200 hover:bg-tinta/15" onClick={() => setNivel((n) => n + 1)}>
             mostrar mais ↓ <span className="text-slate-400">{NIVEIS_CAMADA[nivel].titulo.toLowerCase()}</span>
           </button>
         )}
         {nivel > 1 && (
-          <button className="rounded-md px-2 py-1 text-slate-400 hover:bg-white/10" onClick={() => setNivel(1)}>
+          <button className="rounded-md px-2 py-1 text-slate-400 hover:bg-tinta/10" onClick={() => setNivel(1)}>
             recolher
           </button>
         )}
@@ -226,7 +231,7 @@ export function Painel() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: '100%', opacity: 0 }}
             transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-            className="absolute bottom-[92px] right-0 top-0 z-30 w-full overflow-y-auto border-l border-white/10 bg-slate-950 p-5 shadow-[-20px_0_40px_rgba(0,0,0,.5)] sm:w-[440px]"
+            className="absolute bottom-[92px] right-0 top-0 z-30 w-full overflow-y-auto border-l border-tinta/10 bg-slate-950 p-5 shadow-[-20px_0_40px_rgba(0,0,0,.5)] sm:w-[440px]"
           >
             <motion.div key={tp.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
               <div className="flex items-start justify-between gap-3">
@@ -236,7 +241,7 @@ export function Painel() {
                   </div>
                   <h2 className="mt-1 text-2xl font-bold text-white">{tp.titulo}</h2>
                 </div>
-                <button onClick={() => selecionar(null)} className="rounded-md px-2 py-1 text-slate-400 hover:bg-white/10" aria-label="Fechar">
+                <button onClick={() => selecionar(null)} className="rounded-md px-2 py-1 text-slate-400 hover:bg-tinta/10" aria-label="Fechar">
                   ✕
                 </button>
               </div>
@@ -249,7 +254,7 @@ export function Painel() {
                 {tp.naoVisto && <span className="rounded-full bg-slate-400/10 px-2 py-0.5 text-slate-300">não visto em aula</span>}
                 <button
                   onClick={() => alternarEstudado(tp.id)}
-                  className={`ml-auto rounded-full px-2.5 py-0.5 ${estudados[tp.id] ? 'bg-emerald-400 text-slate-900' : 'border border-white/20 text-slate-300 hover:bg-white/10'}`}
+                  className={`ml-auto rounded-full px-2.5 py-0.5 ${estudados[tp.id] ? 'bg-emerald-400 text-slate-900' : 'border border-tinta/20 text-slate-300 hover:bg-tinta/10'}`}
                 >
                   {estudados[tp.id] ? '✓ estudado' : 'marcar como estudado'}
                 </button>
@@ -307,7 +312,7 @@ export function Painel() {
                   <div className="flex flex-wrap gap-2">
                     {demosDoTopico(tp.id).map((d) =>
                       d.externa ? (
-                        <a key={d.id} href={d.url} target="_blank" rel="noreferrer" className="rounded-lg bg-white/5 px-3 py-1.5 text-sm text-slate-200 hover:bg-white/10">
+                        <a key={d.id} href={d.url} target="_blank" rel="noreferrer" className="rounded-lg bg-tinta/5 px-3 py-1.5 text-sm text-slate-200 hover:bg-tinta/10">
                           {d.titulo} ↗
                         </a>
                       ) : (
@@ -324,7 +329,7 @@ export function Painel() {
                 <Secao titulo="Exercícios">
                   <ul className="space-y-1.5">
                     {exerciciosDoTopico(tp.id).map((ex) => (
-                      <ItemExercicio key={ex.id} ex={ex} />
+                      <ItemExercicio key={ex.id} ex={ex} abrirDemo={(id) => setDemo(DEMOS.find((d) => d.id === id) ?? null)} />
                     ))}
                   </ul>
                 </Secao>
@@ -358,18 +363,18 @@ export function Painel() {
           >
             <div className="mb-2 flex items-center justify-between text-slate-200">
               <span className="font-semibold">{demo.titulo}</span>
-              <button className="rounded-md px-3 py-1 hover:bg-white/10" onClick={() => setDemo(null)}>
+              <button className="rounded-md px-3 py-1 hover:bg-tinta/10" onClick={() => setDemo(null)}>
                 fechar ✕
               </button>
             </div>
             {demo.componente ? (
-              <div className="min-h-0 flex-1">{demo.url === 'romenia' && <DemoRomenia />}</div>
+              <div className="min-h-0 flex-1">{DEMOS_INTERNAS[demo.url]?.()}</div>
             ) : (
               <iframe
                 src={`${import.meta.env.BASE_URL}${demo.url}`}
                 title={demo.titulo}
                 sandbox="allow-scripts"
-                className="flex-1 rounded-xl border border-white/10 bg-white"
+                className="flex-1 rounded-xl border border-tinta/10 bg-white"
                 onClick={(e) => e.stopPropagation()}
               />
             )}

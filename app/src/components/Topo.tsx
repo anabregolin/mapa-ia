@@ -59,16 +59,16 @@ function Busca() {
           if (e.key === 'Escape') setQ('')
         }}
         placeholder="Buscar tópico…  /"
-        className="w-full rounded-lg border border-white/10 bg-slate-900/80 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-violet-400/60 focus:outline-none"
+        className="w-full rounded-lg border border-tinta/10 bg-slate-900/80 px-3 py-1.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-violet-400/60 focus:outline-none"
       />
       {resultados.length > 0 && (
-        <ul className="absolute left-0 right-0 top-full mt-1 overflow-hidden rounded-lg border border-white/10 bg-slate-900/95 shadow-xl backdrop-blur">
+        <ul className="absolute left-0 right-0 top-full mt-1 overflow-hidden rounded-lg border border-tinta/10 bg-slate-900/95 shadow-xl backdrop-blur">
           {resultados.map((t, i) => (
             <li key={t.id}>
               <button
                 onMouseEnter={() => setAtivo(i)}
                 onClick={() => escolher(t.id)}
-                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === ativo ? 'bg-white/10' : ''}`}
+                className={`flex w-full items-center gap-2 px-3 py-1.5 text-left text-sm ${i === ativo ? 'bg-tinta/10' : ''}`}
               >
                 <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: unidadePorId.get(t.unidade)!.cor }} />
                 <span className="truncate text-slate-200">{t.titulo}</span>
@@ -88,7 +88,7 @@ export function Topo() {
 
   return (
     <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex flex-wrap items-start gap-3 p-3 sm:p-4">
-      <div className="pointer-events-auto rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 backdrop-blur">
+      <div className="pointer-events-auto rounded-xl border border-tinta/10 bg-slate-950/80 px-3 py-2 backdrop-blur">
         <h1 className="text-sm font-bold text-white">Mapa de IA</h1>
         <div className="text-[11px] text-slate-400">
           PUCRS · 2026/2 · {feitos}/{total} estudados
@@ -99,13 +99,13 @@ export function Topo() {
         <Busca />
       </div>
 
-      <div className="pointer-events-auto ml-auto hidden rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2 text-xs text-slate-300 backdrop-blur md:block">
+      <div className="pointer-events-auto ml-auto hidden rounded-xl border border-tinta/10 bg-slate-950/80 px-3 py-2 text-xs text-slate-300 backdrop-blur md:block">
         <div className="mb-1.5 flex gap-1">
           {(['unidade', 'nivel'] as const).map((c) => (
             <button
               key={c}
               onClick={() => setCorPor(c)}
-              className={`rounded px-2 py-0.5 ${corPor === c ? 'bg-white/15 text-white' : 'text-slate-400 hover:bg-white/5'}`}
+              className={`rounded px-2 py-0.5 ${corPor === c ? 'bg-tinta/15 text-white' : 'text-slate-400 hover:bg-tinta/5'}`}
             >
               cor por {c === 'nivel' ? 'nível' : 'unidade'}
             </button>
@@ -126,7 +126,7 @@ export function Topo() {
                 </li>
               ))}
         </ul>
-        <div className="mt-1.5 space-y-0.5 border-t border-white/10 pt-1.5 text-[11px] text-slate-400">
+        <div className="mt-1.5 space-y-0.5 border-t border-tinta/10 pt-1.5 text-[11px] text-slate-400">
           <div><span className="text-cyan-300">━</span> precisa de · <span className="text-orange-300">━</span> leva a · <span className="text-pink-300">┅</span> parecido</div>
           <div>borda pontilhada = sem slide · tracejada = não visto</div>
         </div>
