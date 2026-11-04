@@ -1,0 +1,677 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                             AULA 6
+
+
+                     BUSCA LOCAL
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+ÚLTIMAS AULAS
+   1970: MYCIN
+
+  Busca Não-Informada
+
+     BFS, DFS, Custo Uniforme e IDS
+
+
+  Heurísticas e Busca Informada
+
+     Busca Gulosa, A*, IDA* e Weighted A*
+ÚLTIMAS AULAS
+   1970: MYCIN
+
+  Busca Não-Informada                        Buscar soluções sem qualquer
+                                            conhecimento adicional, apenas
+     BFS, DFS, Custo Uniforme e IDS          explorando sistematicamente
+
+
+  Heurísticas e Busca Informada
+
+     Busca Gulosa, A*, IDA* e Weighted A*
+ÚLTIMAS AULAS
+   1970: MYCIN
+
+  Busca Não-Informada
+
+     BFS, DFS, Custo Uniforme e IDS
+
+
+  Heurísticas e Busca Informada             Introduzimos inteligência para
+                                             os algortimos: heurísticas que
+     Busca Gulosa, A*, IDA* e Weighted A*            guiam a busca
+PROBLEMAS  DE
+   1970: MYCINOTIMIZAÇÃO
+
+  → Até agora, buscamos caminhos ótimos em árvores.
+  Em alguns problemas, não queremos percorrer uma árvore inteira.
+PROBLEMAS  DE
+   1970: MYCINOTIMIZAÇÃO
+
+  → Até agora, buscamos caminhos ótimos em árvores.
+  Em alguns problemas, não queremos percorrer uma árvore inteira.
+
+  Agora vamos mudar o foco: otimização direta, explorando soluções
+  e melhorando-as iterativamente.
+PROBLEMAS  DE
+   1970: MYCINOTIMIZAÇÃO
+
+  → Até agora, buscamos caminhos ótimos em árvores.
+  Em alguns problemas, não queremos percorrer uma árvore inteira.
+
+  Agora vamos mudar o foco: otimização direta, explorando soluções
+  e melhorando-as iterativamente.
+
+
+      Como cheguei no                    Queremos otimizar
+    estado  →
+            irrelevante                     uma solução
+PROBLEMA  CAIXEIRO
+   1970: MYCIN     VIAJANTE
+
+             Problema do Caixeiro Viajante:
+             Tentar encontrar uma rota para
+             percorrer uma sequência de
+             cidades, passando apenas uma
+             vez por cada uma delas e
+             voltando até a cidade de início.
+PROBLEMA  CAIXEIRO
+   1970: MYCIN     VIAJANTE
+
+              Número rotas para n cidades:
+                       (n-1)! / 2
+                5 cidades = 4!/2 = 12 rotas
+PROBLEMA  CAIXEIRO
+   1970: MYCIN     VIAJANTE
+
+              Número rotas para n cidades:
+                       (n-1)! / 2
+                 5 cidades = 4!/2 = 12 rotas
+              10 cidades = 9!/2 = 118.440 rotas
+PROBLEMA  CAIXEIRO
+   1970: MYCIN     VIAJANTE
+
+              Número rotas para n cidades:
+                       (n-1)! / 2
+                 5 cidades = 4!/2 = 12 rotas
+              10 cidades = 9!/2 = 118.440 rotas
+                20 cidades = 60 quatrilhões
+PROBLEMA  CAIXEIRO
+   1970: MYCIN     VIAJANTE
+
+
+              Busca não-informada ou informada:
+                 inviável para n muito grande!
+
+                       Qual a solução?
+PROBLEMA  CAIXEIRO
+   1970: MYCIN     VIAJANTE
+
+
+              Busca não-informada ou informada:
+                 inviável para n muito grande!
+
+                       Qual a solução?
+
+                    BUSCA LOCAL
+OBJETIVOS AULA
+  IA NÃO É CHAT GPT!
+
+
+
+   Busca Local e Otimização
+      Hill Climbing
+      Simulated Annealing
+      Genetic Algorithms
+PROBLEMAS  DA
+   1970: MYCINN RAINHAS
+
+        Objetivo: Colocar n rainhas em um tabuleiro n x n
+
+
+        Uma rainha não pode atacar a outra: Não podemos
+        colocar 2 rainhas na mesma coluna, linha ou diagonal.
+PROBLEMAS  DA
+   1970: MYCINN RAINHAS
+
+          Objetivo: Colocar n rainhas em um tabuleiro n x n
+
+
+          Uma rainha não pode atacar a outra: Não podemos
+          colocar 2 rainhas na mesma coluna, linha ou diagonal.
+
+     Espaço de estados   → cresce a medida que aumento n
+PROBLEMAS  DA
+   1970: MYCINN RAINHAS
+
+          Objetivo: Colocar n rainhas em um tabuleiro n x n
+
+
+          Uma rainha não pode atacar a outra: Não podemos
+          colocar 2 rainhas na mesma coluna, linha ou diagonal.
+
+     Espaço de estados   → cresce a medida que aumento n
+         Encontrar uma configuração válida sem explorar
+        todas as possibilidades →busca cega seria inviável.
+PROBLEMAS  DA
+   1970: MYCINN RAINHAS
+
+       Objetivo: Colocar n rainhas em um tabuleiro n x n
+
+ Pensar diferente das soluções anteriores: Começar com
+ uma solução qualquer e ir ajustando até chegar no objetivo.
+PROBLEMAS  DA
+   1970: MYCINN RAINHAS
+
+       Objetivo: Colocar n rainhas em um tabuleiro n x n
+
+ Pensar diferente das soluções anteriores: Começar com
+ uma solução qualquer e ir ajustando até chegar no objetivo.
+
+
+
+
+          Número ataques = 5
+PROBLEMAS  DA
+   1970: MYCINN RAINHAS
+
+       Objetivo: Colocar n rainhas em um tabuleiro n x n
+
+ Pensar diferente das soluções anteriores: Começar com
+ uma solução qualquer e ir ajustando até chegar no objetivo.
+
+
+
+
+          Número ataques = 5   Número ataques = 2
+PROBLEMAS  DA
+   1970: MYCINN RAINHAS
+
+       Objetivo: Colocar n rainhas em um tabuleiro n x n
+
+ Pensar diferente das soluções anteriores: Começar com
+ uma solução qualquer e ir ajustando até chegar no objetivo.
+
+
+
+
+          Número ataques = 5   Número ataques = 2   Número ataques = 0
+BUSCA LOCAL
+  1970: MYCIN
+ Busca Local   → Trabalhar sobre uma solução atual e
+ tentar melhorá-la. Tipo de busca utilizada para
+ problemas de otimização!
+
+       Método heurístico para resolver problemas
+            computacionalmente complexos.
+BUSCA LOCAL
+  1970: MYCIN
+
+    Método heurístico para resolver problemas
+           computacionalmente complexos.
+
+
+
+
+      Número ataques = 5   Número ataques = 2   Número ataques = 0
+
+             h=5                  h=2                  h=0
+BUSCA LOCAL -
+  1970: MYCIN ALGORITMOS
+
+
+O algortimo mais simples e clássico de busca local:
+    Hill Climbing
+HILL1970:
+     CLIMBING
+          MYCIN
+                             Hill Climbing:
+  Alguém tentando subir uma montanha no nevoeiro e com amnésia:
+
+
+     Você só enxerga o que está ao redor e não lembra o caminho
+     percorrido, então sempre dá um passo na direção mais alta (melhor)
+HILL1970:
+     CLIMBING
+          MYCIN
+                             Hill Climbing:
+           Algoritmo de busca local e otimização iterativa.
+
+
+  1.Começa com uma solução inicial
+  2.Avalia os vizinhos (soluções próximas)
+  3.Move-se para o vizinho que melhora a função de avaliação
+  4.Repete até não haver vizinho melhor
+HILL1970:
+     CLIMBING
+          MYCIN
+
+ Função de avaliação/objetivo f(x)   → avalia a qualidade de uma solução x
+ O algoritmo busca maximizar (ou minimizar) essa função movendo-se de
+ uma solução atual para uma solução vizinha melhor.
+HILL1970:
+     CLIMBING
+          MYCIN
+Estado Inicial: Xo→ escolhido aleatoriamente ou dado
+Função objetivo: f(x) → avalia a qualidade da solução
+
+Vizinhança: N(x) → conjunto de estados obtidos por pequenas modificações em x
+
+Regra de transição:
+    Escolhe x’ ∈ N(x) tal que f(x’) > f(x)
+    Atualiza x ← x’
+
+Critério de parada: Quando não existe vizinho melhor   → retorna x
+HILL1970:
+     CLIMBING
+          MYCIN
+
+function Hill-Climbing(problem)
+            ←
+    current new node containing problem’s initial state
+    loop
+             ←
+        next a highest-valued neighbor of current
+        if Value[next] ≤ Value[current] then return state[current]
+                 ←
+        current next
+    end
+                                       Gradiente ascendente/descendente
+HILL1970:
+     CLIMBING
+          MYCIN
+                        Problema das n rainhas:
+
+Função sucessora: mover uma rainha para outra posição na mesma coluna
+
+Função heurística: número de pares de rainhas se atacando
+HILL1970:
+     CLIMBING
+          MYCIN
+                        Problema das n rainhas:
+
+Função sucessora: mover uma rainha para outra posição na mesma coluna
+
+Função heurística: número de pares de rainhas se atacando
+HILL1970:
+     CLIMBING
+          MYCIN
+
+
+
+
+      Estado inicial   Possível estado final
+          h = 17               h=1
+HILL1970:
+     CLIMBING
+          MYCIN
+                               Mínimo local!
+
+
+
+
+      Estado inicial   Possível estado final
+          h = 17               h=1
+HILL1970:
+     CLIMBING
+          MYCIN
+                                        Mínimo local!
+
+ Uma situação em que todos
+   os vizinhos são piores!
+
+    Não existe um único
+movimento nesse estado que
+ melhore a condição atual.
+
+ Do ponto de vista local, não
+  tenho mais para onde ir!      Possível estado final
+                                        h=1
+HILL1970:
+     CLIMBING
+          MYCIN
+HILL1970:
+     CLIMBING -
+          MYCIN PROBLEMAS
+
+ Ótimo local vs Ótimo global
+     O algoritmo pode parar em um máximo
+     local sem alcançar um máximo global!
+
+ Planaltos/Platô
+     Regiões onde f(x) é constante   → não há
+     direção clara de melhoria
+
+ Encostas suaves
+    Regiões onde a melhoria é mínima    →
+    progresso lento ou estagnado.
+HILL1970:
+     CLIMBING -
+          MYCIN PROBLEMAS
+
+     O maior problema:
+
+ Uma situação em que todos os vizinhos
+ são piores, mesmo que exista uma
+ solução melhor.
+
+           Mínimo/máximo local
+
+ Do ponto de vista local, não existe
+ posição melhor para ir.
+HILL1970:
+     CLIMBING -
+          MYCIN PROBLEMAS
+
+Como solucionar esses problemas?
+
+   Reiniciar minha busca, lembrando apenas do último máximo local
+   encontrado. Reiniciamos em um outro ponto inicial aleatório.
+HILL1970:
+     CLIMBING -
+          MYCIN PROBLEMAS
+
+Como solucionar esses problemas?
+
+   Reiniciar minha busca, lembrando apenas do último máximo local
+   encontrado. Reiniciamos em um outro ponto inicial aleatório.
+
+              Algoritmo que é eficiente em memória e tempo, mas
+                limitado por máximo/mínimos locais e planaltos
+
+Tempo: Depende do tamanho da vizinhança        Memória: Muito eficiente! Só
+ e do número de passos até o ótimo local.   mantém o estado atual e os vizinhos.
+HILL1970:
+     CLIMBING -
+          MYCIN PROBLEMAS
+
+  A não ser que o algortimo teste
+  exaustivamente os estados, esse tipo
+  de algoritmo não nos garante chegar
+  num máximo local.
+
+
+
+
+        Em um número finito de máximos locais
+BUSCA LOCAL -
+  1970: MYCIN ALGORITMOS
+
+
+O algortimo mais simples e clássico de busca local:
+    Hill Climbing
+Para resolver limitações do Hill Climbing:
+    Simulated Annealing
+SIMULATED ANNEALING
+   1970: MYCIN
+
+   Inspirado no processo físico de resfriamento de metais (annealing)
+
+   Ideia: quando um metal é aquecido e depois resfriado lentamente,
+  seus átomos se organizam em uma estrutura estável de baixa energia.
+SIMULATED ANNEALING
+   1970: MYCIN
+
+   Inspirado no processo físico de resfriamento de metais (annealing)
+
+   Ideia: quando um metal é aquecido e depois resfriado lentamente,
+  seus átomos se organizam em uma estrutura estável de baixa energia.
+
+
+        Em otimização: começar em uma solução inicial e vamos
+         “resfriando” o sistema, explorando vizinhos e aceitando
+            soluções piores para escapar de máximos locais.
+SIMULATED ANNEALING
+   1970: MYCIN
+
+   Hill Climbing é rápido mas pode ficar preso em ótimos locais
+
+   Simulated Annealing introduz aleatoriedade controlada para
+   escapar desses pontos
+SIMULATED ANNEALING
+   1970: MYCIN
+
+Propriedades:
+
+   Estado inicial: qualquer configuração
+   Função de vizinhança: gera estados vizinhos (pequenas alterações)
+   Função de avaliação: mede a qualidade (custo/valor)
+   Temperatura T: parâmetro que controla a aceitação de
+   movimentos piores.
+SIMULATED ANNEALING
+   1970: MYCIN      ALGORITMO
+
+  Estado atual→x
+  Vizinhança → N(x)
+  Novo nó/ponto → x = x’
+                      t
+
+  Saltar para um novo ponto com uma probabilidade dada pela função de
+  aceitação P(x, xt, T)
+SIMULATED ANNEALING
+   1970: MYCIN      ALGORITMO
+
+  Estado atual→x
+  Vizinhança → N(x)
+  Novo nó/ponto → x   t
+
+  Saltar para um novo ponto com uma probabilidade dada pela função de
+  aceitação P(x, xt, T)
+SIMULATED ANNEALING
+   1970: MYCIN      ALGORITMO
+
+ Função de aceitação: probabilidade de eu saltar para um novo
+ ponto do espaço de estados.
+SIMULATED ANNEALING
+   1970: MYCIN
+ Temperatura alta   → Probabilidade de
+ aceitar movimentos ruins é próxima de 1
+
+ Conforme a temperatura diminui, a
+ probabilidade cai tendendo a 0
+
+ Quando T   → 0, estamos na condição de
+ parada do algoritmo.
+SIMULATED ANNEALING
+   1970: MYCIN
+Linhas verdes: Saltos que seguem o
+gradiente/vizinhos - igual ao Hill
+Climbing.
+
+
+Linhas vermelhas: representam os
+pulos do Simulated Annealing:
+   Possivelmente evitando ótimos locais.
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Propriedades Simulated Annealing:
+
+    T→0
+    T→∞
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Propriedades Simulated Annealing:
+
+    T→0          Semelhante ao Hill Climbing
+
+    T→∞
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Propriedades Simulated Annealing:
+
+    T→0          Semelhante ao Hill Climbing
+
+    T→∞              Algoritmo saltando aleatoriamente
+                    pelo espaço de estados (random walk)
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Propriedades Simulated Annealing:
+
+    T→0             Se decrementarmos a temperatura devagar, a
+    T→∞           probabilidade de atingir um ótimo global tende a 1:
+                       maior chance de encontrar solução ótima!
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Propriedades Simulated Annealing:
+
+    T→0                                    Porém com custo computacional alto
+                    Se decrementarmos a temperatura devagar, a
+    T→∞           probabilidade de atingir um ótimo global tende a 1:
+                       maior chance de encontrar solução ótima!
+SIMULATED ANNEALING
+   1970: MYCIN
+ function Simulated-Annealing(problem, temperatures)
+         ←
+     node a new node containing problem’s initial state
+         ←
+     for i   1 to ∞ do
+         ←
+         T temperatures[i]
+         if T = 0 then return State[node]
+             ←
+         next a randomly selected neighbor of node
+            ←
+          ΔE Value[next] - Value[node]
+                              ←
+         if ΔE > 0 then node next
+         else with probability e ΔE/T
+                                                ←
+                                      , set node next
+
+    Ideia principal: escapar de máximos locais permitindo alguns movimentos “ruins”
+        Gradualmente diminuindo a frequência desses movimentos “ruins”
+SIMULATED ANNEALING
+   1970: MYCIN
+ function Simulated-Annealing(problem, temperatures)
+          ←
+     node a new node containing problem’s initial state
+     for i←  1 to ∞ do                          Lista de temperaturas ou uma função que
+          ←
+         T temperatures[i]                      define como o T decai ao longo do tempo
+         if T = 0 then return State[node]
+             ←
+         next a randomly selected neighbor of node
+            ←
+          ΔE Value[next] - Value[node]
+                              ←
+         if ΔE > 0 then node next
+         else with probability e ΔE/T
+                                                ←
+                                      , set node next
+
+    Ideia principal: escapar de máximos locais permitindo alguns movimentos “ruins”
+        Gradualmente diminuindo a frequência desses movimentos “ruins”
+SIMULATED ANNEALING
+   1970: MYCIN
+ function Simulated-Annealing(problem, temperatures)
+         ←
+     node a new node containing problem’s initial state
+         ←
+     for i   1 to ∞ do
+         ←
+         T temperatures[i]
+         if T = 0 then return State[node]
+             ←
+         next a randomly selected neighbor of node                P=e      ΔE/T
+
+
+            ←
+          ΔE Value[next] - Value[node]                            ΔE = f(xt) - f(x)
+                              ←
+         if ΔE > 0 then node next
+         else with probability e ΔE/T
+                                                ←
+                                      , set node next
+
+    Ideia principal: escapar de máximos locais permitindo alguns movimentos “ruins”
+        Gradualmente diminuindo a frequência desses movimentos “ruins”
+SIMULATED ANNEALING
+   1970: MYCIN
+
+  Misturar Hill Climbing com a ideia de reiniciar aleatoriamente (random
+  restarts) em um único laço, não apenas repetindo várias vezes.
+
+
+
+       Probabilístico: Não garante a solução ótima em prática.
+       Teorema: Se o resfriamento for suficientemente lento,
+       converge para a solução ótima.
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Aplicações:
+
+   Problema do Caixeiro Viajante (TSP): encontrar a rota mais curta que visita menos cidades.
+   SA é usado porque consegue escapar de rotas ruins e explorar soluções melhores.
+
+   Escalonamento de tarefas: organizar horários de aulas, exames ou produção em fábricas,
+   minimizando conflitos e custos.
+
+   Design de circuitos eletrônicos: otimizar a disposição de componentes em chips para
+   reduzir espaço e aumentar eficiência.
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Aplicações:
+
+    Treinamento de redes neurais: usado como técnica de otimização alternativa
+    ao gradiente, especialmente em funções de custo com muitos mínimos locais.
+
+    Reconhecimento de padrões: ajustar parâmetros de modelos probabilísticos.
+
+    Planejamento em robótica: encontrar trajetórias viáveis em ambientes
+    complexos.
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Aplicações:
+
+    Biologia Computacional: alinhamento de sequências de DNA e proteínas.
+
+    Engenharia estrutural: otimização de formas e materiais em projetos.
+
+    Física estatística: simulação de sistemas complexos (o algoritmo nasceu
+    inspirado nesse campo).
+SIMULATED ANNEALING
+   1970: MYCIN
+
+ Aplicações:
+
+    Biologia Computacional: alinhamento de sequências de DNA e proteínas.
+
+    Engenharia estrutural: otimização de formas e materiais em projetos.
+
+    Física estatística: simulação de sistemas complexos (o algoritmo nasceu
+    inspirado nesse campo).
+                                    Simulated Annealing é útil em problemas de
+                                      otimização combinatória ou funções com
+                                       muitos ótimos locais, onde algoritmos
+                                       determinísticos (Hill Climbing) falham.
+SIMULATED ANNEALING
+   1970: MYCIN
+
+   Aplicações:
+
+        Biologia Computacional: alinhamento de sequências de DNA e proteínas.
+
+        Engenharia estrutural: otimização de formas e materiais em projetos.
+
+        Física estatística: simulação de sistemas complexos (o algoritmo nasceu
+        inspirado nesse campo).
+                                                Simulated Annealing é útil em problemas de
+                                                  otimização combinatória ou funções com
+ “Aleatoriedade controlada” nos permite explorar
+                                                   muitos ótimos locais, onde algoritmos
+    o espaço de soluções de forma mais ampla.
+                                                   determinísticos (Hill Climbing) falham.
+Próxima Terça:
+Aula Magna no
+Salão de Atos (LM)
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

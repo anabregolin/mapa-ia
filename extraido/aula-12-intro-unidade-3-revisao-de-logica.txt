@@ -1,0 +1,615 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                           AULA 12
+
+
+        AGENTES EM LÓGICA
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+OBJETIVOS AULA
+  IA NÃO É CHAT GPT!
+
+
+  Introduzir Agentes em Lógica
+  Representação de Problemas
+  Inferência em Lógica
+O QUE VIMOS ATÉ
+   1970: MYCIN  AGORA?
+
+Unidade 2: falamos de algoritmos de busca como forma de
+resolver problemas em ambientes determinísticos,
+explorando estados e caminhos possíveis.
+
+     Determinístico→   o resultado de uma ação é completamente
+  previsível e pode ser determinado com precisão. Não há incerteza!
+O QUE VIMOS ATÉ
+   1970: MYCIN  AGORA?
+
+Unidade 2: falamos de algoritmos de busca como forma de
+resolver problemas em ambientes determinísticos,
+explorando estados e caminhos possíveis.
+
+     Determinístico→   o resultado de uma ação é completamente
+  previsível e pode ser determinado com precisão. Não há incerteza!
+
+                Unidade 2   → Como buscar soluções.
+O QUE VIMOS ATÉ
+   1970: MYCIN  AGORA?
+
+Unidade 2: falamos de algoritmos de busca como forma de
+resolver problemas em ambientes determinísticos,
+explorando estados e caminhos possíveis.
+
+     Determinístico  → o resultado de uma ação é completamente
+  previsível e pode ser determinado com precisão. Não há incerteza!
+
+                  Unidade 2   → Como buscar soluções.
+   Unidade 3   → Como representar, raciocinar e planejar soluções?
+UNIDADE  3
+   1970: MYCIN
+Unidade 3: Raciocínio, Planejamento e Representação do Conhecimento
+   3.1. Agentes em Lógica
+   3.1.1. Representação de problemas em lógica
+   3.1.2. Inferência em lógica
+   3.2. Planejamento Clássico
+   3.2.1. Formalismos de planejamento
+   3.2.2. Algoritmos de planejamento
+   3.3. Outras Abordagens para Planejamento Automático
+   3.4. Introdução a Representação de Conhecimento
+   3.4.1. Ontologias
+   3.4.2. Raciocínio semântico
+POR QUE LÓGICA É
+   IA NÃO É CHAT GPT!
+IMPORTANTE EM IA?
+POR QUE LÓGICA É
+   IA NÃO É CHAT GPT!
+IMPORTANTE EM IA?
+   1. Base para representação de conhecimento
+  A lógica fornece uma linguagem formal para descrever
+  fatos, regras e relações do mundo.
+
+  Sem lógica   → Agente só teria dados brutos
+  Com lógica   → Agente tem conhecimento estruturado!
+POR QUE LÓGICA É
+   IA NÃO É CHAT GPT!
+IMPORTANTE EM IA?
+   2. Inferência como raciocínio automático
+  A lógica permite que agentes deduzam novas informações
+  a partir de fatos já conhecidos.
+
+  Isso é fundamental para que o agente não dependa apenas
+  de busca exaustiva, mas consiga raciocinar.
+POR QUE LÓGICA É
+   IA NÃO É CHAT GPT!
+IMPORTANTE EM IA?
+   3. Transparência e Explicabilidade
+  Diferente de algoritmos puramente numéricos, a lógica
+  permite que o agente explique suas decisões.
+
+    “Eu sei que João passa de ano porque ele estuda e todo
+                aluno que estuda, passa de ano”
+UNIDADE  3
+   1970: MYCIN
+Unidade 3: Raciocínio, Planejamento e Representação do Conhecimento
+   3.1. Agentes em Lógica
+   3.1.1. Representação de problemas em lógica
+   3.1.2. Inferência em lógica
+   3.2. Planejamento Clássico
+   3.2.1. Formalismos de planejamento
+   3.2.2. Algoritmos de planejamento
+   3.3. Outras Abordagens para Planejamento Automático
+   3.4. Introdução a Representação de Conhecimento
+                                                          Por que falar de lógica
+   3.4.1. Ontologias
+   3.4.2. Raciocínio semântico                           antes de planejamento?
+LÓGICA ANTES DE PLANEJAMENTO?
+    1970: MYCIN
+
+   Planejamento Clássico (próxima aulas) é, na essência, uma
+   forma de raciocínio lógico sobre ações e estados.
+
+Para planejar, o agente precisa:
+   Representar estados e ações     → Lógica!
+   Usar regras de inferência para deduzir sequências de
+   ações que levam ao objetivo.
+LÓGICA ANTES DE PLANEJAMENTO?
+   1970: MYCIN
+
+             BUSCA: Explora caminhos
+
+
+
+         LÓGICA: Representa Conhecimento
+
+
+
+          PLANEJAMENTO: Organiza ações
+AGENTES BASEADOS EM
+   1970: MYCIN
+CONHECIMENTO
+               Knowledge-based Agent   → Agente-KB
+ Armazena conhecimento sobre o mundo em uma Base de Conhecimento (KB)
+ Atualizam a KB com novas percepções recebidas do ambiente.
+ Usa inferência lógica para deduzir novas informações a partir da KB.
+ Decide ações com base no que foi inferido.
+AGENTES BASEADOS EM
+   1970: MYCIN
+CONHECIMENTO
+               Knowledge-based Agent   → Agente-KB
+ Armazena conhecimento sobre o mundo em uma Base de Conhecimento (KB)
+ Atualizam a KB com novas percepções recebidas do ambiente.
+ Usa inferência lógica para deduzir novas informações a partir da KB.
+ Decide ações com base no que foi inferido.
+
+
+         Percepção     → KB → Inferência → Ação
+REPRESENTAÇÃO DO CONHECIMENTO
+    1970: MYCIN
+
+IA estuda como simular comportamento inteligente
+
+
+            Comportamento inteligente é o resultado de
+        raciocínio correto sobre conhecimento disponível.
+
+                  Conhecimento e raciocínio correto podem ser
+                          representados em lógica
+
+                          Lógica mais simples: Lógica proposicional!
+LÓGICA PROPOSICIONAL
+   1970: MYCIN
+  Lógica proposicional é um formalismo matemático através
+  do qual podemos abstrair a estrutura de um argumento,
+  eliminando a ambiguidade existente na linguagem natural.
+
+  Fatos do mundo real são representados por sentenças sem
+  argumentos: proposições.
+
+  Proposições são sentenças que podem ser verdadeiras
+  ou falsas.
+PROPOSIÇÕES
+   1970: MYCIN
+  São representadas por variáveis: símbolos proposicionais.
+     Letras escolhidas para indicar sentenças que podem ser
+     verdadeiras ou falsas.
+  Convenção tradicional em lógica e matemática:
+     P, Q, R, S, P1 , P2 , P3 , Q1, etc...
+  Qualquer letra pode ser usada como símbolo proposicional, o
+  importante é que cada símbolo represente uma proposição
+  única e seja usado de forma consistente.
+PROPOSIÇÕES
+   1970: MYCIN
+
+ Se não é possível definir a interpretação da sentença (verdadeiro
+ ou falso), esta não é uma proposição. Por exemplo:
+
+    Frases interrogativas (Ex: Qual o seu nome? Tudo bem?)
+    Frases imperativas (Ex: Presta atenção! Olá!)
+    Paradoxos lógicos (Ex: Esta frase é falsa.)
+PROPOSIÇÕES: FIXAÇÃO
+    1970: MYCIN
+             Verifique se as expressões abaixo são proposições:
+
+ a) Boa tarde!
+ b) Abra a porta.
+ c) Porto Alegre é a capital do Brasil.
+ d) Se chover, a rua ficará molhada.
+ e) 2 + 2 = 4
+ f) 5 > 10
+ g) Quantos japoneses moram no Brasil?
+PROPOSIÇÕES: FIXAÇÃO
+    1970: MYCIN
+             Verifique se as expressões abaixo são proposições:
+
+ a) Boa tarde!       NÃO É UMA PROPOSIÇÃO
+
+
+ b) Abra a porta.          NÃO É UMA PROPOSIÇÃO
+
+
+ c) Porto Alegre é a capital do Brasil.           PROPOSIÇÃO
+
+
+ d) Se chover, a rua ficará molhada. PROPOSIÇÃO
+ e) 2 + 2 = 4    PROPOSIÇÃO
+
+ f) 5 > 10    PROPOSIÇÃO
+
+
+ g) Quantos japoneses moram no Brasil?                 NÃO É UMA PROPOSIÇÃO
+OPERADORES LÓGICOS
+   1970: MYCIN
+ Operadores Lógicos são símbolos ou palavras que estabelecem
+ relações entre proposições. Permitem construir frases mais complexas
+ a partir de sentenças simples.
+ Operadores:
+    ¬ (negação)
+    ∧    (conjunção)
+    ∨    (disjunção)
+    →  (implicação)
+    ↔  (bicondicional)
+OPERADORES LÓGICOS
+   1970: MYCIN
+Operador Lógico: Conjunção - “e”
+   O operador “E” representa uma conjunção e é indicado por   ∧
+   Une duas ou mais proposições simples, formando proposições
+   compostas e só será verdadeiro quando todas as proposições
+   simples forem verdadeiras.
+OPERADORES LÓGICOS
+     1970: MYCIN
+Operador Lógico: Conjunção - “e”
+   O operador “E” representa uma conjunção e é indicado por   ∧
+   Une duas ou mais proposições simples, formando proposições
+   compostas e só será verdadeiro quando todas as proposições
+   simples forem verdadeiras.
+
+P: João estuda
+Q: Maria trabalha
+ ∧
+P Q: João estuda e Maria trabalha
+OPERADORES LÓGICOS
+   1970: MYCIN
+Operador Lógico: Conjunção - “e”
+
+           P (João estuda)   Q (Maria trabalha)   P   ∧Q
+                 V                   V                V
+
+                 V                   F                F
+
+                 F                   V                F
+
+                 F                   F                F
+OPERADORES LÓGICOS
+   1970: MYCIN
+Operador Lógico: Disjunção - “OU”
+   O operador “OU” representa uma disjunção e é indicado por   ∨
+   Une duas ou mais proposições simples, formando proposições
+   compostas e será verdadeira sempre que pelo menos uma
+   proposição for verdadeira.
+OPERADORES LÓGICOS
+     1970: MYCIN
+Operador Lógico: Disjunção - “OU”
+   O operador “OU” representa uma disjunção e é indicado por   ∨
+   Une duas ou mais proposições simples, formando proposições
+   compostas e será verdadeira sempre que pelo menos uma
+   proposição for verdadeira.
+
+P: Carlos vai ao cinema.
+Q: Ana vai ao teatro.
+ ∨
+P Q: Carlos vai ao cinema ou Ana vai ao teatro
+OPERADORES LÓGICOS
+   1970: MYCIN
+Operador Lógico: Disjunção - “OU”
+
+       P (Carlos vai cinema)   Q (Ana vai teatro)   P   ∨Q
+                V                      V                V
+
+                V                      F                V
+
+                F                      V                V
+
+                F                      F                F
+OPERADORES LÓGICOS
+   1970: MYCIN
+Operador Lógico: Negação “¬”
+   O operador ¬ representa uma negação de uma proposição simples
+   ou de uma proposição composta.
+
+   Em algumas literaturas é escrita como ~ ou !.
+   Para nós, será ¬
+OPERADORES LÓGICOS
+    1970: MYCIN
+Operador Lógico: Negação “¬”
+   O operador ¬ representa uma negação de uma proposição simples
+   ou de uma proposição composta.
+
+   Inverte o valor de verdade de uma proposição.
+       Se P é verdadeiro, então ¬P é falso.
+       Se P é falso, então ¬P é verdadeiro.
+
+P: Está chovendo
+                                    Negação de proposições simples!
+¬P: Não está chovendo
+OPERADORES LÓGICOS
+    1970: MYCIN
+    Negação da conjunção
+   ∧
+¬ (P Q) - Não é verdade que p e q sejam ambos verdadeiros.
+
+       Lei de Morgan    ¬ (P   ∧ Q) = (¬P ∨ ¬Q)
+OPERADORES LÓGICOS
+    1970: MYCIN
+    Negação da conjunção
+    ∧
+¬ (P Q) - Não é verdade que p e q sejam ambos verdadeiros.
+
+        Lei de Morgan    ¬ (P   ∧ Q) = (¬P ∨ ¬Q)
+P: João estuda
+Q: Maria trabalha
+    ∧
+¬ (P Q) : “Não é verdade que João estuda e Maria trabalha”
+Equivalente: “Ou João não estuda, ou Maria não trabalha”
+OPERADORES LÓGICOS
+   1970: MYCIN
+Negação da Conjunção: ¬ (P   ∧ Q)
+           P         Q          P   ∧Q   ¬ (P   ∧ Q)
+           V         V              V           F
+
+           V          F             F           V
+
+           F         V              F           V
+
+           F          F             F           V
+OPERADORES LÓGICOS
+     1970: MYCIN
+    Negação da disjunção
+   ∨
+¬ (P Q) - Não é verdade que pelo menos uma das duas seja verdadeira
+
+        Lei de Morgan    ¬ (P   ∨ Q) = (¬P ∧ ¬Q)
+OPERADORES LÓGICOS
+     1970: MYCIN
+    Negação da disjunção
+    ∨
+¬ (P Q) - Não é verdade que pelo menos uma das duas seja verdadeira
+
+         Lei de Morgan    ¬ (P   ∨ Q) = (¬P ∧ ¬Q)
+ P: Está chovendo
+ Q: Está frio
+     ∨
+ ¬ (P Q) : “Não é verdade que está chovendo ou está frio”
+ Equivalente: “Não está chovendo e não está frio”
+OPERADORES LÓGICOS
+   1970: MYCIN
+Negação da Disjunção: ¬ (P   ∨ Q)
+           P          Q             P   ∨Q   ¬ (P   ∨ Q)
+           V          V                 V           F
+
+           V          F                 V           F
+
+           F          V                 V           F
+
+           F          F                 F           V
+LÓGICA PROPOSICIONAL
+       1970: MYCIN
+                   →
+      Implicação ( )
+P   → Q “Se P, então Q”
+A implicação só é falsa quando P é verdadeiro e Q é falso.
+
+
+P: “João estuda”
+Q: “João passa”
+P   → Q: “Se João estuda, então João passa”
+OPERADORES LÓGICOS
+   1970: MYCIN
+Implicação P   →Q
+               P    Q   P   →Q
+               V    V       V
+
+               V    F       F
+
+               F    V       V
+
+               F    F       V
+LÓGICA PROPOSICIONAL
+       1970: MYCIN
+                                                 ↔
+      Bicondicional, Equilavência, Bi-implicação ( )
+P   ↔ Q “P se e somente se Q”
+O bicondicional é verdadeiro quando P e Q têm o mesmo valor de verdade
+(ambos verdadeiros ou ambos falsos).
+
+P: “O semáforo está verde”
+Q: “Os carros podem andar”
+P   ↔ Q: “O semáforo está verde se, e somente se, os carros podem andar”
+LÓGICA PROPOSICIONAL
+       1970: MYCIN
+                                                 ↔
+      Bicondicional, Equilavência, Bi-implicação ( )
+P   ↔ Q “P se e somente se Q”
+O bicondicional é verdadeiro quando P e Q têm o mesmo valor de verdade
+(ambos verdadeiros ou ambos falsos).
+
+P: “O semáforo está verde”                      P↔  Q é logicamente
+Q: “Os carros podem andar”                      equivalente a Q↔ P
+
+Q   ↔ P: “Os carros podem andar se, e somente se, o semáforo está verde.”
+OPERADORES LÓGICOS
+   1970: MYCIN
+Bicondicional P   ↔Q
+             P         Q   P   ↔Q
+             V         V       V
+
+             V         F       F
+
+             F         V       F
+
+             F         F       V
+LÓGICA PROPOSICIONAL
+       1970: MYCIN
+
+   Propriedades Aritméticas dos Operadores Lógicos
+Propriedade Comutativa: a ordem das proposições não altera o resultado.
+
+   P∧Q=Q∧P
+   P∨Q=Q∨P
+LÓGICA PROPOSICIONAL
+       1970: MYCIN
+   Propriedades Aritméticas dos Operadores Lógicos
+Propriedade Distributiva: os operadores podem ser distribuídos em
+expressões compostas.
+
+   P ∧ (Q ∨ R) = (P ∧ Q) ∨ (P ∧ R)
+   P ∨ (Q ∧ R) = (P ∨ Q) ∧ (P ∨ R)
+
+          Propriedades que ajudam a simplificar proposições
+                   e a resolver questões complexas.
+SILOGISMO
+      1970: MYCIN
+  Silogismo é um conceito clássico da lógica que vem desde Aristóteles.
+  É uma forma de raciocínio dedutivo que parte de duas premissas para
+                         chegar numa conclusão!
+Estrutura típica:
+  1.Premissa maior (geral)
+ 2.Premissa menor (particular)
+ 3.Conclusão (dedução lógica)
+SILOGISMO
+      1970: MYCIN
+  Silogismo é um conceito clássico da lógica que vem desde Aristóteles.
+  É uma forma de raciocínio dedutivo que parte de duas premissas para
+                         chegar numa conclusão!
+Estrutura típica:
+  1.Premissa maior (geral)            1. Todo ser humano é mortal.
+ 2.Premissa menor (particular)        2. Sócrates é ser humano.
+                                      3. Logo, Sócrates é mortal.
+ 3.Conclusão (dedução lógica)
+REGRAS DE INFERÊNCIA
+    1970: MYCIN
+  Regras de inferência são como “ferramentas” que permitem derivar
+          conclusões a partir de proposições e implicações.
+
+
+  Modus Ponens
+  Modus Tollens
+  Silogismo Hipotético
+  Silogismo Disjuntivo
+MODUS PONENS
+   1970: MYCIN
+             Modus Ponens é a afirmação do antecedente
+  P   →Q
+  P
+  Logo: Q
+
+      No modus ponens, a primeira premissa expressa uma relação
+ condicional: se o antecedente for verdadeiro, então o consequente
+                    também deve ser verdadeiro.
+MODUS PONENS
+   1970: MYCIN
+             Modus Ponens é a afirmação do antecedente
+  P   →Q           Se João estuda, então João passa.
+  P                           João estuda.
+  Logo: Q                Portanto, João passa.
+
+
+      No modus ponens, a primeira premissa expressa uma relação
+ condicional: se o antecedente for verdadeiro, então o consequente
+                    também deve ser verdadeiro.
+MODUS TOLLENS
+  1970: MYCIN
+            Modus Tollens é a negação do consequente.
+   P   →Q
+   ¬Q
+   Logo: ¬P
+
+   Modus tollens é um tipo de silogismo que argumenta que uma
+        condição é falsa porque o resultado esperado é falso.
+MODUS TOLLENS
+  1970: MYCIN
+            Modus Tollens é a negação do consequente.
+   P   →Q            Se João estuda, então João passa.
+   ¬Q                         João não passa.
+   Logo: ¬P              Portanto, João não estuda.
+
+
+   Modus tollens é um tipo de silogismo que argumenta que uma
+        condição é falsa porque o resultado esperado é falso.
+SILOGISMO HIPOTÉTICO
+    1970: MYCIN
+    P→Q
+    Q→R
+    Logo: P   →R
+ Em outras palavras, se o primeiro implica o outro e o outro implica o
+    terceiro, então o primeiro implica o terceiro, de acordo com a
+              propriedade da transitividade da implicação.
+SILOGISMO HIPOTÉTICO
+    1970: MYCIN
+    P→Q                          Se chover, a rua fica molhada.
+    Q→R                     Se a rua fica molhada, o trânsito piora.
+
+    Logo: P   →R             Portanto, se chover, o trânsito piora.
+
+
+ Em outras palavras, se o primeiro implica o outro e o outro implica o
+    terceiro, então o primeiro implica o terceiro, de acordo com a
+              propriedade da transitividade da implicação.
+SILOGISMO DISJUNTIVO
+    1970: MYCIN
+
+     ∨
+    P Q
+    ¬P
+    Logo: Q
+
+ Um silogismo disjuntivo é um argumento com duas premissas e uma
+     conclusão que descreve uma relação de "ou isto ou aquilo".
+SILOGISMO DISJUNTIVO
+    1970: MYCIN
+
+     ∨
+    P Q
+                              João estuda ou Maria trabalha.
+                                     João não estuda.
+    ¬P                           Portanto, Maria trabalha.
+
+    Logo: Q
+
+ Um silogismo disjuntivo é um argumento com duas premissas e uma
+     conclusão que descreve uma relação de "ou isto ou aquilo".
+EXERCÍCIOS FIXAÇÃO
+    1970: MYCIN
+
+Seja P: “João estuda”
+Seja Q: “João passa”
+Avalie P   → Q nos casos:
+  1.João estuda e passa
+ 2.João estuda e não passa
+ 3.João não estuda e passa
+EXERCÍCIOS FIXAÇÃO
+    1970: MYCIN
+Use tabela verdade para verificar a validade dos argumentos a seguir:
+
+  1.Se neva, então faz frio.
+    Não está nevando.
+    Logo, não está frio.
+
+ 2.Se eu durmo cedo, não acordo cedo.
+    Acordo cedo.
+    Logo, não durmo tarde.
+EXERCÍCIOS FIXAÇÃO
+        1970: MYCIN
+Identifique quais fórmulas pertencem à lógica proposicional. Justifique.
+
+a) (P ∧ Q) → ((Q ↔ P) ∨ (¬(¬R)))
+b) ∨ Q → R
+c) (P∨R) → (Q ↔ ((¬T) ∧ R))
+d) (PQ ∨ True)
+e) ((¬(¬P)) ↔ ((¬((¬(¬(P ∨ Q))) → R)) ∧ P))
+EXERCÍCIOS FIXAÇÃO
+     1970: MYCIN
+
+Sócrates está disposto a visitar Platão ou não? Formalize o texto abaixo:
+
+
+“Se Platão está disposto a visitar Sócrates, então Sócrates está disposto a
+visitar Platão. Por outro lado, se Sócrates está disposto a visitar Platão,
+então Platão não está disposto a visitar Sócrates; mas, se Sócrates não
+está disposto a visitar Platão, então Platão está disposto a visitar
+Sócrates.
+LÓGICA DE PREDICADOS
+   1970: MYCIN
+
+ Lógica de predicados: mais expressiva, permite falar sobre objetos,
+ propriedades e relações.
+ Unidade básica: Predicados aplicados a termos (objetos).
+ Quantificadores:
+    ∀    (para todo)                  Predicado: Estudante(x)
+    ∃    (existe)                      ∀
+                                Regra: x (Estudante(x) →  Estuda(x))
+                                       Fato: Estudante(Maria)
+                                     Inferência: Estuda(Maria)
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

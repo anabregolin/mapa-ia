@@ -1,0 +1,378 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                  A U L A 2 - PA R T E 1
+
+
+      VISÃO GERAL DE IA
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+OBJETIVOS AULA
+Parte 1:
+    Visão geral e origem de IA
+    Primeiros sistemas e soluções
+Parte 2:
+    Introdução a agentes e ambientes
+    Agentes em ambientes determinísticos
+A BUSCA      PORGPT!ENTENDER A MENTE
+    IA NÃO É CHAT
+
+
+Há milhares de anos, o ser humano busca entender como nós pensamos.
+Como somos capazes de perceber, compreender, prever ou manipular o mundo?
+   Filosofia, psicologia e neurociência tentaram responder..
+  MÁQUINAS
+PODEM PENSAR?
+ALAN TURING (1912 - 1954)
+
+            Cientista da computação
+
+                Em 1950 publicou um artigo:
+
+                    "Computing Machinery and Intelligence
+
+            Teste de Turing   → Primeira formulação clara de
+            um critério para avaliar inteligência artificial.
+TESTE DE TURING
+TESTE DE TURING
+
+
+
+
+                       ENTREVISTADOR
+
+
+
+
+      ENTREVISTADO 1                   ENTREVISTADO 2
+TESTE DE TURING
+
+
+
+
+                       ENTREVISTADOR
+
+
+
+
+      ENTREVISTADO 1                   ENTREVISTADO 2
+TESTE DE TURING
+
+
+
+
+                       ENTREVISTADOR
+
+
+
+
+      ENTREVISTADO 1                   ENTREVISTADO 2
+TESTE DE TURING
+
+                                                        Quem é a máquina?
+
+
+                                                  Se a máquina pudesse manter uma
+
+                 ENTREVISTADOR                      conversa indistinguível de um
+                                                    humano, ela seria inteligente.
+
+
+ENTREVISTADO 1                   ENTREVISTADO 2
+ENIAC - Eletronic Numerical Integrator and Computer (1946-1955)
+       Primeiro computador eletrônico de grande escala
+ENIAC ocupava uma sala inteira de 135 m² e pesava
+               cerca de 30 toneladas!
+
+
+ Objetivo inicial: realizar cálculos balísticos para o
+Exército dos EUA durante a Segunda Guerra Mundial
+
+
+Velocidade: podia realizar cerca de 5 mil operações
+     por segundo (revolucionário para a época)
+Uma máquina como
+essa poderia pensar?
+        Contexto Teste Turing
+CURIOSIDADES
+        ENIAC
+
+
+
+
+       5 mil ops
+CURIOSIDADES
+        ENIAC
+
+
+                   100 - 500 bilhões ops
+
+
+
+
+       5 mil ops
+CURIOSIDADES
+        ENIAC
+
+
+                   100 - 500 bilhões ops
+
+
+
+
+       5 mil ops   50 - 200 bilhões ops
+CURIOSIDADES
+        ENIAC
+
+                   150 kW
+                            100 - 500 bilhões ops
+
+
+
+
+       5 mil ops            50 - 200 bilhões ops
+CURIOSIDADES
+                                               50 W
+        ENIAC
+
+                   150 kW
+                            100 - 500 bilhões ops
+
+
+
+                                                10 W
+       5 mil ops            50 - 200 bilhões ops
+CURIOSIDADES
+        ENIAC           Supercomputadores
+
+
+
+
+       5 mil ops    Trilhões a quadrilhões ops
+                   Summit (IBM): 200 quadrilhões ops
+ALAN TURING (1912 - 1954)
+                                VISIONÁRIO
+                      PAI DA COMPUTAÇÃO E DA IA
+
+                                            →
+            Base para a computação moderna ideia de que o
+            pensamento pode ser simulado por máquinas.
+
+            Qualquer processo lógico pode ser descrito como uma
+            sequência de instruções (caminho para a programação).
+
+            Antecipou questões que continuam atuais!
+NO MUNDO ATUAL,
+O TESTE DE TURING
+   FAZ SENTIDO?
+1956: DARTMOUTH CONFERENCE
+
+ Evento fundador da IA: campo de pesquisa.
+
+
+   “Partir da premissa de que cada aspecto da
+aprendizagem   ou qualquer outra característica da
+      PLANEJAMENTO
+inteligência pode, em princípio, ser descrito com
+ tanta precisão que uma máquina possa ser feita
+         para simulá-lo.” (John McCarthy)
+1956: DARTMOUTH CONFERENCE
+
+ Organizado por: John McCarthy, Marvin
+
+ Minsky, Nathaniel Rochester e Claude
+
+    PLANEJAMENTOShannon.
+
+
+ É aqui que surge oficialmente o termo
+
+        “Inteligência Artificial”
+1959-1960: JOGOS
+
+Jogos foram o laboratório de IA:
+   testes práticos para algoritmos
+
+Arthur Samuel (IBM)   → pioneiro em Aprendizado de Máquina
+Desenvolveu um programa de damas:
+   Não apenas jogar, mas aprender com a experiência
+1966: ELIZA
+
+Primeiro software de simulação de diálogos
+   Chatbots (nome atribuído em 1994)
+
+
+Chatbot de linguagem natural
+
+Escrito em JavaScript e criado
+por Joseph Weizenbaum (MIT)
+1966: ELIZA
+
+Simular a conversação entre homem e máquina
+
+
+Principal implementação:
+   Simulação de conversa entre
+um paciente e seu psicólogo
+ 1966: ELIZA
+
+Eliza: Por favor, diga o seu problema
+Usuário: Eu estou com receio de que eu não sou um bom artista
+Eliza: Você veio até mim porque você está com medo de não ser um
+bom artista?
+Usuário: Sim, eu estou com medo que eu sou um artista ruim sem
+realmente saber que eu sou um artista ruim.
+Eliza: Você parece positivo.                                           Eliza utilizava
+Usuário: Eu me sinto muito negativo.                               palavras-chave que o
+Eliza: Você disse que se sente muito negativo?                       usuário escrevia e
+Usuário: Como se eu não fosse um bom artista e os outros riem de    fazia uma pergunta
+mim por eu ser um artista ruim.
+                                                                      utilizando elas.
+1970-1980: SISTEMAS ESPECIALISTAS
+
+ Softwares com objetivo de simular o raciocínio de
+         um profissional em alguma área
+
+     PLANEJAMENTO
+     Processar informações não numéricas e
+  apresentar conclusões sobre um determinado
+         tema   → Orientação especialista
+ 1965-1970: DENDRAL
+
+Ajudava químicos a identificarem estruturas moleculares
+
+
+O objetivo do projeto é desenvolver soluções capazes de
+
+encontrar as estruturas
+     PLANEJAMENTO
+                        moleculares orgânicas a partir da
+
+espectrometria de massa das ligações químicas presentes
+
+em uma molécula desconhecida.
+    1970: MYCIN
+
+Precursor de sistemas de apoio à decisão clínica.
+
+Auxiliar médicos no diagnóstico e tratamento de
+
+infecções  bacterianas:
+    PLANEJAMENTO
+
+   Recomendação de antibióticos adequados a partir de
+
+   regras lógicas e informações fornecidas pelo usuário.
+1970-1980: SISTEMAS ESPECIALISTAS
+
+ Mostravam que IA podia ser aplicada em áreas
+  práticas, mas dependiam de regras fixas e
+           eram difíceis de atualizar.
+     PLANEJAMENTO
+
+
+
+      Não lidavam bem com incerteza ou
+  conhecimento incompleto     → Inverno da IA
+        INVERNO DA IA (ANOS 70-90)
+O entusiasmo inicial sobre IA deu lugar à descrença!
+
+        Cortes de investimento/financiamento
+              Paralisação de pesquisas.
+
+ 1.Promessas exageradas que não se cumpriram
+ 2.Limitações tecnológicas
+ 3.Dificuldade em lidar com problemas reais em
+   ambientes descontrolados.
+         INVERNO DA IA (ANOS 70-90)
+
+Após o otimismo inicial   → avanço lento, poucos resultados
+Consequências:
+   Corte de financiamento nos EUA e Reino Unido
+   Laboratórios fecharam
+   Carreiras foram interrompidas
+      INVERNO DA IA: CURIOSIDADE
+
+
+1973: O governo britânico praticamente
+encerrou as pesquisas em IA por achar
+que não tinham futuro...
+          INVERNO DA IA (ANOS 70-90)
+
+
+Pesquisa: muitos projetos abandonados ou desacelerados.
+
+Empresas: Retração de investimentos em tecnologia de IA.
+
+Talentos: Pesquisadores migraram para outras áreas
+(estatística, computação clássica)
+ANOS 90 E 2000: RENASCIMENTO DA IA
+
+ Surgimento do aprendizado profundo (Deep Learning)
+
+ Avanços no poder computacional (GPUs)
+    Primeira GPU em 1999 (GeForce da Nvidia)
+    PLANEJAMENTO
+
+ Grandes volumes de dados (Big Data)
+
+ Redes neurais mais eficazes
+ANOS 90 E 2000: RENASCIMENTO DA IA
+
+Explosão de dados digitais (internet, sensores, redes
+        →
+sociais) Ideal para treinar modelos de IA
+
+        Sistemas especialistas: regras fixas
+     PLANEJAMENTO
+
+
+
+
+  Modelos que aprendem diretamente dos dados!
+ANOS 90 E 2000: RENASCIMENTO DA IA
+
+  Deep Learning: AlexNet (2012) - marco inicial
+
+  AlphaGo (2016): Poder do aprendizado por reforço
+    PLANEJAMENTO
+  Modelos generativos: GPT-3 (2020), GPT-4 (2023)
+
+  Multimodalidade
+IA CONTEMPORÂNEA
+
+        Convergência entre dados,
+    algoritmos e poder computacional!
+  PLANEJAMENTO
+   IA se transformou quando mudou de paradigma:
+      regras fixas para aprendizado com dados.
+SUBÁREAS DE INTELIGENCIA ARTIFICIAL
+
+   Cada área resolve um
+   pedaço diferente da
+   inteligência humana!   Muitas aplicações
+                          combinam várias subáreas.
+           Subárea                           O que estuda                          Exemplos
+
+                                    Como modelar fatos, conceitos e
+Representação do Conhecimento                                                   Ontologias e lógica
+                                             relações
+
+     Raciocínio e Inferência       Dedução e resolução de problemas           Sistemas especialistas
+
+
+Planejamento e Tomada de Decisão   Escolher ações para atingir objetivos   Planejamento de rotas e jogos
+
+
+    Aprendizado de Máquina         Aprender padrões a partir de dados        Classificação de imagens
+
+
+      Visão computacional              Interpretar imagens e vídeos           Reconhecimento facial
+
+  Processamento de Linguagem
+                                       Entender e gerar linguagem            Tradutores automáticos
+           Natural
+
+                                      Vários agentes cooperando ou
+   IA distribuida/Multiagentes                                                Simulação de mercado
+                                               competindo
+

@@ -1,0 +1,426 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                             AULA 7
+
+
+        BUSCA LOCAL - PT. 2
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+BREVE REVISÃO
+  1970: MYCIN
+                                      →
+ Hill Climbing e Simulated Annealing Compartilham uma
+característica central: manter apenas o estado atual e, a cada
+          passo, explorar a vizinhança desse estado.
+BREVE REVISÃO
+  1970: MYCIN
+                                      →
+ Hill Climbing e Simulated Annealing Compartilham uma
+característica central: manter apenas o estado atual e, a cada
+          passo, explorar a vizinhança desse estado.
+
+                   HILL CLIMBING?
+BREVE REVISÃO
+  1970: MYCIN
+                                      →
+ Hill Climbing e Simulated Annealing Compartilham uma
+característica central: manter apenas o estado atual e, a cada
+          passo, explorar a vizinhança desse estado.
+
+                   HILL CLIMBING?
+          Se move sempre para o vizinho de melhor
+            função de avaliação. Rápido, mas fica
+         facilmente preso em ótimos locais e platôs.
+BREVE REVISÃO
+  1970: MYCIN
+                                      →
+ Hill Climbing e Simulated Annealing Compartilham uma
+característica central: manter apenas o estado atual e, a cada
+          passo, explorar a vizinhança desse estado.
+
+             SIMULATED ANNEALING?
+BREVE REVISÃO
+  1970: MYCIN
+                                      →
+ Hill Climbing e Simulated Annealing Compartilham uma
+característica central: manter apenas o estado atual e, a cada
+          passo, explorar a vizinhança desse estado.
+
+             SIMULATED ANNEALING?
+            Aceita movimentos piores com uma
+         probabildiade controlada pela temperatura,
+            permitindo escapar de ótimos locais.
+VERDADEIRO  OU
+  1970: MYCIN  FALSO?
+
+Tanto o Hill Climbing como o Simulated Annealing
+         são algoritmos de refinamento.
+VERDADEIRO  OU
+  1970: MYCIN  FALSO?
+
+Tanto o Hill Climbing como o Simulated Annealing
+         são algoritmos de refinamento.
+
+                   VERDADEIRO!
+  Esses são algoritmos de busca local que querem
+melhorar uma solução atual. Algoritmo de refinamento
+     é sinônimo de um algoritmo de otimização!
+VERDADEIRO  OU
+  1970: MYCIN  FALSO?
+
+ Diferente do Simulated Annealing, o Hill Climbing
+  mantém a árvore de busca durante a execução.
+VERDADEIRO  OU
+  1970: MYCIN  FALSO?
+
+ Diferente do Simulated Annealing, o Hill Climbing
+  mantém a árvore de busca durante a execução.
+
+                      FALSO!
+ Nenhum dos dois algoritmos mantém uma árvore de
+  busca. Eles apenas analisam os vizinhos do estado
+                  atual da solução.
+VERDADEIRO  OU
+  1970: MYCIN  FALSO?
+
+ O Simulated Annealing sempre aceita soluções
+              piores que a atual.
+VERDADEIRO  OU
+  1970: MYCIN  FALSO?
+
+ O Simulated Annealing sempre aceita soluções
+              piores que a atual.
+
+                       FALSO!
+   Nem sempre. A solução pior é aceita com certa
+ probabilidade, que é determinada a partir parâmetro
+                  de temperatura T.
+ VERDADEIRO  OU
+   1970: MYCIN  FALSO?
+
+  O parâmetro de temperatura T é iniciado em zero e
+lentamente aumentando durante o processo de busca.
+ VERDADEIRO  OU
+   1970: MYCIN  FALSO?
+
+  O parâmetro de temperatura T é iniciado em zero e
+lentamente aumentando durante o processo de busca.
+
+                          FALSO!
+  A temperatura do algoritmo inicia com valores altos e
+     vai esfriando ao longo da execução do algoritmo.
+OBJETIVOS AULA
+  IA NÃO É CHAT GPT!
+
+
+
+   Busca Local e Otimização
+      Hill Climbing
+      Simulated Annealing
+      Genetic Algorithms
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+            Inspiração na evolução biológica:
+    princípios da evolução natural e seleção de Darwin.
+
+    Formalizado na década de 1970 por John Holland e
+            popularizado por David Goldberg.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+ Ideia central: manter uma população de soluções e aplicar
+ operadores evolutivos (seleção, crossover e mutação) para
+ gerar novas soluções ao longo das gerações.
+
+ Objetivo: encontrar soluções cada vez melhores para
+ problemas complexos de otimização.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+             Gerar sucessores a partir de pares de estados
+   Vamos representar os estados como strings de caracteres/binária:
+possibilitando “cortar” a string e combinar com strings de outros estados.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+             Gerar sucessores a partir de pares de estados
+   Vamos representar os estados como strings de caracteres/binária:
+possibilitando “cortar” a string e combinar com strings de outros estados.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+             Gerar sucessores a partir de pares de estados
+   Vamos representar os estados como strings de caracteres/binária:
+possibilitando “cortar” a string e combinar com strings de outros estados.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+             Gerar sucessores a partir de pares de estados
+   Vamos representar os estados como strings de caracteres/binária:
+possibilitando “cortar” a string e combinar com strings de outros estados.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+    REPRESENTAÇÃO      → CODIFICAÇÃO DO CROMOSSOMO
+ Decisão de projeto mais importante: define o espaço de busca
+
+
+                           6 7 2 4 7 5 8 8
+
+
+                                CROMOSSOMO
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+    REPRESENTAÇÃO      → CODIFICAÇÃO DO CROMOSSOMO
+ Decisão de projeto mais importante: define o espaço de busca
+                                 GENE             GENE
+
+                           6 7 2 4 7 5 8 8
+
+
+                                CROMOSSOMO
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+    REPRESENTAÇÃO      → CODIFICAÇÃO DO CROMOSSOMO
+ Decisão de projeto mais importante: define o espaço de busca
+
+                   Sequência de int/float
+                  Sequência de caracteres
+                    Sequência de strings
+                    Sequências binárias
+                              ...
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+         Terminologia de Algortimos Genéticos:
+
+ Gene: caracteres na string que representam o estado
+ Cromossomos: blocos de genes
+    Cada solução é codificada como uma sequência
+       Ex: rota de entrega representada como uma lista de cidades.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+          Terminologia de Algortimos Genéticos:
+
+  População: Diferentes soluções do problema.
+  Gerações: Processo se repete várias vezes       → várias gerações
+     A população tende a convergir para regiões de alta qualidade
+  Função de Fitness: Função que mede a qualidade de cada solução.
+     Ex: distância total percorrida em uma rota
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+         Terminologia de Algortimos Genéticos:
+
+  Operações:
+     Crossover (recombinação): combinar partes de dois indivíduos
+     Mutação: pequenas alterações para manter diversidade
+     Seleção: escolhe os indivíduos mais aptos para reprodução.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+Fluxo do algoritmo:
+  1.Inicializar população aleatória
+ 2.Avaliar fitness de cada indivíduo
+ 3.Selecionar os melhores
+ 4.Aplicar crossover e mutação para gerar nova população
+ 5.Repetir até atingir critério de parada
+     a.Nº gerações, qualidade, tempo...
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+Fluxo do algoritmo:
+                                            Cada solução é um “indivíduo”
+  1.Inicializar população aleatória         Os melhores sobrevivem e se reproduzem
+                                            A mutação garante que novas ideias apareçam
+ 2.Avaliar fitness de cada indivíduo        Com o tempo, a população inteira se adapta e
+                                            converge para boas soluções
+
+ 3.Selecionar os melhores
+ 4.Aplicar crossover e mutação para gerar nova população
+ 5.Repetir até atingir critério de parada
+     a.Nº gerações, qualidade, tempo...
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+
+      Operadores:
+        Crossover
+        Mutação
+        Seleção
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+
+      Operadores:           Recombinação:
+                    Combinar dois indivíduos (pais)
+        Crossover   para gerar novos (filhos)
+        Mutação
+        Seleção
+OPERADOR CROSSOVER
+  1970: MYCIN
+                                         Bias/Viés em relação ao ponto de corte
+      1-point Crossover:
+ Escolher um ponto aleatório em cada “pai” e criar uma “criança” a
+ partir desses cortes:
+OPERADOR CROSSOVER
+  1970: MYCIN
+                                         Bias/Viés em relação ao ponto de corte
+      1-point Crossover:
+ Escolher um ponto aleatório em cada “pai” e criar uma “criança” a
+ partir desses cortes:
+OPERADOR CROSSOVER
+  1970: MYCIN
+                                     Bias/Viés em relação ao ponto de corte
+     n-point Crossover:
+ Escolher n pontos de corte.
+ Juntar as partes alternando entre os “pais”
+OPERADOR CROSSOVER
+  1970: MYCIN
+                                     Bias/Viés em relação ao ponto de corte
+     n-point Crossover:
+ Escolher n pontos de corte.
+ Juntar as partes alternando entre os “pais”
+OPERADOR CROSSOVER
+  1970: MYCIN
+     Crossover Uniforme:
+ Vamos jogar uma moeda (cara é um pai, coroa é o outro).
+ Jogamos a moeda para cada gene no primeiro filho. Depois
+ fazemos uma cópia inversa para o segundo filho.
+OPERADOR CROSSOVER
+  1970: MYCIN
+   Máscara de Crossover:
+OPERADOR CROSSOVER
+  1970: MYCIN
+   Máscara de Crossover:
+OPERADOR CROSSOVER
+  1970: MYCIN
+   Máscara de Crossover:
+OPERADOR CROSSOVER
+  1970: MYCIN
+
+              PAPEL DO CROSSOVER:
+ Recombinar material genético de dois indivíduos já
+ considerados bons (selecionados) na esperança de
+ que a combinação herde as qualidades de ambos:
+  potencialmente gerando um filho ainda melhor
+                 que os dois pais.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+
+      Operadores:      Pequenas alterações
+                    aleatórias em um indivíduo
+
+        Crossover
+        Mutação
+        Seleção
+OPERADOR MUTAÇÃO
+  1970: MYCIN
+Alterar cada gene independentemente com uma probabilidade Pm
+   Pm é chamado de taxa de mutação
+       1/tamanho_pop
+       1/tamanho_cromos
+                                       Se população = 10
+                                       e Pm = 1/1000
+                                       Quase não vou mutar
+                                       ninguém na população!
+OPERADOR MUTAÇÃO
+  1970: MYCIN
+Alterar cada gene independentemente com uma probabilidade Pm
+   Pm é chamado de taxa de mutação
+       1/tamanho_pop
+       1/tamanho_cromos
+OPERADOR MUTAÇÃO
+  1970: MYCIN
+
+              PAPEL DA MUTAÇÃO:
+   O crossover tende a reduzir a diversidade da
+   população ao longo do tempo (indivíduos vão
+ ficando parecidos entre si). A mutação reintroduz
+  diversidade, soluções que antes não existiam.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+
+      Operadores:     Escolher quais indivíduos da
+                    população atual vão se reproduzir.
+        Crossover
+        Mutação
+        Seleção
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+Operadores: Seleção
+   Escolher quais indivíduos da população atual vão se reproduzir.
+      “Os mais aptos têm mais chance de passar seus genes adiante”
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+Operadores: Seleção
+   Escolher quais indivíduos da população atual vão se reproduzir.
+      “Os mais aptos têm mais chance de passar seus genes adiante”
+
+   Vários métodos de seleção. Os mais comuns:
+      Roleta (roulette wheel): Probabilidade proporcional ao fitness
+      Torneio: escolhe um grupo aleatório e o melhor vence
+      Rank: Ordena indivíduos e distribui chances conforme posição
+
+ Direcionar a busca para regiões promissoras, sem eliminar totalmente a diversidade
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+Seleção: Método Roleta
+Cada indivíduo recebe uma fatia
+proporcional ao fitness. Quanto
+melhor o fitness, maior a fatia da
+roleta
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+Cada indivíduo ganha uma área da roleta. A
+roleta é girada N vezes (N   → qtde de
+indivíduos da população). Cada vez que a
+roleta gira, um indivíduo é marcado como
+potencial pai da próxima geração.
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+                   Crossover vs Mutação
+    Apenas crossover pode combinar informação de 2 pais
+ Apenas mutação pode introduzir informações novas nos genes
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+  Se escolher sempre os melhores, perde diversidade
+  Se escolher aleatoriamente, não evolui
+
+
+ Seleção   → equilíbrio para balancear os dois extremos!
+Termo Biologia                   Significado em AG
+
+    Indivíduo                  Estado/solução candidata.
+
+Cromossomo/gene    Representação codificada da solução (string, vetor)
+
+ Aptidão/Fitness     Função-objetivo a ser maximizada/melhorada
+
+  Reprodução                    Cruzamento (crossover)
+
+Mutação genética             Pertubação aleatória de genes
+
+    Seleção            Seleção dos pais/sobreviventes por fitness
+
+    Geração                      Iteração do algoritmo
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+
+
+
+    https://www.youtube.com/watch?v=qv6UVOQ0F44
+ALGORTIMOS  GENÉTICOS
+   1970: MYCIN
+
+     Esse vídeo mostra o projeto MarI/O, em que uma IA aprende a jogar
+      Super Mario World usando redes neurais e algoritmos genéticos.
+     Demonstra na prática como os algoritmos genéticos podem evoluir
+            soluções complexas em ambientes de busca local.
+
+    https://www.youtube.com/watch?v=qv6UVOQ0F44
+Vamos fazer
+exercícios!
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

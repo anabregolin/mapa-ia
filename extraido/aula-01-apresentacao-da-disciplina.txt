@@ -1,0 +1,252 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                             AULA 1
+
+                INTRODUÇÃO E
+               APRESENTAÇÃO
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+QUEM SOU EU?
+
+2014-2018   Engenharia Elétrica-Eletrônica
+2020-2022   Mestrado em Ciência da Computação
+  2025      MBA em Tecnologia para Negócios - AI, DS e BD
+ 2026-?     Doutoranda em Ciência da Computação
+EXPERIÊNCIAS
+  2018      Estagiária no Instituto do Cérebro (InsCer)
+              Pré-processamento e análise de imagens médicas de Ressonância
+              Magnética Funcional (fMRI)
+2022-2025   Desenvimento de Software/Firmware - Unisinos
+              Desenvolvimento e teste de SiPs (System in a Package) com NB-IoT.
+2025-2026   Bolsista do CNPq - PUCRS
+              Inteligência Artificial e análise de dados para análise de consumo de
+              energia elétrica e identificação de ineficiências energéticas.
+EXPERIÊNCIAS
+
+2026/1   Professora na Escola Politécnica da PUCRS
+            Inteligência Artificial
+            Coleta, Preparação e Análise de Dados
+            Programação Orientada a Dados
+E QUEM SÃO VOCÊS?
+IA ESTÁ EM TODO LUGAR
+(MESMO ONDE VOCÊ NÃO PERCEBE)
+
+         ROBÓTICA         REPRESENTAÇÃO
+                          DO CONHECIMENTO
+ JOGOS     PLANEJAMENTO
+           E LOGÍSTICA
+                          SAÚDE
+      REDES
+      SOCIAIS        ENSINO
+  IA ESTÁ EM TODO LUGAR
+  (MESMO ONDE VOCÊ NÃO PERCEBE)
+
+     Cerca de 20% dos jogos lançados em 2025 utilizam IA
+        Steam 2024: Cerca de 1000 jogos
+        Steam 2025: 7.818 jogos!!
+
+
+
+
+JOGOS
+  IA ESTÁ EM TODO LUGAR
+  (MESMO ONDE VOCÊ NÃO PERCEBE)
+
+     Cerca de 20% dos jogos lançados em 2025 utilizam IA
+        Steam 2024: Cerca de 1000 jogos
+        Steam 2025: 7.818 jogos!!
+
+
+
+
+JOGOS
+  IA ESTÁ EM TODO LUGAR
+  (MESMO ONDE VOCÊ NÃO PERCEBE)
+
+     Cerca de 20% dos jogos lançados em 2025 utilizam IA
+        Steam 2024: Cerca de 1000 jogos
+        Steam 2025: 7.818 jogos!!
+
+
+
+
+JOGOS
+  IA ESTÁ EM TODO LUGAR
+  (MESMO ONDE VOCÊ NÃO PERCEBE)
+
+           1997: IBM Deep Blue derrotando Gary Kasparov
+
+
+
+
+JOGOS
+JOGOS
+  IA ESTÁ EM TODO LUGAR
+  (MESMO ONDE VOCÊ NÃO PERCEBE)
+
+                              2016: AlphaGo vencendo
+                              campeão mundial de Go,
+                              Lee Sedol
+
+
+
+                              Um dos jogos de tabuleiro mais antigos
+                              do mundo: Mais de 2500 anos (China)!
+JOGOS
+  IA ESTÁ EM TODO LUGAR
+  (MESMO ONDE VOCÊ NÃO PERCEBE)
+
+
+
+
+ROBÓTICA
+  IA ESTÁ EM TODO LUGAR
+  (MESMO ONDE VOCÊ NÃO PERCEBE)
+
+
+
+
+SAÚDE
+IA ESTÁ EM TODO LUGAR
+(MESMO ONDE VOCÊ NÃO PERCEBE)
+
+
+   Um programa que joga melhor que humanos é inteligente?
+
+  Se um carro decide frear sozinho, é IA ou apenas programação?
+
+Você confiaria em um médico assistido por IA? Ou um médico de IA?
+
+ Se o Google Maps escolhe o melhor caminho, isso é inteligência?
+ IA NÃO É CHATGPT!
+          IA NÃO É CHAT GPT!
+
+ChatGPT, Copilot, Gemini, Grok, Claude, Siri, Alexa.......
+ IA NÃO É CHATGPT!
+          IA NÃO É CHAT GPT!
+
+ChatGPT, Copilot, Gemini, Grok, Claude, Siri, Alexa.......
+
+
+                  EXEMPLOS DE APLICAÇÕES DE IA
+ IA NÃO É CHATGPT!
+          IA NÃO É CHAT GPT!
+
+ChatGPT, Copilot, Gemini, Grok, Claude, Siri, Alexa.......
+
+
+                  EXEMPLOS DE APLICAÇÕES DE IA
+
+                     APRENDIZADO DE MÁQUINA
+
+                  LARGE LANGUAGE MODELS - LLM
+INTELIGÊNCIA ARTIFICIAL
+
+               REPRESENTAÇÃO
+   BUSCA
+               DO CONHECIMENTO
+
+
+
+                  SISTEMAS
+PLANEJAMENTO
+                ESPECIALISTAS
+
+
+
+  AGENTES       APRENDIZADO
+ AUTÔNOMOS       DE MÁQUINA
+PROGRAMA DA
+  DISCIPLINA
+         Estudo teórico-prático das diversas abordagens de
+         formalização e resolução de problemas utilizando algoritmos
+         de IA.
+
+         Estudo teórico-prático de uso de algoritmos de busca para
+         resolução de problemas em agentes autônomos.
+EMENTA
+         Apresentação de abordagens para representação do
+         conhecimento.
+
+         Apresentação de técnicas de geração automática de planos.
+
+         Introdução ao aprendizado de máquina.
+        OBJETIVOS DA DISCIPLINA
+
+
+1 - Compreender o conceito e as
+características dos diferentes paradigmas
+de IA quanto às abordagens simbólica,
+probabilística e conexionista.
+        OBJETIVOS DA DISCIPLINA
+
+2 - Formalizar problemas e projetar sistemas
+que implementam características básicas
+associadas à inteligência, tais como busca,
+representação do conhecimento, raciocínio,
+planejamento e aprendizagem.
+        OBJETIVOS DA DISCIPLINA
+
+
+3 - Conhecer paradigmas de aprendizagem,
+os passos de análise e pré-processamento
+de dados, bem como técnicas de aprendizado
+de máquina.
+        CONTEÚDOS DA DISCIPLINA
+
+
+                        Raciocínio,
+                      Planejamento,   Raciocício
+Visão    Solução de                                Aprendizado
+                      Representação      sob
+Geral    Problemas          do                     de Máquina
+                      Conhecimento
+                                      incerteza
+C R I T É R I O S D E AVA L I A Ç Ã O
+
+
+
+G1 = 0.4P1 + 0.4P2 + 0.2MT
+                        P1 - Prova 1: Unidades 1, 2 e 3
+                          P2 - Prova 2: Unidades 4 e 5
+                             MT - Média dos exercícios
+B I B L I O G R A F I A BÁS I CA
+B I B L I O G R A F I A C O M P L E M E N TA R
+           CONTRATO PEDAGÓGICO
+             Frequência nas aulas não é opcional
+Frequência   Presença > 75% para aprovação!
+
+             Nossas aulas iniciam 19h15 e finalizam até 20h45h.
+ Horário     Sejam pontuais e evitem faltar as aulas.
+
+                  Respeitem os prazos e horários!
+              Respeitem os colegas e a professora.
+        Quando tiverem dúvidas e dificuldades, me procurem!
+                 SOBRE O USO DE IA
+
+            É expressamente proibido o uso de ferramentas de
+ Provas
+            Inteligência Artificial durante qualquer avaliação.
+
+
+            Os trabalhos devem ser elaborados pelo próprio
+            aluno. O uso de IA para gerar respostas e códigos
+Trabalhos
+            completos ou substituir o esforço individual não será
+            aceito!
+                     SOBRE O USO DE IA
+                              Uso Responsável
+A Inteligência Artificial pode ser utilizada como apoio ao estudo - para pesquisa,
+organização de ideias ou esclarecimento de dúvidas - mas nunca substituindo o
+        pensamento crítico, a criatividade e a análise pessoal do estudante.
+
+                               Transparência
+     Sempre que o aluno recorrer a ferramentas de IA em alguma etapa de
+    sua aprendizagem, deve declarar esse uso de forma sincera e explícita.
+Um ótimo semestre
+para todos/as!
+
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

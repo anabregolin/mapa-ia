@@ -1,0 +1,717 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                 A U L A 2 - PA R T E 2
+
+
+    AGENTES E AMBIENTES
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+OBJETIVOS AULA
+Parte 1:
+    Visão geral e origem de IA
+    Primeiros sistemas e soluções
+Parte 2:
+    Introdução a agentes e ambientes
+    Agentes em ambientes determinísticos
+ O QUE É
+UM AGENTE?
+O QUE   É ÉUM
+    IA NÃO       AGENTE?
+            CHAT GPT!
+
+
+“Qualquer coisa que pode ser vista como percebendo seu
+ambiente através de sensores e agindo sobre esse ambiente
+através de atuadores”
+
+
+Artificial Intelligence: A Modern Approach (Russell & Norvig, 3ed, 2009)
+O QUE É UM AGENTE?
+TIPOS DE AGENTES
+
+
+
+Russel & Norvig (tipologia):
+   Agentes Reativos
+   Agentes Cognitivos (deliberativos)
+TIPOS DE AGENTES
+
+Russel & Norvig (tipologia):
+   Agentes Reativos:
+      Puramente reativo (baseado em regras simples)
+      Reativo baseado em modelo (memória/estado interno)
+
+   Agentes Cognitivos (deliberativos):
+      Baseado em objetivo (planeja para atingir metas)
+      Baseado em utilidade (avalia diferentes soluções pelo “valor”)
+      Com aprendizado (adapta-se com experiência)
+AGENTE REATIVO
+
+Baseiam-se apenas na percepção imediata do ambiente
+
+Não constrói planos nem consideram objetivos futuros
+
+Funcionam por regras: condição           → ação
+               Se temperatura cai abaixo de 20 graus, liga o aquecedor;
+
+               Se sobe acima de 25 graus, desliga
+ AGENTE COGNITIVO
+
+Decisões com base em objetivos e planos.
+
+Realizam deliberação: raciocinam antes e durante a ação.
+
+Podem usar busca em espaço de estados para encontrar
+
+sequência ações.
+
+
+           Ao receber um destino, calcula rotas possíveis e escolhe a melhor.
+AGENTES EM IA
+
+Qual a característica fundamental que uma
+entidade virtual ou física deve possuir para ser
+considerada um agente?
+AGENTES EM IA
+
+Qual a característica fundamental que uma
+entidade virtual ou física deve possuir para ser
+considerada um agente?
+
+
+                  AUTONOMIA!
+ AGENTES EM IA
+
+
+    AUTONOMIA!
+  Um agente deve ser capaz de
+tomar decisões por conta própria,
+  sem depender de intervenção
+       contínua externa.
+TIPOS DE AMBIENTES
+
+ Totalmente observável (Acessível) x Parcialmente observável (Inacessível)
+
+
+            Determinístico x Não-determinístico (estocástico)
+
+
+                        Episódico x Não-episódico
+
+
+                           Estático x Dinâmico
+
+
+                           Discreto x Contínuo
+TIPOS DE AMBIENTES
+ Totalmente observável (Acessível) x Parcialmente observável (Inacessível)
+
+Acessibilidade é referente à observabilidade de um ambiente.
+   O quanto o agente que estamos implementando conhece
+   “verdade do mundo” por trás dele?
+
+
+           Quanto mais observável/acessível o ambiente
+
+
+         Mais fácil resolver o problema (construir o agente)
+TIPOS DE AMBIENTES
+            Determinístico x
+   Totalmente observável      Não-determinístico
+                         (Acessível) x              (estocástico)
+                                       Parcialmente observável  (Inacessível)
+
+
+Determinístico: Cada função mapeia um efeito
+   É um ambiente em que, se eu fizer uma ação, eu sei
+   exatamente o que acontece a seguir.
+Não-determinístico: Uma ação pode ter vários efeitos
+   Ação é um resultado de uma escolha aleatória
+TIPOS DE AMBIENTES
+           Determinístico x
+  Totalmente observável      Não-determinístico
+                        Episódico
+                        (Acessível)xxNão-episódico (estocástico)
+                                      Parcialmente observável  (Inacessível)
+
+
+
+Episódico: Cada tomada de decisão é independente da
+decisão anterior e das próximas. A performance de um
+agente depende apenas do momento atual.
+
+Não-Episódico: Mundo real.
+TIPOS DE AMBIENTES
+            Determinístico x
+   Totalmente observável      Não-determinístico
+                         Episódico
+                         (Acessível)
+                            Estáticoxxx
+                                      Não-episódico (estocástico)
+                                       Parcialmente observável
+                                        Dinâmico                (Inacessível)
+
+
+Estático: Só o agente controla o ambiente!
+   Posso levar o tempo que eu quiser para tomar uma decisão
+      → estado/ambiente não muda.
+Dinâmico: Envolve outros processos/agentes operando e
+agindo no ambiente, alterando o estado atual.
+   Tempo de tomada de decisão é importante
+TIPOS DE AMBIENTES
+           Determinístico x
+  Totalmente observável      Não-determinístico
+                        Episódico
+                        (Acessível)
+                           Discreto
+                           Estáticoxxxx
+                                     Não-episódico (estocástico)
+                                      Parcialmente observável
+                                        Dinâmico
+                                        Contínuo               (Inacessível)
+
+
+
+Discreto: Número finito de ações, número
+contável de estados .
+
+Contínuo: Número infinito de ações e estados (e
+infinitos estados entre estados)
+EXERCÍCIO DE FIXAÇÃO
+  Considere o agente abaixo:
+    1. Agente de entrega com drone: Realiza entregas de pacotes em uma
+       cidade, desviando de obstáculos e ajustando a rota em tempo real.
+  Classifique o ambiente do agente:
+      Observabilidade: Totalmente observável ou Parcialmente observável.
+      Determinismo: Determinístico ou Estocástico.
+      Episodicidade: Episódico ou Sequencial.
+      Dinamismo: Estático ou Dinâmico.
+      Discretização: Discreto ou Contínuo.
+
+    Observabilidade   Determinismo   Episodicidade   Dinamismo   Discretização
+EXERCÍCIO DE FIXAÇÃO
+  Considere o agente abaixo:
+    1. Agente de entrega com drone: Realiza entregas de pacotes em uma
+       cidade, desviando de obstáculos e ajustando a rota em tempo real.
+  Classifique o ambiente do agente:
+      Observabilidade: Totalmente observável ou Parcialmente observável.
+      Determinismo: Determinístico ou Estocástico.
+      Episodicidade: Episódico ou Sequencial.
+      Dinamismo: Estático ou Dinâmico.
+      Discretização: Discreto ou Contínuo.
+
+    Observabilidade   Determinismo   Episodicidade   Dinamismo   Discretização
+
+      Parc Observ     Estocástico    Sequencial      Dinâmico     Contínuo
+EXERCÍCIO DE FIXAÇÃO
+
+Vamos considerar um agente nos seguintes ambientes:
+
+   Crossword puzzle (cruzadinha)
+   Xadrez competitivo (com relógio)
+   Dirigir um taxi
+   Diagnóstico médico
+   Análise de imagens
+   Robô linha de montagem
+    EXERCÍCIO DE FIXAÇÃO
+
+                          Observável        Multi-agente   Determinístico   Episódico    Estático   Discreto
+                      Parcialm-observável   Agente-único    Estocástico     Sequencial   Dinâmico   Contínuo
+
+Cruzadinha
+
+
+Xadrez
+
+
+Dirigir carro
+
+
+Diagnóstico médico
+
+
+Análise imagens
+
+
+Robô linha montagem
+    EXERCÍCIO DE FIXAÇÃO
+
+                          Observável        Multi-agente    Determinístico    Episódico    Estático   Discreto
+                      Parcialm-observável   Agente-único     Estocástico      Sequencial   Dinâmico   Contínuo
+
+Cruzadinha              Observável          Agente único   Determinístico    Sequencial    Estático   Discreto
+
+Xadrez
+
+
+Dirigir carro
+
+
+Diagnóstico médico
+
+
+Análise imagens
+
+
+Robô linha montagem
+    EXERCÍCIO DE FIXAÇÃO
+
+                          Observável        Multi-agente    Determinístico    Episódico    Estático   Discreto
+                      Parcialm-observável   Agente-único     Estocástico      Sequencial   Dinâmico   Contínuo
+
+Cruzadinha              Observável          Agente único   Determinístico    Sequencial    Estático   Discreto
+
+Xadrez                  Observável          Multi agente   Determinístico    Sequencial    Dinâmico   Discreto
+
+Dirigir carro
+
+
+Diagnóstico médico
+
+
+Análise imagens
+
+
+Robô linha montagem
+    EXERCÍCIO DE FIXAÇÃO
+
+                          Observável        Multi-agente    Determinístico    Episódico    Estático   Discreto
+                      Parcialm-observável   Agente-único     Estocástico      Sequencial   Dinâmico   Contínuo
+
+Cruzadinha              Observável          Agente único   Determinístico    Sequencial    Estático   Discreto
+
+Xadrez                  Observável          Multi agente   Determinístico    Sequencial    Dinâmico   Discreto
+
+Dirigir carro         Não-observável        Multi agente    Estocástico      Sequencial    Dinâmico   Contínuo
+
+Diagnóstico médico
+
+
+Análise imagens
+
+
+Robô linha montagem
+    EXERCÍCIO DE FIXAÇÃO
+
+                          Observável        Multi-agente    Determinístico    Episódico    Estático   Discreto
+                      Parcialm-observável   Agente-único     Estocástico      Sequencial   Dinâmico   Contínuo
+
+Cruzadinha              Observável          Agente único   Determinístico    Sequencial    Estático   Discreto
+
+Xadrez                  Observável          Multi agente   Determinístico    Sequencial    Dinâmico   Discreto
+
+Dirigir carro         Não-observável        Multi agente    Estocástico      Sequencial    Dinâmico   Contínuo
+
+Diagnóstico médico    Não-observável        Agente único    Estocástico      Sequencial    Dinâmico   Contínuo
+
+Análise imagens
+
+
+Robô linha montagem
+    EXERCÍCIO DE FIXAÇÃO
+
+                          Observável        Multi-agente    Determinístico    Episódico    Estático   Discreto
+                      Parcialm-observável   Agente-único     Estocástico      Sequencial   Dinâmico   Contínuo
+
+Cruzadinha              Observável          Agente único   Determinístico    Sequencial    Estático   Discreto
+
+Xadrez                  Observável          Multi agente   Determinístico    Sequencial    Dinâmico   Discreto
+
+Dirigir carro         Não-observável        Multi agente    Estocástico      Sequencial    Dinâmico   Contínuo
+
+Diagnóstico médico    Não-observável        Agente único    Estocástico      Sequencial    Dinâmico   Contínuo
+
+Análise imagens         Observável          Agente único   Determinístico    Episódico     Estático   Contínuo
+
+Robô linha montagem
+    EXERCÍCIO DE FIXAÇÃO
+
+                          Observável        Multi-agente    Determinístico    Episódico    Estático   Discreto
+                      Parcialm-observável   Agente-único     Estocástico      Sequencial   Dinâmico   Contínuo
+
+Cruzadinha              Observável          Agente único   Determinístico    Sequencial    Estático   Discreto
+
+Xadrez                  Observável          Multi agente   Determinístico    Sequencial    Dinâmico   Discreto
+
+Dirigir carro         Não-observável        Multi agente    Estocástico      Sequencial    Dinâmico   Contínuo
+
+Diagnóstico médico    Não-observável        Agente único    Estocástico      Sequencial    Dinâmico   Contínuo
+
+Análise imagens         Observável          Agente único   Determinístico    Episódico     Estático   Contínuo
+
+Robô linha montagem   Não-observável        Agente único    Estocástico      Episódico     Dinâmico   Discreto
+AGENTES EM AMBIENTES
+DETERMINÍSTICOS
+
+Todas as ações levam a resultados previsíveis e únicos!
+   Mover uma peça de um quebra-cabeça
+
+
+O agente pode planejar sequências de ações com
+segurança, sabendo que não haverá surpresas.
+EXEMPLO: VACUUM WORLD
+EXEMPLO: VACUUM WORLD
+
+           “Se o quadrado atual está sujo, aspire a sujeira;
+                caso contrário, vá para o outro quadrado”
+EXEMPLO: VACUUM WORLD
+
+                   “Se o quadrado atual está sujo, aspire a sujeira;
+                         caso contrário, vá para o outro quadrado”
+
+
+
+
+     Função de agente simples: mapeamento de ações
+     em relação a sequência de percepções do ambiente.
+EXEMPLO: VACUUM WORLD
+
+                   “Se o quadrado atual está sujo, aspire a sujeira;
+                         caso contrário, vá para o outro quadrado”
+
+
+
+
+     Função de agente simples: mapeamento de ações
+     em relação a sequência de percepções do ambiente.
+EXEMPLO: VACUUM WORLD
+
+                 Sequência de
+                                 Ação
+                  Percepções
+
+
+                  [A, Limpo]     Direita
+
+
+                   [A, Sujo]     Limpar
+
+
+                  [B, Limpo]    Esquerda
+
+
+                   [B, Sujo]     Limpar
+TIPOS   DEÉ CHAT
+    IA NÃO  PROBLEMAS
+                 GPT!
+
+
+ Determinístico e completamente observável                 → Problema de um estado
+   Agente sabe exatamente em qual estado está        → solução é uma sequência.
+ Não observável      → Problema de conformidade
+   Agente pode (ou não) ter ideia de onde está     → sequência que induza uma solução
+   independente de onde estamos.
+
+ Não determinísticos e/ou parc. observáveis               → Problema de contingência
+   Ações não tem um efeito único e não temos certeza absoluta do estado em que estamos
+     Probabilidade   → política (grafo) de busca
+EXEMPLO: VACUUM WORLD
+
+
+
+
+ Problema de estado único,
+determinístico e totalmente
+        observável.
+EXEMPLO: VACUUM WORLD
+
+
+
+
+   Quantos estados tem o
+problema do Aspirador de pó?
+EXEMPLO: VACUUM WORLD
+
+
+                               Localização: A ou B
+                               Sujeira A: Sim ou Não
+                               Sujeira em B: Sim ou Não
+
+
+
+   Quantos estados tem o
+problema do Aspirador de pó?
+EXEMPLO: VACUUM WORLD
+
+
+                               Localização: A ou B
+                               Sujeira A: Sim ou Não      3 variáveis binárias
+                               Sujeira em B: Sim ou Não
+
+
+
+   Quantos estados tem o
+problema do Aspirador de pó?
+EXEMPLO: VACUUM WORLD
+
+
+                               Localização: A ou B
+                               Sujeira A: Sim ou Não      3 variáveis binárias
+                               Sujeira em B: Sim ou Não
+                                                              3
+                                                             2 = 8 estados
+   Quantos estados tem o
+problema do Aspirador de pó?
+EXEMPLO: VACUUM WORLD
+
+ 1       2
+
+
+ 3       4
+
+
+ 5       6
+
+
+ 7       8
+EXEMPLO: VACUUM WORLD
+
+ 1       2
+
+
+ 3       4          Problema de estado único:
+                 começamos em 5. Qual a solução?
+
+ 5       6
+
+
+ 7       8
+EXEMPLO: VACUUM WORLD
+
+ 1       2
+
+
+ 3       4          Problema de estado único:
+                 começamos em 5. Qual a solução?
+
+ 5       6              [Direita, Limpar]
+
+
+ 7       8
+EXEMPLO: VACUUM WORLD
+
+ 1       2         Problema de conformidade: não
+                 sabemos o estado em que estamos.
+
+ 3       4         Começar em {1, 2, 3, 4, 5, 6, 7, 8}
+                    ex: Direita vai para {2, 4, 6, 8}
+
+ 5       6                 Qual a solução?
+
+
+ 7       8
+EXEMPLO: VACUUM WORLD
+
+ 1       2         Problema de conformidade: não
+                 sabemos o estado em que estamos.
+
+ 3       4         Começar em {1, 2, 3, 4, 5, 6, 7, 8}
+                    ex: Direita vai para {2, 4, 6, 8}
+
+ 5       6                 Qual a solução?
+
+                 [Direita, Limpa, Esquerda, Limpa]
+ 7       8
+EXEMPLO: VACUUM WORLD
+
+ 1       2       Problema de contingência: ação não
+                               →
+                 determinística Aspirar pode sujar
+
+ 3       4       Estamos em 5, mas não sabemos o
+                     estado do outro cômodo.
+
+ 5       6                Qual a solução?
+
+
+ 7       8
+EXEMPLO: VACUUM WORLD
+
+ 1       2       Problema de contingência: ação não
+                                →
+                 determinística Aspirar pode sujar
+
+ 3       4       Estamos em 5, mas não sabemos o
+                     estado do outro cômodo.
+
+ 5       6                Qual a solução?
+
+                     [Direita, if sujo then Limpar]
+ 7       8
+FORMULAÇÃO DE PROBLEMAS
+
+    Entendemos como fazer um
+   agente que resolve problemas.
+   PLANEJAMENTO
+
+  Agora vamos aprender a formular
+    um problema formalmente.
+FORMULAÇÃO DE PROBLEMAS
+ A formulação de problemas é definida em 5 itens:
+
+   Estados  → Situações possíveis
+   Ações → Movimentos ou decisões
+   Transições → Regras que ligam estados
+     PLANEJAMENTO
+
+
+
+   Custo → Esforço ou recurso
+   Objetivo → Estado final desejado
+EXEMPLO: MAPA DA ROMÊNIA
+
+
+
+
+  PLANEJAMENTO
+EXEMPLO: MAPA
+   1970: MYCIN DA ROMÊNIA
+
+Atualmente: Arad
+
+Objetivo: Bucharest
+
+Formular problema:
+    PLANEJAMENTO
+   Estados: Várias cidades
+
+   Ações: Dirigir entre cidades
+
+Solução a ser encontrada: Sequência de cidades
+FORMULAÇÃO  DE
+   1970: MYCIN PROBLEMAS
+
+Um problema (single-state) é definido em 5 itens:
+
+  1.Estado inicial              ex.: Em Arad
+
+ 2.Ações           ex.: dirigir de um lugar até outro
+
+ 3.Função  transição de estado/Sucessor
+    PLANEJAMENTO
+
+    a.   → S(x) = conjunto de pares ação-estado         ex.: S(Arad) = {Arad   → Zerind, Zerind → ...}
+ 4.Teste objetivo            ex.: estar em Bucharest
+
+ 5.Custo          ex.: Soma das distâncias, número de ações
+PROBLEM-SOLVING AGENT
+
+function SIMPLE-PROBLEM-SOLVING-AGENT(percept, state):
+             ←
+    static seq []
+        ←
+    state UPDATE-STATE(state, percept)
+    if seq is empty then
+             ←
+         goal FORMULATE-GOAL(state)
+               ←
+         problem FORMULATE-PROBLEM(state, goal)
+            ←
+         seq SEARCH(seq)
+           ←
+    action FIRST(seq)
+       ←
+    seq REST(seq)
+    return action
+PROBLEM-SOLVING AGENT
+
+function SIMPLE-PROBLEM-SOLVING-AGENT(percept, state):
+    static seq [] ←
+            ←
+    state UPDATE-STATE(state, percept)
+    if seq is empty then
+                ←
+         goal FORMULATE-GOAL(state)
+                  ←
+         problem FORMULATE-PROBLEM(state, goal)
+               ←
+         seq SEARCH(seq)
+              ←
+    action FIRST(seq)
+          ←
+    seq REST(seq)
+    return action                        Escolher o objetivo (goal) é o primeiro passo na
+                                      resolução de problemas: onde nós queremos chegar?
+PROBLEM-SOLVING AGENT
+
+function SIMPLE-PROBLEM-SOLVING-AGENT(percept, state):
+    static seq [] ←
+            ←
+    state UPDATE-STATE(state, percept)
+    if seq is empty then
+                ←
+         goal FORMULATE-GOAL(state)
+                  ←
+         problem FORMULATE-PROBLEM(state, goal)
+               ←
+         seq SEARCH(seq)
+              ←
+    action FIRST(seq)
+          ←
+    seq REST(seq)
+    return action                      Formular o problema envolve identificar as ações e
+                                           os estados que devem ser considerados.
+PROBLEM-SOLVING AGENT
+
+function SIMPLE-PROBLEM-SOLVING-AGENT(percept, state):
+    static seq []←
+            ←
+    state UPDATE-STATE(state, percept)
+    if seq is empty then
+                ←
+         goal FORMULATE-GOAL(state)
+                  ←
+         problem FORMULATE-PROBLEM(state, goal)
+               ←
+         seq SEARCH(seq)
+              ←
+    action FIRST(seq)
+          ←
+    seq REST(seq)                        Busca envolve examinar as sequências de ações
+                                       possíveis → ver os estados que as sequências geram
+    return action
+                                                      e escolher a melhor sequência para o objetivo.
+PROBLEM-SOLVING AGENT
+
+function SIMPLE-PROBLEM-SOLVING-AGENT(percept, state):
+    static seq []←
+           ←
+    state UPDATE-STATE(state, percept)
+    if seq is empty then
+                ←
+         goal FORMULATE-GOAL(state)
+                  ←
+         problem FORMULATE-PROBLEM(state, goal)
+               ←
+         seq SEARCH(seq)
+              ←
+    action FIRST(seq)
+          ←
+    seq REST(seq)                      Algoritmo de busca pega um problema como entrada
+    return action                        e retorna uma solução → melhor sequência ações
+EXERCÍCIO DE MODELAGEM
+   1970: MYCIN
+
+Escolher um problema cotidiano (ex: organizar livros,
+preparar um café, estacionar um carro)
+
+  1.Definir estado inicial e objetivo
+ 2.Listas ações possíveis
+    PLANEJAMENTO
+
+
+ 3.Representar transições
+ 4.Identificar se há custo associado
+P R Ó X I M AS AU L AS :
+
+
+SOLUÇÃO DE PROBLEMAS
+ALG. BUSCA
+HEURÍSTICAS
+TEORIA JOGOS
+
+UNIDADE 2
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

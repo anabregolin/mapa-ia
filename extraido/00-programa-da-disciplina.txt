@@ -1,0 +1,168 @@
+                               Pontifícia Universidade Católica do Rio Grande do Sul
+                                                                                          ESCOLA POLITÉCNICA
+
+
+                                                                                 VIGÊNCIA: 2025/1 - 2026/1
+
+
+                         PROGRAMA DA DISCIPLINA
+
+DISCIPLINA:
+INTELIGENCIA ARTIFICIAL
+
+CODCRED:         CARGA HORÁRIA:              MÓDULO:                           MODALIDADE:
+98708-04         60                          NÃO INFORMADO                     PRESENCIAL
+
+
+
+EMENTA:
+
+Estudo teórico-prático das diversas abordagens de formalização e resolução de problemas
+utilizando algoritmos de inteligência artificial. Estudo teórico-prático de uso de algoritmos de busca
+para resolução de problemas em agentes autônomos. Apresentação de abordagens para
+representação de conhecimento. Apresentação de técnicas de geração automática de planos.
+Introdução ao Aprendizado de Máquina
+
+OBJETIVOS:
+
+O cumprimento da disciplina busca dar ao aluno, ao final do semestre, condições de:
+
+   1.​ Compreender o conceito e as características dos diferentes paradigmas da Inteligência
+       Artificial (IA), quanto às abordagens simbólica, probabilística e conexionista;
+   2.​ Formalizar problemas e projetar sistemas que implementem características básicas
+       associadas à inteligência, tais como busca, representação do conhecimento, raciocínio,
+       planejamento e aprendizagem;
+   3.​ Conhecer os paradigmas de aprendizagem, os passos de análise e pré-processamento de
+       dados, bem como técnicas de aprendizado de máquina.
+
+CONTEÚDO:
+
+Unidade de Aprendizagem 1: Visão Geral
+1.1.​Conceituação
+1.2.​Breve Histórico de IA
+1.3.​Sub áreas e disciplinas afins
+1.4.​Questões filosóficas de IA
+
+Unidade de Aprendizagem 2: Solução de Problemas
+2.1.​Introdução a agentes em ambientes determinísticos
+2.1.1.​Representação de problemas
+2.1.2.​Breve revisão de busca não-informada
+2.1.3.​Busca informada (heurística)
+2.1.3.1.​Funções Heurísticas
+2.2.​Algoritmos de Busca com Informação
+
+
+                                                         Campus Central
+                                                         Av. Ipiranga, 6681 - Prédio 30 - Sala 101 - CEP: 90619-900
+                                                         Telefone: (51) 3320.3558
+                                                         www.pucrs.br/politecnica
+                             Pontifícia Universidade Católica do Rio Grande do Sul
+                                                                                     ESCOLA POLITÉCNICA
+
+
+
+2.2.1.​Problemas de Otimização
+2.2.1.1.​Busca local
+2.2.1.2.​Hill Climbing e Simulated Annealing
+2.2.1.3.​Beam Search e Algoritmo Genético
+2.2.2.​Busca Adversária
+2.2.2.1.​Teoria dos Jogos
+2.2.2.2 Algoritmos Minimax e alpha-beta pruning
+
+Unidade de Aprendizagem 3: Raciocínio, Planejamento                        e     Representação             de
+Conhecimento
+1.1.​Agentes em Lógica
+1.1.1.​Representação de problemas em lógica
+1.1.2.​Inferência em lógica
+1.2.​Planejamento Clássico
+1.2.1.​Formalismos de planejamento
+1.2.2.​Algoritmos de planejamento
+1.3.​Outras Abordagens para Planejamento Automático
+1.4.​Introdução a Representação de Conhecimento
+1.4.1.​Ontologias
+1.4.2.​Raciocínio semântico
+
+Unidade de Aprendizagem 4: Raciocínio sob Incerteza
+4.1​Probabilidade
+4.1.1.​Revisão de probabilidade
+4.1.2.​Independência
+4.1.3.​Regra de Bayes
+4.2.​Inferência sob incerteza
+4.2.1.​Redes Bayesianas
+4.2.2.​Inferência exata e aproximada em Redes Bayesianas
+
+Unidade de Aprendizagem 5: Aprendizado de máquina
+5.1.​Introdução ao aprendizado de máquina
+5.1.1.​Paradigmas de aprendizado
+5.1.2.​Espaço de hipóteses
+5.1.3.​Tarefas de aprendizado
+5.2​Modelos Preditivos
+5.2.1.​Regressão linear e logística
+5.2.2.​Árvores de Decisão
+5.2.3.​Redes Neurais
+5.2.4.​KNN
+5.2.5.​Métricas de Avaliação
+5.3.​Modelos Descritivos
+5.3.1.​Regras de Associação
+5.3.2.​Agrupamento: tipos e algoritmo
+
+
+                                                    Campus Central
+                                                    Av. Ipiranga, 6681 - Prédio 30 - Sala 101 - CEP: 90619-900
+                                                    Telefone: (51) 3320.3558
+                                                    www.pucrs.br/politecnica
+                             Pontifícia Universidade Católica do Rio Grande do Sul
+                                                                                      ESCOLA POLITÉCNICA
+
+
+
+5.3.3.​Métricas de Avaliação
+5.4.​Aprendizado por Reforço
+5.4.1.​Processos de Decisão de Markov
+5.4.2.​Q-Learning
+
+PROCEDIMENTOS E CRITÉRIOS DE AVALIAÇÃO:
+
+A nota de G1 será calculada da seguinte maneira:
+
+G1 = 0.4*P1 + 0.4*P2 + 0.2*MT
+
+onde: P1: Prova 1, abrange as unidades 1, 2 e 3.
+
+P2: Prova 2, abrange as unidades 4 e 5.
+
+MT: Média dos trabalhos e exercícios executados durante o semestre, relativos a algumas das
+unidades trabalhadas.
+
+
+BIBLIOGRAFIA BÁSICA:
+
+  1.​ RUSSELL, S. J.; NORVIG, P. Artificial Intelligence – a Modern Approach. 3ed. New Jersey:
+      Prentice Hall, 2009. 1152p.
+  2.​ GEFFNER, Hector; BONET, Blai. A Concise Introduction to Models and Methods for Automated
+      Planning. Synthesis Lectures on Artificial Intelligence and Machine Learning, Morgan and
+      Claypool Publishers, 2013.
+  3.​ MURPHY, Kevin P. Probabilistic machine learning: an introduction. Cambridge; London: The
+      Mit Press, [2022]
+
+
+BIBLIOGRAFIA COMPLEMENTAR:
+
+  1.​ GHALLAB, M; NAU, D; TRAVERSO, P. Automated Planning and Acting. 1ed. Cambridge
+      University Press, 2016, 368p.
+  2.​ HUTH, Michael; RYAN, Mark. Logic in computer science: Modelling and reasoning about
+      systems. 2 eds., Cambridge University Press, 2004.
+  3.​ FACELI, K., LORENA, A.C., GAMA, J., CARVALHO, A.C.P.L.F. Inteligência Artificial: Uma
+      Abordagem de Aprendizado de Máquina. Rio de Janeiro: LTC, 2011. 378 p
+  4.​ SUTTON, Richard S., BARTO, Andrew G. Reinforcement Learning: An Introduction. 2nd ed,
+      Cambridge, MIT Press, 2018. 548p.
+  5.​ JURAFSKY, Dan; MARTIN, James H. Speech and Language Processing. 3rd ed, 2019, 1032p.
+
+
+
+
+                                                     Campus Central
+                                                     Av. Ipiranga, 6681 - Prédio 30 - Sala 101 - CEP: 90619-900
+                                                     Telefone: (51) 3320.3558
+                                                     www.pucrs.br/politecnica
+

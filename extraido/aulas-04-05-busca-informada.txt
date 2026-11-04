@@ -1,0 +1,786 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                            AULA 4
+
+
+          BUSCA INFORMADA
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+OBJETIVOS AULA
+  IA NÃO É CHAT GPT!
+
+
+
+  Busca Informada
+  Heurísticas
+ALGORTIMOS DE BUSCA
+          Determinístico x
+ Totalmente observável
+              Busca         Não-determinístico
+                    não-informada
+                       Episódico
+                       (Acessível)
+                          Estáticoxxx vs.
+                                    Não-episódico
+                                     Parcialmente
+                                      Dinâmico     (estocástico)
+                                          Busca Informada
+                                                   observável  (Inacessível)
+
+
+
+Busca não-informada:
+   Não usa conhecimento extra
+   Explora sistematicamente
+
+Busca informada:
+   Usa heurísticas (estimativas)
+BUSCA INFORMADA
+  1970: MYCIN
+Definição: Algoritmos utilizam informações adicionais
+(heurísticas) para guiar a exploração do espaço de
+estados em direção ao objetivo de uma forma mais
+eficiente.
+    PLANEJAMENTO
+
+Exemplos:
+   Greedy Best First Search
+   A* Search
+BUSCA INFORMADA
+  1970: MYCIN
+Utilizar conhecimento específico do problema para
+                encontrar a solução.
+
+Pode ser mais eficiente que a busca não-informada,
+   PLANEJAMENTO
+pois não visita todos os nodos.
+BUSCA INFORMADA
+  1970: MYCIN
+Utilizar conhecimento específico do problema para
+                encontrar a solução.
+
+Pode ser mais eficiente que a busca não-informada,
+   PLANEJAMENTO
+pois não visita todos os nodos.
+                 Função de Avaliação - Heurística
+                              h(n)
+HEURÍSTICA
+  1970: MYCIN
+  Uma heurística é uma função h(n) que estima o
+custo para chegar da posição atual n até o objetivo.
+
+  Ela serve como uma "intuição matemática" para
+     PLANEJAMENTO
+              guiar o algoritmo de busca.
+HEURÍSTICA
+  1970: MYCIN
+  Uma heurística é uma função h(n) que estima o
+custo para chegar da posição atual n até o objetivo.
+
+  Ela serve como uma "intuição matemática" para
+     PLANEJAMENTO
+              guiar o algoritmo de busca.
+
+                     UMA REGRA:
+      h(n) = 0 apenas quando estamos no objetivo!
+O QUE SÃO HEURÍSTICAS?
+   1970: MYCIN
+
+  Função de estimativa que indica quão perto um estado está do objetivo.
+
+  Probabilidade ou suposição a respeito da resolução de um problema.
+
+  Regra para escolher os ramos da espaço de estado que têm maior
+  probabilidade de levarem a uma solução aceitável.
+
+                           Heurística →h(n)
+                          h(n) = 0→ Objetivo
+HEURÍSTICA -
+  1970: MYCINCARACTERÍSTICAS
+
+
+Admissibilidade
+
+ Consistência
+   PLANEJAMENTO
+
+
+
+
+  Qualidade
+HEURÍSTICA -
+  1970: MYCINCARACTERÍSTICAS
+
+                  Uma heurística é admissível se nunca
+                       superestima o custo real!
+Admissibilidade
+                                 h(n) ≤ h*(n),
+ Consistência            onde h*(n)   → custo real mínimo
+                  Por exemplo: distância em linha reta entre
+  Qualidade                      →
+                   duas cidades nunca será maior que a
+                   distância real percorrida pelas estradas.
+HEURÍSTICA -
+  1970: MYCINCARACTERÍSTICAS
+
+                       Consistência ou Monotonicidade
+Admissibilidade      Uma herística é consistente se satisfaz:
+
+                               h(n) ≤ c(n, a, n’) + h(n’)
+ Consistência           c(n, a, n’)   → custo da ação de n para n’
+                  A estimativa atual nunca é maior que o custo
+  Qualidade         da ação + estimativa do próximo estado.
+HEURÍSTICA -
+  1970: MYCINCARACTERÍSTICAS
+
+
+Admissibilidade   Heurística boa  → próxima do custo real
+                    Heurística ruim → muito distante ou
+ Consistência
+                              superestimada
+
+
+  Qualidade
+                  Heurística perfeita   → igual ao custo real
+HEURÍSTICA -
+  1970: MYCINCARACTERÍSTICAS
+
+
+ Característica                  Definição                      Importância
+
+  Admissibilidade       Nunca superestima o custo real        Garante solução ótima
+
+   Consistência     Estimativa coerente ao longo do caminho    Evita reexploração
+
+    Qualidade             Aproximação do custo real                 Eficiência
+EXEMPLO HEURÍSTICA
+
+No caso de um mapa, qual heurística que podemos usar?
+EXEMPLO HEURÍSTICA
+
+No caso de um mapa, qual heurística que podemos usar?
+
+                                Heurística = distância em
+                                linha reta até o destino
+EXEMPLO HEURÍSTICA
+
+No caso de um mapa, qual heurística que podemos usar?
+
+                                Heurística = distância em
+                                linha reta até o destino
+
+
+
+
+                                   Heurística admissível:
+                               não superestimamos o trajeto.
+ EXEMPLO HEURÍSTICA
+
+Distância em linha reta entre dois pontos = Distância Euclidiana
+ EXEMPLO HEURÍSTICA
+
+Distância em linha reta entre dois pontos = Distância Euclidiana
+ EXEMPLO HEURÍSTICA
+
+No caso de um labirinto (ou tabuleiro), qual heurística usar?
+ EXEMPLO HEURÍSTICA
+
+No caso de um labirinto (ou tabuleiro), qual heurística usar?
+
+
+
+
+                              Distância Manhattan
+DISTÂNCIA MANHATTAN
+
+Forma simples de medir a distância entre dois pontos em
+um   ambiente   em    grade   (labirinto   ou   tabuleiro),
+considerando apenas movimentos horizontais e verticais.
+DISTÂNCIA MANHATTAN
+DISTÂNCIA MANHATTAN
+
+Por que essa é uma boa heurística?
+
+
+Admissível: nunca superestima o custo real
+Consistente: cada passo reduz a estimativa de
+forma previsível
+Simples de calcular: ideal para problemas em grade
+HEURÍSTICA 8-PUZZLE
+HEURÍSTICA 8-PUZZLE
+
+
+
+
+   h1 = Peças fora do lugar: Distância de Hamming
+                           h1 = 6
+HEURÍSTICA 8-PUZZLE
+
+
+
+
+  h2 = Distância Manhattan: distância peças até objetivo
+                         h2 = 14
+HEURÍSTICA 8-PUZZLE
+
+
+
+                                  h1 = 6
+                                  h2 = 14
+
+
+
+
+    Essas heurísticas são admissíveis?
+HEURÍSTICA 8-PUZZLE
+
+
+
+                                  h1 = 6
+                                  h2 = 14
+
+
+
+
+    Essas heurísticas são admissíveis?      SIM!
+ALGORITMOS BUSCA
+   1970: MYCIN   INFORMADA
+
+Dois principais algoritmos:
+
+   Greedy Best First Search
+
+   A* Search
+ALGORITMOS BUSCA
+   1970: MYCIN   INFORMADA
+
+Dois principais algoritmos:
+
+   Greedy Best First Search (Busca Gulosa)
+
+   A* Search (A estrela)
+BUSCA GULOSA
+   1970: MYCIN
+
+ Como funciona:
+
+    Expande o nó que parece mais próximo do objetivo, ou seja, com
+
+    menor heurística h(n)
+
+    Ignora o custo acumulado g(n), olhando apenas para a estimativa
+
+    Vantagem: Muito rápida e boa para encontrar soluções em
+
+    problemas simples.
+BUSCA GULOSA
+   1970: MYCIN
+
+
+
+
+   Busca custo uniforme
+BUSCA GULOSA
+   1970: MYCIN
+
+
+
+
+   Busca custo uniforme   Busca gulosa
+BUSCA GULOSA
+   1970: MYCIN
+
+
+
+
+    Busca custo uniforme
+BUSCA GULOSA
+   1970: MYCIN
+
+
+
+
+    Busca custo uniforme   Busca gulosa
+BUSCA GULOSA
+   1970: MYCIN
+
+ Essa busca tenta expandir o nó mais próximo do objetivo.
+
+ Por que?
+
+    Se estamos próximos, provavelmente estamos quase
+
+    chegando no objetivo.
+
+
+                               f(n) = h(n)
+1970: MYCIN
+BUSCA GULOSA
+   1970: MYCIN
+
+ No caso do mapa da Romênia, conseguimos expandir até
+
+ Bucharest sem expandir um único nó desnecessário!
+
+
+
+    O algoritmo é ótimo?
+
+    É completo?
+BUSCA GULOSA
+   1970: MYCIN
+
+ No caso do mapa da Romênia, conseguimos expandir até
+
+ Bucharest sem expandir um único nó desnecessário!
+
+
+
+    O algoritmo é ótimo?
+
+    É completo?
+
+                             E se eu estivesse indo de Iasi para Fagaras?
+BUSCA GULOSA
+   1970: MYCIN
+1970: MYCIN
+BUSCA GULOSA
+   1970: MYCIN
+
+Essa busca tenta expandir o nó mais próximo do objetivo.
+
+Por que?
+
+   Se estamos próximos, provavelmente estamos quase
+
+   chegando no objetivo.
+                           f(n) = h(n)
+BUSCA GULOSA
+   1970: MYCIN
+
+Essa é uma busca muito similar a DFS (Depth-First Search):
+
+   Segue um caminho cegamente, guiado pela heurística.
+
+   Não garante uma solução ótima.
+
+   Pode escolher caminho que parecem boas, mas podem ser
+
+   sem saída!
+BUSCA GULOSA
+   1970: MYCIN
+
+
+
+
+    Busca custo uniforme
+BUSCA GULOSA
+   1970: MYCIN
+
+
+
+
+    Busca custo uniforme   Busca gulosa
+BUSCA GULOSA
+   1970: MYCIN
+                               Algoritmo ganancioso!
+
+      Avança para o objetivo mesmo que não seja o melhor caminho.
+
+ Considera o custo para chegar no objetivo e ignora o custo do caminho!
+
+
+
+
+   Busca custo uniforme   Busca gulosa
+BUSCA GULOSA
+   1970: MYCIN
+                               Algoritmo ganancioso!
+
+      Avança para o objetivo mesmo que não seja o melhor caminho.
+
+ Considera o custo para chegar no objetivo e ignora o custo do caminho!
+
+
+
+
+   Busca custo uniforme   Busca gulosa
+                                         E se a gente pudesse combinar os dois?
+ALGORITMO A*
+   1970: MYCIN
+
+  Desenvolvido em 1968 para combinar abordagens heurísticas com
+
+  abordagens formais (não-informada).
+
+         Algortimo mais popular para fazer busca de caminhos   →
+                 flexível e aplicado em vários contextos
+
+
+  Combina algoritmos que buscam o menor custo para chegar ao
+  objetivo com algoritmos que tentam chegar o mais rápido possível.
+ALGORITMO A*
+   1970: MYCIN
+
+ Expande o nó com menor função de avaliação:
+
+            f(n) = g(n) + h(n)
+
+ g(n) → custo acumulado para chegar no estado
+ h(n) → estimativa até o objetivo
+ALGORITMO A*
+   1970: MYCIN
+
+ Expande o nó com menor função de avaliação:
+
+            f(n) = g(n) + h(n)
+
+ g(n) → custo acumulado para chegar no estado
+ h(n) → estimativa até o objetivo
+
+ f(n) → custo estimado da solução mais barata
+ALGORITMO A*
+   1970: MYCIN
+1970: MYCIN
+1970: MYCIN
+1970: MYCIN
+1970: MYCIN
+ 1970: MYCIN
+Achamos Bucharest.
+  Paramos aqui?
+    1970: MYCIN
+NÃO! Ainda não é o nosso
+  menor custo em fila!
+Chegamos ao caminho
+ ótimo com custo 418
+ALGORITMO A*
+   1970: MYCIN
+
+ → Se estamos buscando a solução mais barata, faz sentido tentar
+ avançar pelos nós com menor custo f(n)
+
+
+                              A* é ótimo?
+ALGORITMO A*
+   1970: MYCIN
+
+ → Se estamos buscando a solução mais barata, faz sentido tentar
+ avançar pelos nós com menor custo f(n)
+
+
+                              A* é ótimo?
+
+
+             APENAS quando h(n) for admissível!
+ALGORITMO A*
+   1970: MYCIN
+
+ → Se estamos buscando a solução mais barata, faz sentido tentar
+ avançar pelos nós com menor custo f(n)
+
+
+                                    A* é ótimo?
+
+
+             APENAS quando h(n) for admissível!
+               heurística otimista: diz que custa menos do que o custo real
+ALGORITMO A*
+   1970: MYCIN
+
+ Esse algoritmo tem alguma desvantagem?
+ALGORITMO A*
+   1970: MYCIN
+
+ Esse algoritmo tem alguma desvantagem?
+
+
+                Problemas grandes   → Muita memória!
+ALGORITMO A*
+   1970: MYCIN
+
+ Esse algoritmo tem alguma desvantagem?
+
+
+                   Problemas grandes    → Muita memória!
+ 1 - A* mantém uma lista de todos os estados que ainda podem ser
+ expandidos, ordenados pelo valor f(n) = g(n) + h(n)   → exponencial!
+ALGORITMO A*
+   1970: MYCIN
+
+ Esse algoritmo tem alguma desvantagem?
+
+
+                  Problemas grandes      → Muita memória!
+ 2 - Para evitar os nós já explorados   → guarda a lista de nós expandidos
+ E isso aumenta ainda mais o consumo de memória.
+ALGORITMO A*
+   1970: MYCIN
+
+ Esse algoritmo tem alguma desvantagem?
+
+
+                    Problemas grandes    → Muita memória!
+ 3 - Combina exploração em largura e profundidade!
+ Busca o caminho ótimo, então precisa considerar muitos caminhos alternativos
+ → não descarta um estado até ter certeza de que não faz parte da solução ótima.
+ALGORITMO A* -
+   1970: MYCIN MEMÓRIA
+
+    Como resolvemos o problema de memória?
+ALGORITMO A* -
+   1970: MYCIN MEMÓRIA
+
+    Como resolvemos o problema de memória?
+
+
+        DFS   → Iterative Deepening DFS
+ALGORITMO A* -
+   1970: MYCIN MEMÓRIA
+
+    Como resolvemos o problema de memória?
+
+
+        DFS  → Iterative Deepening DFS
+       A* → Iterative Deepening A* → IDA*
+ITERATIVE DEEPENING
+    1970: MYCIN     A* - IDA*
+
+IDA* é uma variação do A* para reduzir o consumo de memória
+
+Em vez de manter uma lista enorme de nós abertos, ele explora em
+profundidade até um limite de custo e vai aumentar esse limite aos
+poucos.
+ITERATIVE DEEPENING
+    1970: MYCIN     A* - IDA*
+  (1) Define um limite inicial: valor f(n) do nó inicial
+
+  (2) Explora em profundidade, mas só expande nós com f(n) menor
+  ou igual ao limite
+
+  (3) Se não encontrar a solução: aumenta o limite para o menor valor
+  de f(n) que ultrapassou o limite anterior
+
+  (4) Repete: continua expandindo em profundidade com o novo
+  limite até encontrar a solução
+ITERATIVE DEEPENING
+    1970: MYCIN     A* - IDA*
+
+ Exemplo: Labirinto
+
+
+    IDA* começa explorando caminhos que parecem custar até 10 passos
+
+    Se não achou a saída, aumenta para 12 passos
+
+        Depois 15...
+                                                     Não guarda todos os
+        Assim por diante   → Até achar a saída      estados em memória,
+                                                   apenas o caminho atual!
+ITERATIVE DEEPENING
+    1970: MYCIN     A* - IDA*
+
+ Vantagens:
+    Usa muito menos memória que o A*
+    Ainda garante a solução ótima: h(n) admissível
+
+ Desvantagens:
+    Pode repetir expansões de nós várias vezes,
+    tornando a busca mais lenta.
+ITERATIVE DEEPENING
+    1970: MYCIN     A* - IDA*
+
+ Vantagens:
+    Usa muito menos memória que o A*
+    Ainda garante a solução ótima: h(n) admissível
+
+ Desvantagens:
+    Pode repetir expansões de nós várias vezes,
+    tornando a busca mais lenta.
+                                      Mais indicado para problemas
+                                     com espaços de estados enormes
+ITERATIVE DEEPENING
+    1970: MYCIN     A* - IDA*
+
+
+ 15-puzzle: 15 peças e 1 espaço vazio
+ Número permutações: 16! ≈ 20 trilhões
+
+
+ Nem todas as configurações são alcançáveis:
+ 16!/2 ≈ 10 trilhões (possíveis estados)
+
+                                            Mais indicado para problemas
+                                           com espaços de estados enormes
+ALGORITMOS BUSCA
+   1970: MYCIN   INFORMADA
+
+Dois principais algoritmos:
+
+   Greedy Best First Search (Busca Gulosa)
+
+   A* Search (A estrela)
+
+   IDA* Search
+ALGORITMOS BUSCA
+   1970: MYCIN   INFORMADA
+
+Dois principais algoritmos:
+
+   Greedy Best First Search (Busca Gulosa)
+
+   A* Search (A estrela)
+
+   IDA* Search
+
+   Weighted A* Search
+WEIGHTED A* SEARCH
+   1970: MYCIN
+                        Weighted A*   → A* ponderado
+Versão modificada do A* que dá mais peso à heurística na função de avaliação.
+
+                        f(n) = g(n) + w.h(n) , w > 1
+WEIGHTED A* SEARCH
+   1970: MYCIN
+                        Weighted A*   → A* ponderado
+Versão modificada do A* que dá mais peso à heurística na função de avaliação.
+
+                        f(n) = g(n) + w.h(n) , w > 1
+
+A*→ g(n) e h(n) tem o mesmo peso
+Weighted A* → algoritmo confia mais na estimativa do que no custo real
+
+
+Algoritmo mais rápido: caminhos parecem levar ao objetivo
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+                     f(n) = g(n) + w.h(n) , w > 1
+
+
+ Se w=0, o que acontece?
+
+ Se w=1, o que acontece?
+
+ Se w=10¹⁰⁰, o que acontece?
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+                     f(n) = g(n) + w.h(n) , w > 1
+
+
+ Se w=0, o que acontece?          f(n) = g(n)
+
+ Se w=1, o que acontece?
+
+ Se w=10¹⁰⁰, o que acontece?
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+                     f(n) = g(n) + w.h(n) , w > 1
+
+
+ Se w=0, o que acontece?          f(n) = g(n)       Custo Uniforme
+
+ Se w=1, o que acontece?
+
+ Se w=10¹⁰⁰, o que acontece?
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+                     f(n) = g(n) + w.h(n) , w > 1
+
+
+ Se w=0, o que acontece?          f(n) = g(n)          Custo Uniforme
+
+ Se w=1, o que acontece?          f(n) = g(n) + h(n)
+
+ Se w=10¹⁰⁰, o que acontece?
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+                     f(n) = g(n) + w.h(n) , w > 1
+
+
+ Se w=0, o que acontece?          f(n) = g(n)          Custo Uniforme
+
+ Se w=1, o que acontece?          f(n) = g(n) + h(n)        A*
+
+ Se w=10¹⁰⁰, o que acontece?
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+                     f(n) = g(n) + w.h(n) , w > 1
+
+
+ Se w=0, o que acontece?          f(n) = g(n)          Custo Uniforme
+
+ Se w=1, o que acontece?          f(n) = g(n) + h(n)        A*
+
+ Se w=10¹⁰⁰, o que acontece?       f(n) = h(n)
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+                     f(n) = g(n) + w.h(n) , w > 1
+
+
+ Se w=0, o que acontece?          f(n) = g(n)          Custo Uniforme
+
+ Se w=1, o que acontece?          f(n) = g(n) + h(n)        A*
+
+ Se w=10¹⁰⁰, o que acontece?       f(n) = h(n)         Busca Gulosa
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+ Consequências:
+
+    Velocidade: aumenta, porque explora menos estados
+
+    Memória: também reduz, expande menos nós
+
+    Otimalidade: perde a garantia de encontrar a solução ótima
+       Quando maior w   → mais rápido, menos preciso
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+ Vantagens:
+    Mais rápido que o A*
+    Útil em sistemas de tempo real
+
+ Desvantagens:
+    Não garante a solução ótima
+    Pode encontrar caminhos bons o suficiente, mas não os melhores
+WEIGHTED A* SEARCH
+   1970: MYCIN
+
+ Vantagens:
+    Mais rápido que o A*
+    Útil em sistemas de tempo real
+
+ Desvantagens:
+                  Em um jogo de estratégia em tempo real:
+     →
+  A*Não garanteoacaminho
+       encontrar   soluçãomais
+                            ótima
+                               curto, mas pode gastar tempo demais calculando
+ Weighted A*  →encontra um caminho rápido, talvez não o mais curto, mas suficiente
+    Pode encontrar caminhos    bons   o suficiente,
+                             para a ação imediata mas não os melhores
+COMPARAÇÃO  ALGORITMOS
+   1970: MYCIN
+
+ Algoritmo     Função f(n)      Otimalidade   Memória   Velocidade           Uso
+
+Busca Gulosa       h(n)            Não         Baixa        Alta       Problemas simples
+
+                                                                       Problemas médios/
+     A*         g(n) + h(n)        Sim          Alta     Moderada
+                                                                             grande
+
+    IDA*       limite em f(n)      Sim         Baixa     Mais lento     Espaço enorme
+
+ Weighted A*   g(n) + w.h(n)       Não          Alta    Muito rápido   Jogos, tempo real
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

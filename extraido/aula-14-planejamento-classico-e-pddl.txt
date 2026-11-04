@@ -1,0 +1,782 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                           AULA 14
+
+              PLANEJAMENTO
+             CLÁSSICO E PDDL
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+OBJETIVOS AULA
+ Revisão última aula
+ STRIPS e PDDL
+ Algoritmos de Planejamento
+   Progressão vs Regressão
+   Planning Graphs
+   Heuristic Planning
+ Planejamento Automático
+REPRESENTAÇÃO ESTADOS
+
+ Estados são representados como conjunções de literais positivos.
+     Conjunto de proposições verdadeiras!     Rico    ∧ Feliz
+  Literais de primeira ordem: lógica de predicados!
+     Podemos usar lógica de predicados para descrever estados.
+
+         At(Plane1, PortoAlegre)   ∧ At(Plane2, SaoPaulo)
+REPRESENTAÇÃO
+   1970: MYCIN OBJETIVOS
+
+ Objetivos   → São condições que definem sucesso.
+ Objetivos (Goals) são conjunções de literais positivos ground.
+
+              Rico   ∧ Famoso      At(Avião1, PortoAlegre)
+
+ Um estado s satisfaz um objetivo se s contém todos átomos do objetivo.
+
+       Rico   ∧ Famoso ∧ Infeliz      Rico   ∧ Famoso ∧ Feliz
+REPRESENTAÇÃO
+   1970: MYCIN AÇÕES
+
+ Ações são representadas e definidas por:
+    Pré-condições: o que precisa ser verdadeiro antes da ação.
+    Efeito: o que acontece quando executo a ação.
+
+ AÇÃO(Fly(p, from, to))
+ PRE-CONDIÇÃO: At(p, from)     ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+ EFEITOS: ¬At(p, from)   ∧ At(p, to)   Lista de adições (add list)
+                                       Lista de remoções (delete list)
+AÇÕES VS ESQUEMAS
+   1970: MYCIN    AÇÕES
+
+  AÇÃO(Fly(p, from, to))
+  PRE-CONDIÇÃO: At(p, from)     ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+  EFEITOS: ¬At(p, from)   ∧ At(p, to)
+Uma ação é uma instância concreta, com todos os parâmetros substituídos por constantes.
+
+                    AÇÃO(Fly(Aviao1, PortoAlegre, SaoPaulo))
+
+Um esquema de ações é um modelo genérico que pode gerar muitas ações concretar ao
+                                        →
+substituir as variáveis por constantes Representação compacta e reutilizável!
+
+                                 AÇÃO(Fly(p, from, to))
+REPRESENTAÇÃO
+   1970: MYCIN PDDL
+
+     Traduzir STRIPS para PDDL: algoritmos de planejamento
+     aprendam a comparar e encontrar planos de qualidade.
+
+  Nosso PDDL terá 2 arquivos:
+     Domínio→
+     Domínio (domain.pddl)
+                Descreve a física (o que é possível fazer)
+       :requirements :types :predicates :action
+     Problema →
+     Problema    Descreve uma instância (quem/onde/objetivo)
+              (problem.pddl)
+        :domain :objets :init :goal
+EXEMPLO COMPLETO
+   1970: MYCIN   EM STRIPS
+
+               ∧                ∧           ∧           ∧
+Init(At(C1, SFO) At(C2, JFK) At(P1, SFO) At(P2, JFK) Cargo(C1)
+    ∧          ∧            ∧           ∧           ∧
+       Cargo(C2) Plane(P1) Plane(P2) Airport(JFK) Airport(SFO)
+               ∧
+Goal(At(C1, JFK) At(C2, SFO))
+Action(Load(c,p,a),
+                    ∧           ∧       ∧       ∧
+    PRECOND: At(c,a) At(p,a) Cargo(c) Plane(p) Airport(a)
+                    ∧
+    EFFECT: ¬At(c,a) In(c,p))
+Action(Unload(c,p,a),
+                    ∧           ∧       ∧       ∧
+    PRECOND: In(c,p) At(p,a) Cargo(c) Plane(p) Airport(a)
+    EFFECT: At(c,a)∧  ¬In(c,p))
+Action(Fly(p,from,to),
+                        ∧           ∧           ∧
+    PRECOND: At(p,from) Plane(p) Airport(from) Airport(to)
+    EFFECT: ¬At(p,from) ∧ At(p,to))
+DOMÍNIO: STRIPS
+  1970: MYCIN              → PDDL
+  Domínio   → Descreve a física (o que é possível fazer)
+ Domínio (domain.pddl)
+   :requirements :types :predicates :action
+
+ (define (domain airport)
+DOMÍNIO: STRIPS
+  1970: MYCIN              → PDDL
+  Domínio   → Descreve a física (o que é possível fazer)
+ Domínio (domain.pddl)
+   :requirements :types :predicates :action
+
+ (define (domain airport)
+
+    (:requirements :strips :typing)
+DOMÍNIO: STRIPS
+  1970: MYCIN              → PDDL
+  Domínio   → Descreve a física (o que é possível fazer)
+ Domínio (domain.pddl)
+   :requirements :types :predicates :action
+
+ (define (domain airport)
+
+    (:requirements :strips :typing)
+
+    (:types cargo plane airport)
+DOMÍNIO: STRIPS
+  1970: MYCIN      → PDDL
+   Predicados:
+      At(x, a)
+      In(c, p)
+      Cargo(c)
+      Plane(p)
+      Airport(a)
+DOMÍNIO: STRIPS
+  1970: MYCIN      → PDDL
+   Predicados:        (:predicates
+      At(x, a)           (At ?x ?a)
+                         (In ?c ?p)
+      In(c, p)
+                         (Cargo ?c)
+      Cargo(c)           (Plane ?p)
+      Plane(p)           (Airport ?a)
+      Airport(a)      )
+DOMÍNIO: STRIPS
+  1970: MYCIN      → PDDL
+   Predicados:          (:predicates
+      At(x, a)             (At ?x ?a)
+                           (In ?c ?p)
+      In(c, p)
+                        )
+      Cargo(c)
+      Plane(p)
+                   (:types cargo plane airport)
+      Airport(a)
+DOMÍNIO: STRIPS
+  1970: MYCIN             → PDDL
+Action(Fly(p, from, to))
+Precondition: At(p, from) ∧  Plane(p)   ∧ Airport(from)
+              ∧  Airport(to)
+Effect: ¬At(p, from) ∧  At(p, to)
+DOMÍNIO: STRIPS
+  1970: MYCIN               → PDDL
+Action(Fly(p, from, to))
+Precondition: At(p, from)   ∧Plane(p)   ∧ Airport(from)
+               ∧ Airport(to)
+Effect: ¬At(p, from)  ∧ At(p, to)
+
+(:action Fly
+  :parameters (?p - plane ?from ?to - airport)
+  :precondition (and (At ?p ?from) (Airport ?from)
+                (Airport ?to)) (Plane ?p)
+  :effect (and (not (At ?p ?from)) (At ?p ?to))
+)
+DOMÍNIO: STRIPS
+  1970: MYCIN               → PDDL
+Action(Fly(p, from, to))
+Precondition: At(p, from)  ∧   Plane(p) ∧   Airport(from)
+               ∧  Airport(to)
+Effect: ¬At(p, from)  ∧   At(p, to)
+                                     (:types cargo plane airport)
+(:action Fly
+  :parameters (?p - plane ?from ?to - airport)
+  :precondition (At ?p ?from)
+  :effect (and (not (At ?p ?from)) (At ?p ?to))
+)
+PROBLEMA: STRIPS
+  1970: MYCIN                  → PDDL
+Problema   → Descreve uma instância (quem/onde/objetivo)
+ Problema (problem.pddl)
+    :domain :requirements:objets :init :goal
+ (define (problem exemplo1)
+PROBLEMA: STRIPS
+  1970: MYCIN                  → PDDL
+Problema   → Descreve uma instância (quem/onde/objetivo)
+ Problema (problem.pddl)
+    :domain :requirements :objets :init :goal
+ (define (problem exemplo1)
+
+    (:domain airport)
+PROBLEMA: STRIPS
+  1970: MYCIN                  → PDDL
+Problema   → Descreve uma instância (quem/onde/objetivo)
+ Problema (problem.pddl)
+    :domain :requirements :objets :init :goal
+ (define (problem exemplo1)
+
+    (:domain airport)
+
+    (:requirements :strips :typing)
+PROBLEMA: STRIPS
+  1970: MYCIN           → PDDL
+Objetos:
+Cargas: C1 e C2
+Aviões: P1 e P2
+Aeroportos: JFK e SFO
+PROBLEMA: STRIPS
+  1970: MYCIN           → PDDL
+Objetos:                 (:objects
+Cargas: C1 e C2             C1 C2 - cargo
+                            P1 P2 - plane
+Aviões: P1 e P2
+                            JFK SFO - airport
+Aeroportos: JFK e SFO    )
+PROBLEMA: STRIPS
+  1970: MYCIN                  → PDDL
+Init:
+At(C1, SFO) ∧  At(C2, JFK) ∧  At(P1, SFO) ∧  At(P2, JFK)   ∧
+Cargo(C1) ∧  Cargo(C2) ∧  Plane(P1)∧   Plane(P2)∧
+Airport(JFK) ∧  Airport(SFO)
+PROBLEMA: STRIPS
+  1970: MYCIN                   → PDDL
+Init:
+At(C1, SFO) ∧  At(C2, JFK)  ∧ At(P1, SFO)  ∧ At(P2, JFK)   ∧
+Cargo(C1) ∧  Cargo(C2) ∧  Plane(P1)  ∧ Plane(P2)    ∧
+Airport(JFK) ∧  Airport(SFO)
+
+(:init
+  (At C1 SFO) (At C2 JFK) (At P1 SFO) (At P2 JFK)
+)
+PROBLEMA: STRIPS
+  1970: MYCIN          → PDDL
+   Goal:
+   At(C1, JFK)   ∧ At(C2, SFO)
+PROBLEMA: STRIPS
+  1970: MYCIN          → PDDL
+   Goal:
+   At(C1, JFK)   ∧ At(C2, SFO)
+   (:goal
+     (and (At C1 JFK) (At C2 SFO))
+   )
+BUSCA COM CUSTO
+   1970: MYCIN
+STRIPS clássico responde apenas “existe um plano?”, não distinguindo
+um plano barato de um plano caro. Dois planos com o mesmo número
+de ações podem ter custos reais muito diferentes.
+
+Achar um plano de custo mínimo é literalmente a busca de custo
+uniforme sobre o grafo de estados gerado pelas ações!
+BUSCA COM CUSTO
+   1970: MYCIN
+STRIPS clássico responde apenas “existe um plano?”, não distinguindo
+um plano barato de um plano caro. Dois planos com o mesmo número
+de ações podem ter custos reais muito diferentes.
+
+Achar um plano de custo mínimo é literalmente a busca de custo
+uniforme sobre o grafo de estados gerado pelas ações!
+       (:functions (total-cost))   (:effect increase (total-cost))
+                   (:metric minimize (total-cost))
+ALGORITMOS  PLANNING
+   1970: MYCIN
+
+ STRIPS e PDDL são linguagens de modelagem de planejamento.
+
+ Precisamos conhecer os algoritmos de planejamento:
+    Motores: a partir da modelagem, encontram o plano.
+
+ Podemos rodar o mesmo problema em diferentes planejadores
+ para comparar o desempenho de cada um.
+ALGORITMOS  PLANNING
+   1970: MYCIN
+ Existem vários algoritmos de planejamento:
+    Planejamento progressivo ou regressivo
+    Busca no espaço de estados
+    Planejamento gráfico
+    Planejamento heurístico
+    Planejamento simbólico
+
+ Cada algoritmo tem vantagens e limitações. O planejador
+ escolhido depende do problema e dos recursos disponíveis.
+FORWARD  SEARCH
+  1970: MYCIN
+Planejamento Progressivo
+   Parte do estado inicial
+   Aplica ações até alcançar o objetivo
+
+                                          G
+                                          O
+                                          A
+                                          L
+                                          S
+BACKWARD  SEARCH
+  1970: MYCIN
+Planejamento Regressivo
+   Parte do objetivo
+   Pergunta: “Qual ação pode produzir isso?”
+
+         I
+         N
+         I
+         T
+LIMITAÇÕES DOS
+   1970: MYCIN ALGORITMOS
+
+     O fator de ramificação de uma árvore de busca é
+   determinante para o desempenho dos planejadores.
+   Fator de ramificação   → número médio de filhos por nó
+   Quando o fator é alto, a busca em árvore é ineficiente (tempo
+   não polinominal)
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+ Algoritmo GraphPlan surgiu em 1995, criado por Avrim Blum e Merrick
+ Furst, como uma alternativa mais eficiente aos métodos clássicos de
+                          busca em planejamento.
+
+Até então, os planejadores exploravam o espaço de estados diretamente
+(busca progressiva/regressiva). Pouco eficiente em problemas grandes!
+        Grafo de planejamento: estrutura que altera níveis de proposições
+     (estados) e ações, permitindo representar as possibilidades em paralelo!
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+
+         Principais componentes dos Grafos de Planejamento
+
+    Níveis:
+ Um grafo de planejamento possui dois tipos de níveis alternados: níveis
+ de ação e níveis de estado. O primeiro nível é sempre um nível de estado,
+ representando o estado inicial do problema de planejamento.
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+
+         Principais componentes dos Grafos de Planejamento
+
+    Níveis de Ações:
+ Esses níveis contém nós que representam ações. Um nó de ação se
+ conecta a um nível de estado se esse estado contém todas as pré-
+ condições necessárias para a ação. As ações, por sua vez, podem criar
+ novas condições de estado, influenciando o nível de estado seguinte.
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+
+         Principais componentes dos Grafos de Planejamento
+
+    Níveis de Estado:
+ Esses níveis consistem em nós que representam proposições lógicas ou
+ fatos sobre o mundo. Cada nível sucessivo do estado contém todas as
+ proposições do nível anterior mais aquelas que podem ser derivadas
+ pelas ações do nível de ações intermediário.
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+
+         Principais componentes dos Grafos de Planejamento
+
+    Relações de Exclusão Mútua (Mutex)
+ Em cada nível, certos pares de ação ou estados podem ser mutuamente
+ exclusivos, significando que não podem coexistir ou ocorrer juntos
+ devido a condições ou efeitos conflitantes.
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+
+ Expansão:
+    Começa em S0 (estado inicial)
+    Gera A 0 (ações possíveis a partir de S 0)
+    Gera S 1 (novos estados resultantes)
+    Repete até que todos os objetivos apareçam juntos em um
+    nível de estados.
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+
+Exclusões mútuas (mutex):
+   Grafo marca os pares de ações ou estados que não podem ocorrer juntos.
+   Isso evita planos inválidos
+
+Extração do plano:
+   Quando os objetivos aparecem em um nível sem conflitos, o algoritmo
+   tenta extrair um conjunto de ações que os satisfaça.
+   Se não consegue, expande mais níveis.
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+                                                                 Nível de ação n: ações que
+                                                                 podem ser aplicadas dado
+     Nível de estado 0:           S0   Sn                S n+1      um estado anterior
+estados/proposições que são                 An
+verdadeiras no estado inicial
+
+
+
+
+                                                                            Se uma proposição é pré-
+                                                                         condição de uma ação, há uma
+                                                                           seta do estado para a ação.
+         Cada nível contém
+                                                                         Se uma ação gera um efeito, há
+     proposições que podem ser                   Ações                      uma seta da ação para o
+     verdadeiros naquele ponto,                                                próximo estado.
+       dado ações anteriores
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+
+                 GraphPlan constrói uma estrutura
+                 compacta que mostra todas as
+                 possibilidades em paralelo.
+
+                    Muito mais eficiente em
+                       domínios grandes!
+PLANEJAMENTO GRÁFICO
+   1970: MYCIN
+GRAPHPLAN
+ Benefícios do GraphPlan:
+    Eficiência       Estrutura compacta que representa as possibilidades em paralelo.
+
+    Detecção de inconsistências         Mutex (exclusão mútua)
+
+    Planos mínimos      Capaz de encontrar planos curtos pois o grafo cresce em camadas
+
+    Extração rápida de planos       Objetivos no mesmo nível: extrai plano regressivamente
+
+    Base para planejadores modernos:
+       Inspirou abordagens posteriores (SATPlan e heurísticas derivadas de grafos),
+       sendo um marco histórico na área.
+EXERCÍCIO: GRAPHPLAN
+   1970: MYCIN
+Daniel Weld (UWashington): Suponha que você queira preparar um jantar e
+um presente surpresa para seu companheiro/a (que está dormindo).
+
+   So = {lixo, mãosLimpas, silêncio}
+   G = {jantar, presente, ¬lixo}
+                 Ações             Pré-condições   Efeitos
+
+                 cozinhar()        mãosLimpas      jantar
+                 embrulhar()       silêncio        presente
+                 carregarLixo()    -               ¬lixo, ¬mãosLimpas
+                 jogarLixo()       -               ¬lixo, ¬silêncio
+EXERCÍCIO: GRAPHPLAN
+   1970: MYCIN
+  Nível 0: estados que são
+verdadeiras no estado inicial
+
+
+            Nível 0
+
+              lixo
+
+        mãosLimpas
+
+            silêncio
+EXERCÍCIO: GRAPHPLAN
+   1970: MYCIN
+               Nível 1: Ações possíveis a partir
+                 do estado anterior (inicial).
+
+
+    Nível 0                Nível 1
+
+     lixo
+                          carregarLixo
+
+                           jogarLixo
+  mãosLimpas
+
+                           cozinhar
+    silêncio
+                           embrulhar
+EXERCÍCIO: GRAPHPLAN
+   1970: MYCIN                 Nível 2: Estados obtidos a
+                              partir dos efeitos das ações.
+
+
+
+    Nível 0     Nível 1                   Nível 2
+
+     lixo                                   lixo
+               carregarLixo
+                                            ¬lixo
+                jogarLixo
+  mãosLimpas                           mãosLimpas
+
+                cozinhar               ¬mãosLimpas
+    silêncio                             silêncio
+               embrulhar
+                                          ¬silêncio
+                                           jantar
+                                         presente
+EXERCÍCIO: GRAPHPLAN
+   1970: MYCIN                 Nível 2: Estados obtidos a
+                              partir dos efeitos das ações.
+
+
+
+    Nível 0     Nível 1                   Nível 2
+
+     lixo                                   lixo
+               carregarLixo
+                                            ¬lixo             Avaliar Relações de
+                jogarLixo
+  mãosLimpas                           mãosLimpas              Exclusão Mútua -
+                                                                    Mutex
+                cozinhar               ¬mãosLimpas
+    silêncio                             silêncio
+               embrulhar
+                                          ¬silêncio
+                                           jantar
+                                         presente
+RELAÇÕES MUTEX
+   1970: MYCIN
+
+ A eficiência do algoritmo GraphPlan é dependente da descoberta
+ do maior número de relações binárias do tipo mutex.
+
+    Essa verificação é feita entre pares de ações e entre pares de
+    proposições com o objetivo de descartar planos que possam
+    conter inconsistências!
+
+        Descartar os planos sem precisar gerá-los!
+RELAÇÕES MUTEX
+   1970: MYCIN
+  Efeitos inconsistentes
+
+
+
+
+  Quando duas ações produzem efeitos que se contradizem.
+RELAÇÕES MUTEX
+   1970: MYCIN
+  Efeitos inconsistentes
+                             AbrirPorta adiciona (porta-aberta)
+
+                           TrancarPorta adiciona (porta-trancada)
+
+                           → Ações que não podem ser executadas juntas
+                              porque seus efeitos são incompatíveis.
+
+
+  Quando duas ações produzem efeitos que se contradizem.
+  Uma ação desfaz o efeito da outra!
+RELAÇÕES MUTEX
+   1970: MYCIN
+       Inferências
+
+
+
+
+ Pré-condições contraditórias: Quando duas ações precisam de
+ condições que não podem ser satisfeitas simultaneamente.
+RELAÇÕES MUTEX
+   1970: MYCIN
+       Inferências
+                          PlantarMilho requer (solo-livre)
+
+                         PlantarTomate também requer (solo-livre)
+
+                             → Ambas não podem ser aplicadas ao
+                                mesmo solo ao mesmo tempo.
+
+
+ Pré-condições contraditórias: Quando duas ações precisam de
+ condições que não podem ser satisfeitas simultaneamente.
+RELAÇÕES MUTEX
+   1970: MYCIN
+Necessidades Concorrentes
+
+
+
+
+  Quando duas ações competem pelo mesmo recurso exclusivo.
+RELAÇÕES MUTEX
+   1970: MYCIN
+Necessidades Concorrentes
+                             ColherMilho exige     MãosVazias
+
+                            ColherTomate também exige          MãosVazias
+
+                                  → Não podem ser realizadas
+                                simultaneamente porque o recurso
+                                         “mãos” é único!
+
+  Quando duas ações competem pelo mesmo recurso exclusivo.
+RELAÇÕES MUTEX
+   1970: MYCIN
+   Mutex entre estados (literais)
+
+ Além das ações, o GraphPlan também marca exclusões entre estados.
+
+
+  (porta-aberta) e (porta-trancada) são mutuamente exclusivos.
+
+   (solo-livre)   e   (solo-plantado)   também são mutex.
+
+
+Isso garante que o grafo não represente mundos impossíveis.
+EXEMPLO MUTEX
+   1970: MYCIN                 Nível 2: Estados obtidos a
+                              partir dos efeitos das ações.
+
+
+
+    Nível 0     Nível 1                   Nível 2
+
+     lixo                                   lixo
+               carregarLixo
+                                            ¬lixo
+                jogarLixo
+  mãosLimpas                           mãosLimpas
+
+                cozinhar               ¬mãosLimpas
+    silêncio                             silêncio
+               embrulhar
+                                          ¬silêncio
+                                           jantar
+                                         presente
+EXEMPLO MUTEX
+   1970: MYCIN
+
+ Quando não há interferência as ações podem ser
+ executadas ao mesmo tempo!
+ Exemplo:
+     jogarLixo é mutex com embrulhar por interferência: Jogar o lixo
+     elimina a pré-condição de embrulhar que é silêncio.
+     cozinhar é mutex com carregarLixo por interferência: Carregar o
+     lixo elimita a pré-condição de cozinhar que é mãosLimpas.
+EXEMPLO MUTEX
+   1970: MYCIN
+ Como extrair a solução?
+    Se um subconjunto ou todas as proposições do último nível
+    podem satisfazer o objetivo e nenhuma delas é mutex, então
+    existe chance do plano existir.
+     Mesmo todas elas existindo, não significa que exista um plano!
+     Uma vez detectada a presença do estado objetivo, o algoritmo
+     tenta extrair a solução, usando busca regressiva!
+EXEMPLO MUTEX
+   1970: MYCIN
+ Etapas para Extrair a Solução
+ 1.Inicia com as proposições finais (que satisfazem o objetivo)
+    a.Ou seja, no último nível (nível n).
+ 2.Busca um conjunto de ações consistentes (não mutex) no nível
+   anterior (n-1) que gere as proposições finais.
+    a.Conjunto de proposições necessárias para as ações escolhidas.
+ 3.Repete as etapas anteriores recursivamente até atingir o nível 0
+EXEMPLO MUTEX
+   1970: MYCIN
+  Nível 0                  Nível 1                 Nível 2
+
+   lixo                                              lixo
+                          carregarLixo
+                                                    ¬lixo
+                           jogarLixo
+mãosLimpas                                    mãosLimpas
+
+                           cozinhar           ¬mãosLimpas
+  silêncio                                      silêncio
+                          embrulhar
+
+                                                   ¬silêncio
+                                                    jantar
+                                                   presente
+
+              ∧ presente ∧ ¬lixo
+                                                                        O algoritmo considera os
+    jantar                                                              subconjuntos de ações:
+¬lixo pode ser gerado por duas ações diferentes,               A0 = {carregarLixo, cozinhar, embrulhar}
+   que devem ser executadas paralelamente:                     A1 = {jogarLixo, cozinhar, embrulhar}
+             carregarLixo e jogarLixo
+EXEMPLO MUTEX
+   1970: MYCIN
+    O algoritmo considera os subconjuntos de ações:
+
+     A0 = {carregarLixo, cozinhar, embrulhar}
+     A1 = {jogarLixo, cozinhar, embrulhar}
+
+
+Analisando os dois subconjuntos, percebemos que ambos são inconsistentes.
+   carregarLixo é mutex com cozinhar
+   jogarLixo é mutex com embrulhar
+EXEMPLO MUTEX
+   1970: MYCIN
+      Nível 0     Nível 1         Nível 2
+
+       lixo                         lixo
+                 carregarLixo
+                                   ¬lixo
+                  jogarLixo
+    mãosLimpas                  mãosLimpas
+
+                  cozinhar      ¬mãosLimpas
+      silêncio                    silêncio
+                 embrulhar
+                                  ¬silêncio
+                                   jantar
+                                 presente
+EXEMPLO MUTEX
+   1970: MYCIN
+    O algoritmo considera os subconjuntos de ações:
+
+     A0 = {carregarLixo, cozinhar, embrulhar}
+     A1 = {jogarLixo, cozinhar, embrulhar}
+
+
+Analisando os dois subconjuntos, percebemos que ambos são inconsistentes.
+   carregarLixo é mutex com cozinhar
+   jogarLixo é mutex com embrulhar
+
+
+      O que o algoritmo faz nesse caso?
+EXEMPLO MUTEX
+   1970: MYCIN
+    O algoritmo considera os subconjuntos de ações:
+
+     A0 = {carregarLixo, cozinhar, embrulhar}
+     A1 = {jogarLixo, cozinhar, embrulhar}
+
+
+Analisando os dois subconjuntos, percebemos que ambos são inconsistentes.
+   carregarLixo é mutex com cozinhar
+   jogarLixo é mutex com embrulhar
+
+
+      O que o algoritmo faz nesse caso?               Expandir novas camadas!
+EXEMPLO MUTEX
+   1970: MYCIN
+
+
+          jogarLixo                           jogarLixo
+
+
+
+
+      No nível 4, as mesmas proposições do nível 2 são mantidas. É
+      possível novamente tentar o processo de extração da solução!
+EXEMPLO MUTEX
+   1970: MYCIN
+
+
+               jogarLixo                   jogarLixo
+
+
+
+
+ Objetivo:   jantar   ∧ presente ∧ ¬lixo
+EXEMPLO MUTEX
+   1970: MYCIN
+
+
+           jogarLixo                        jogarLixo
+
+
+
+
+     No nível 3, há ações não mutex:   jantar é mantido (conservado).
+      carregarLixo resulta em ¬lixo     Portanto, nesse nível não há
+      embrulhar resulta em presente             inconsistência.
+EXEMPLO MUTEX
+   1970: MYCIN
+
+
+        jogarLixo                    jogarLixo
+
+
+
+
+          Plano possível para o Jantar Surpresa!
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

@@ -1,0 +1,267 @@
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+
+Exercícios: Unidade 2 - Solução de Problemas e Algoritmos de Busca
+
+Questão 1 - As características de um agente são determinadas por seus ambientes. Analise as
+afirmações sobre ambientes de agentes e suas propriedades.
+
+  I.​    Um agente que joga xadrez, no contexto do jogo, possui um ambiente parcialmente observável,
+         estocástico, estático e sequencial.
+ II.​    No jogo de dama, um agente-jogador executa as ações em um ambiente completamente
+         observável, estocástico, dinâmico e discreto.
+ III.​   Um agente-robô que foi enviado à Marte para coletar amostras do solo, e utiliza análise de
+         imagens para se mover e identificar as amostras. Ele possui um ambiente parcialmente
+         observável, estocástico, sequencial e dinâmico.
+
+Quais alternativas estão corretas?
+    A.​ II
+    B.​ III
+    C.​ I e II
+    D.​ I e III
+    E.​ Nenhuma
+
+Questão 2 - Forneça o estado inicial, o teste de objetivo, a função sucessora e a função de custo para
+cada um dos itens a seguir:
+
+    a)​ Você tem que colorir um mapa plano usando apenas quatro cores, de tal modo que não haja
+         duas regiões adjacentes com a mesma cor.
+    b)​ Um macaco com um metro de altura está em uma sala em que algumas bananas estão presas
+         no teto, a 2.5 metros de altura. Ele gostaria de alcançar as bananas. A sala contém dois
+         engradados empilháveis, móveis e escaláveis, com um metro de altura cada.
+
+Questão 3 - A partir de quais critérios, geralmente, avaliamos as estratégias de busca?
+
+Questão 4 - Cite, no mínimo, uma vantagem e uma desvantagem dos algoritmos de busca em largura
+e em profundidade.
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+Questão 5 - Qual algoritmo garante encontrar a solução com o menor número de passos, se existir?
+
+   A.​ DFS
+   B.​ BFS
+   C.​ Greedy Best-First Search
+   D.​ Hill Climbing
+
+Questão 6 - O algoritmo A* é ótimo em qual situação?
+
+   A.​ h(n) ≥ custo real
+   B.​ h(n) = 0
+   C.​ h(n) é admissível
+   D.​ h(n) é aleatória
+
+Questão 7 - Qual algoritmo usa menos memória, mas pode não encontrar a solução?
+
+   A.​ BFS
+   B.​ DFS
+   C.​ Custo Uniforme
+   D.​ A*
+
+Questão 8 - Considere o grafo abaixo para resolver as questões. O nó inicial é S e o objetivo é G. No
+grafo, os valores nas fronteiras representam o custo real de um nó até outro.
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+As heurísticas h(n) para cada nó são:
+
+   ●​ h(S) = 6                          ●​ h(C) = 5                       ●​ h(F) = 0.5
+   ●​ h(A) = 4                          ●​ h(D) = 6                       ●​ h(H) = 2
+   ●​ h(B) = 3                          ●​ h(E) = 1                       ●​ h(G) = 0
+
+8.1 - Qual caminho o algoritmo BFS encontra primeiro?
+   a)​ S ➜ A ➜ E ➜ G
+   b)​ S ➜ B ➜ F ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ D ➜ G
+
+8.2 - Qual é o caminho ótimo encontrado pela Busca de Custo Uniforme (UCS)?
+   a)​ S ➜ A ➜ E ➜ G
+   b)​ S ➜ B ➜ F ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ D ➜ G
+
+8.3 - Usando Greedy Best-First Search, qual sequência de expansão é mais provável?
+   a)​ S ➜ B ➜ F ➜ G
+   b)​ S ➜ A ➜ D ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ E ➜ G
+
+8.4 - Qual caminho o A* encontra?
+   a)​ S ➜ B ➜ F ➜ G
+   b)​ S ➜ A ➜ E ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ D ➜ G
+
+8.5 - Sobre os algoritmos acima, qual afirmação é correta?
+   a)​ BFS sempre encontra o caminho de menor custo.
+   b)​ Greedy garante uma ótima solução se a heurística for admissível.
+   c)​ UCS é equivalente ao A* quando h(n) = 0.
+   d)​ A* não depende da heurística para ser ótimo.
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+8.6 - Se a heurística superestimar o custo real em alguns nós, o que acontece com o A*?
+    a)​ Continua ótimo sempre
+    b)​ Se torna BFS
+    c)​ Pode perder otimalidade
+    d)​ Se torna UCS.
+
+Questão 9 - Explique e compare o funcionamento dos algoritmos de Busca Gulosa e A*.
+Considerando que ambos os algoritmos estejam utilizando a mesma heurística, qual é mais robusto?
+Justifique.
+
+Questão 10 - Dado um estado inicial no jogo 8-puzzle e um estado final a ser encontrado:
+
+
+
+
+Encontre o caminho mais econômico para alcançar o estado final a partir do estado inicial usando o
+algoritmo A*. Para isso, considere:
+
+    ●​ g(n) = profundidade do nó
+    ●​ h(n) = número de peças fora do lugar
+
+Questão 11 - Utilize o algoritmo de busca local Hill Climbing na rede mostrada abaixo. Queremos
+chegar ao nó em formato de estrela (n0) partindo do nó n18. Mostre a sequência de nós visitados
+durante a execução do algoritmo. Utilize a distância em linha reta aproximada como função heurística.
+Caso o algoritmo fique preso em um mínimo local, utilize a variação do Hill Climbing com
+reinicialização aleatória.
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+
+
+
+Questão 12 - Analise as afirmações abaixo sobre as versões clássicas dos algoritmos Hill-Climbing e
+Simulated Annealing e assinale verdadeiro (V) ou falso (F). Quando a afirmação for falsa, corrija.
+
+(   ) Tanto o Hill-Climbing quanto o Simulated Annealing são algoritmos de refinamento.
+
+(   ) Diferente do Simulated Annealing, o Hill-Climbing mantém a árvore de busca durante a execução.
+
+( ) O Hill-Climbing sempre se move em direção ao melhor valor, escolhe sempre o estado vizinho
+sucessor melhor avaliado pela sua função heurística.
+
+( ) O Hill-Climbing, diferente do Simulated Annealing, é controlado pelo parâmetro temperatura (T).
+Esse parâmetro geralmente é iniciado em zero e lentamente aumentado durante o processo de busca.
+
+(   ) O Hill-Climbing para quando nenhum estado vizinho sucessor tiver valor melhor que o atual.
+
+(   ) O Simulated Annealing sempre aceita soluções piores que a atual.
+
+Questão 13 - Considerando as versões clássicas dos algoritmos, por que o Simulated Annealing
+geralmente é melhor que o Hill Climbing? Fundamente sua resposta.
+
+Questão 14 - Considerando algoritmos genéticos, qual o papel da função de fitness (aptidão)? Em sua
+resposta, indique: como ela influencia o processo de seleção e o que pode acontecer se a função de
+fitness for mal definida?
+
+Questão 15 - Se eliminarmos a mutação de um algoritmo genético, ele ainda pode encontrar a
+solução? O algoritmo ainda pode convergir? Justifique.
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+Questão 16 - Considere os dois cromossomos abaixo, extraídos de uma população atual de um
+algoritmo genético.
+
+
+                            1      1      1        0       1         0   1   1
+
+                            0      1      0        1       1         1   0   0
+
+    (a)​ Quais filhos seriam gerados se fosse aplicado o crossover uniponto na posição central dos
+       cromossomos?
+
+    (b)​ Quais filhos seriam gerados se fosse aplicado crossover uniforme?
+
+Questão 17 - Considere uma população com 4 indivíduos e seus respectivos valores de fitness:
+
+                                         Indivíduo             Fitness
+                                              A​   ​            10​
+                                              B​       ​        20
+                                              C​       ​        30
+                                              D​       ​        40
+
+Foi aplicado uma seleção por roleta nessa população. Sabendo disso, classifique as afirmações como
+verdadeiras (V) ou falsas (F), corrigindo as falsas.
+
+(   ) A probabilidade de seleção de A é 10%.
+
+(   ) O indivíduo D tem o dobro de probabilidade de B.
+
+(   ) A probabilidade de seleção de C é maior que a soma das probabilidades de A e B.
+
+(   ) Se todos os fitness fossem multiplicados por 2, as probabilidades de seleção mudam.
+
+( ) A seleção roleta garante que o indivíduo de maior fitness sempre será escolhido em uma rodada.
+
+(   ) A probabilidade de seleção de B é 0,2.
+
+(   ) Se um novo indivíduo E com fitness 40 for adicionado, a probabilidade de D diminui.
+
+Questão 18 - Considere a seguinte equação:
+
+                                  5𝑥 + 𝑦² + 𝑤 + 𝑧³ = 185
+
+    a)​ Proponha uma maneira de codificar os cromossomos.
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+    b)​ Defina uma função fitness para avaliar a qualidade dos cromossomos.
+    c)​ Defina como o método de seleção dos pais será utilizado.
+    d)​ Defina os operadores genéticos de crossover e mutação.
+    e)​ Gere uma população inicial de 4 cromossomos e avalie a fitness deles.
+    f)​ Aplique os operadores de crossover e mutação sobre essa população para gerar uma nova
+       geração. Em seguida, avalie a fitness da nova geração. Repita esse processo por 8 gerações
+       ou até que a solução do problema seja encontrada.
+
+Questão 19 - Classifique as afirmações como verdadeiras (V) ou falsas (F). Corrija as falsas.
+
+(   ) A busca em largura (BFS) é completa e ótima quanto todos os custos de passo são iguais.
+
+(   ) A busca em profundidade (DFS) sempre encontra a solução com menor profundidade.
+
+(   ) O algoritmo A* é ótimo se a heurística for admissível.
+
+(   ) A busca gulosa (Greedy Best-First) garante encontrar a solução ótima.
+
+(   ) O Hill Climbing pode ficar preso em máximos locais.
+
+(   ) O algoritmo Minimax assume que o adversário joga de forma ótima.
+
+(   ) A poda alfa-beta (Alpha Beta Pruning) pode alterar o resultado final do Minimax.
+
+(   ) A busca de custo uniforme sempre expande o nó com menor custo acumulado.
+
+Questão 20 - Sobre Minimax e Alpha-Beta Pruning, qual alternativa é a correta?
+
+    a)​ A poda alfa-beta altera o resultado final do Minimax, mas melhora a eficiência.
+    b)​ O Minimax assume que o jogador adversário joga de forma aleatória
+    c)​ Alpha-Beta Pruning pode reduzir o número de nós avaliados
+    d)​ O Minimax só funciona em árvores com profundidade fixa de 2 níveis.
+    e)​ Alpha-beta elimina a necessidade de função de utilidade.
+
+Questão 21 - Classifique as afirmações como verdadeiras (V) ou falsas (F).
+
+(   ) Minimax sempre encontra a melhor jogada se a árvore for totalmente explorada.
+(   ) A poda alfa-beta pode melhorar o pior caso do algoritmo
+(   ) O valor alfa representa o melhor valor garantido para o jogador MAX
+(   ) O valor beta representa o pior valor garantido para o jogador MIN
+Disciplina: Inteligência Artificial
+Profª Katherine Bianchini Esper
+
+Questão 22 - Considere a árvore de jogo:
+
+
+
+
+21.1 - Qual o valor retornado pelo Minimax na raiz?
+
+21.2 - Qual o caminho escolhido?
+
+21.3 - Se aplicarmos alfa-beta da esquerda para a direita, quantos nós podem ser podados?
+
+21.4 - Se invertemos a ordem do alfa-beta, da direita para a esquerda, o que acontece?
+

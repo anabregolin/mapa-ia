@@ -1,0 +1,753 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                             AULA 8
+
+
+          TEORIA DOS JOGOS
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+OBJETIVOS AULA
+  IA NÃO É CHAT GPT!
+
+
+  Teoria dos Jogos
+  Busca adversária
+  Algoritmos:
+      Minimax
+      Alpha-Beta Pruning
+AMBIENTES MULTIAGENTES
+  1970: MYCIN
+
+ Em ambientes multiagentes, cada agente deve:
+    Considerar as ações de todos os outros agentes
+    Coordenar os agentes para agirem coerentemente.
+
+ Nesses casos, os agentes são cooperativos.
+
+ Mas existem cenários em que os agentes podem ser competitivos.
+
+    Teoria dos jogos
+AMBIENTES MULTIAGENTES
+  1970: MYCIN
+
+ Como um computador decide a melhor jogada quando um
+       adversário está tentando fazê-lo perder?
+TEORIA DOS JOGOS
+   1970: MYCIN
+
+ Definição: é o estudo matemático das decisões estratégicas em
+ situações de interação entre agentes (jogadores), onde o resultado
+ de cada um depende não apenas de suas próprias escolhas, mas
+ também das escolhas dos outros.
+
+ Objetivo: entender como indivíduos ou grupos tomam decisões em
+ ambientes de conflito ou cooperação.
+TEORIA DOS JOGOS
+   1970: MYCIN
+         John von Neumann e Oskar Morgenstern, 1940
+
+              John Von Neumann    → Projeto Manhattan
+         Pioneiro em aplicar a teoria dos jogos de soma zero
+         em conflitos militares: o ganho de um jogador é
+         exatamente a perda do outro.
+TEORIA DOS JOGOS
+   1970: MYCIN
+
+  John von Neumann via a disputa entre os EUA e União Soviética
+  como um jogo desse estilo: qualquer vantagem de um lado
+  significava desvantagem equivalente para o outro.
+
+
+  Acreditava que a ameaça de uso imediato de armas nucleares
+  poderia ser uma estratégia racional para dissuadir o adversário.
+TEORIA DOS JOGOS
+   1970: MYCIN
+
+  Defendia que os EUA deveriam manter uma postura agressiva, pois
+  qualquer hesitação poderia ser explorada pela União Soviética.
+
+  Manter arsenais poderosos e prontos para uso   → Evitar ataques
+        Moldou a política de defesa dos EUA nos anos 1950
+          Doutrina “Mutually Assured Destruction” (MAD)
+CONCEITOS DE TEORIA DOS JOGOS
+
+         1                             2                      3                      4
+
+
+     Jogo de soma                     Informação            Determinístico          Dois jogadores
+     zero                             perfeita
+                                                                                    Convenção: MAX
+     O que um jogador                 Todos veem o estado   Sem elementos de
+                                                                                    maximiza, MIN
+     ganha, o outro perde             completo do jogo      sorte (dados, cartas)
+                                                                                    minimiza
+
+
+
+
+Teoria dos jogos e busca adversária                                                                  4
+TEORIA DOS JOGOS
+   1970: MYCIN
+Representação da Dinâmica do Jogo
+   Forma Normal: matriz de ações/estratégias/payoff
+      Cada linha e coluna correspondem às estratégias possíveis dos jogadores.
+      Escolher uma ação sem saber o movimento do oponente.
+   Forma Extensiva: inclui o tempo dos movimentos
+      Jogadores se movem sequencialmente (turno a turno).
+      Reagir a ações anteriores.
+      Movimentos sequenciais   → Representação em árvore.
+TEORIA DOS JOGOS
+   1970: MYCIN
+Forma Normal: <N, A, u>
+
+   Jogadores: N = {1, ....., n}
+       Conjunto finito de n jogadores, indexados por i
+   Conjunto de Ações: Ai
+       Para cada jogador i, existe um conjunto de A ações possíveis
+   Função de Payoff: ui      u = (u1 , ..., u n)
+       Para cada jogador i existe uma função de utilidade
+       Atribui um valor (ganho ou perda) para cada combinação de estratégias
+ TEORIA DOS JOGOS
+    1970: MYCIN
+
+                       Dilema do Prisioneiro
+Dois prisioneiros são acusados de um crime. Eles são interrogados
+separadamente e não podem se comunicar. Cada um tem duas opções:
+
+   Cooperar (ficar em silêncio)
+   Trair (confessar e delatar o outro)
+TEORIA DOS JOGOS
+   1970: MYCIN
+
+                                                            Jogador B: Cooperar   Jogador B: Trair
+
+Dilema do Prisioneiro                 Jogador A: Cooperar         (-1, -1)             (-3, 0)
+
+      Jogo forma normal
+                                        Jogador A: Trair           (0, -3)             (-2, -2)
+
+
+
+
+                             Matriz de payoffs
+                          Combinação de estratégias
+
+     Jogadores: N = {1, 2}
+Ações: A1 = A 2 = {Cooperar, Trair}
+TEORIA DOS JOGOS
+   1970: MYCIN
+                    Dilema Nuclear - EUA vs URSS
+                                  Jogo forma normal
+
+                                       URSS: Não ataca                           URSS: Ataca
+
+
+               EUA: Não ataca         (0, 0)   → Paz relativa       (-10, +10)   → EUA sofrem ataque
+                  EUA: Ataca    (+10, -10)   → EUA ataca primeiro   (-100, -100)   → Destruição mútua
+
+ Dois jogadores                                            Von Neumann via esse dilema como um jogo de
+                                                          soma zero: o ganho de um lado é perda do outro.
+ Ações = {Atacar, Não atacar}
+ Resultado: depende combinação escolhas
+TEORIA DOS JOGOS
+   1970: MYCIN
+
+   Conceitos Fundamentais em Teoria dos Jogos:
+              Estratégias Dominantes
+                 Equilíbrio de Nash
+         Eficiência/Otimalidade de Pareto
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+
+
+            Estratégias para o Jogador A:
+      Se eu assumir que o Jogador B vai cooperar
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+
+
+            Estratégias para o Jogador A:
+      Se eu assumir que o Jogador B vai cooperar
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+
+
+              Estratégias para o Jogador A:
+          Se eu assumir que o Jogador B vai trair
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+
+
+            Estratégias para o Jogador B:
+      Se eu assumir que o Jogador A vai cooperar
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+
+
+            Estratégias para o Jogador B:
+      Se eu assumir que o Jogador A vai cooperar
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+
+
+              Estratégias para o Jogador B:
+          Se eu assumir que o Jogador A vai trair
+TEORIA DOS JOGOS
+   1970: MYCIN
+                       Estratégias Dominantes
+  Estratégia que gera o melhor resultado para um
+  jogador, independente da escolha do adversário.
+                                                                    Estratégia
+                                                                    estritamente
+                           Jogador B: Cooperar   Jogador B: Trair   dominante
+  Jogador A: Cooperar             (4, 4)              (0, 6)
+
+
+    Jogador A: Trair              (6, 0)              (2, 2)
+TEORIA DOS JOGOS
+   1970: MYCIN
+                                                                   Se um prisioneiro mudar sozinho
+                         Equilíbrio de Nash                        para cooperar, sua situação piora.
+
+ Um equilíbrio de Nash ocorre quando nenhum jogador                Ambos traírem é estável, mesmo
+                                                                       ruim coletivamente.
+ tem incentivo de mudar sua estratégia unilateralmente
+
+                                                                   Equilíbrio:
+                          Jogador B: Cooperar   Jogador B: Trair   (trair, trair)
+   Jogador A: Cooperar           (4, 4)              (0, 6)
+
+
+     Jogador A: Trair            (6, 0)              (2, 2)
+TEORIA DOS JOGOS
+   1970: MYCIN
+                             Eficiência
+A eficiência mede se o resultado é socialmente ótimo
+(melhor para o grupo). Somatório das recompensas (payoffs)
+
+
+                           Jogador B: Cooperar   Jogador B: Trair
+
+
+     Jogador A: Cooperar          (4, 4)              (0, 6)
+
+
+       Jogador A: Trair           (6, 0)              (2, 2)
+                                                                    Nesse caso, a eficiência seria
+                                                                       (cooperar, cooperar)
+TEORIA DOS JOGOS
+   1970: MYCIN
+                          Otimalidade de Pareto
+Uma solução é ótima de Pareto se não é possível melhorar a
+situação de um jogador sem piorar a do outro.
+
+
+                             Jogador B: Cooperar   Jogador B: Trair
+
+
+     Jogador A: Cooperar            (4, 4)              (0, 6)
+
+
+       Jogador A: Trair             (6, 0)              (2, 2)
+                                                                      (cooperar, cooperar)→   Ótima de Pareto
+                                                                                  →
+                                                                        (trair, trair) Não é ótimo de Pareto
+TEORIA DOS JOGOS
+   1970: MYCIN
+Exemplo: Pedra, Papel ou Tesoura
+
+                               Jogador 2
+
+
+                       Pedra     Papel     Tesoura
+
+
+             Pedra      0, 0     -1, 1      1, -1
+
+
+              Papel    1, -1      0, 0      -1, 1
+ Jogador 1
+
+             Tesoura   -1, 1     1, -1       0, 0    Vamos calcular as estratégias
+                                                       nesse exemplo de jogo!
+TEORIA DOS JOGOS
+   1970: MYCIN
+ Exemplo: Pedra, Papel ou Tesoura
+                              Jogador 2
+
+                                                                  Estratégias para o Jogador 1:
+                      Pedra     Papel     Tesoura    Se eu assumir que o Jogador 2 vai sempre escolher pedra
+                                                                                  →
+                                                                      Melhor opção Papel
+            Pedra      0, 0     -1, 1      1, -1     Se eu assumir que o Jogador 2 vai sempre escolher papel
+                                                                                 →
+                                                                    Melhor opção Tesoura
+             Papel    1, -1      0, 0      -1, 1    Se eu assumir que o Jogador 2 vai sempre escolher tesoura
+Jogador 1
+                                                                                 →
+                                                                     Melhor opção Pedra
+            Tesoura   -1, 1     1, -1       0, 0
+TEORIA DOS JOGOS
+   1970: MYCIN
+ Exemplo: Pedra, Papel ou Tesoura
+                              Jogador 2
+
+                                                                 Estratégias para o Jogador 2:
+                      Pedra     Papel     Tesoura    Se eu assumir que o Jogador 1 vai sempre escolher pedra
+                                                                                  →
+                                                                     Melhor opção Papel
+            Pedra      0, 0     -1, 1      1, -1     Se eu assumir que o Jogador 1 vai sempre escolher papel
+                                                                                 →
+                                                                    Melhor opção Tesoura
+             Papel    1, -1      0, 0      -1, 1    Se eu assumir que o Jogador 1 vai sempre escolher tesoura
+Jogador 1
+                                                                                 →
+                                                                     Melhor opção Pedra
+            Tesoura   -1, 1     1, -1       0, 0
+TEORIA DOS JOGOS
+   1970: MYCIN
+ Exemplo: Pedra, Papel ou Tesoura
+                              Jogador 2
+
+
+                      Pedra     Papel     Tesoura
+                                                                Nesse caso:
+            Pedra      0, 0     -1, 1      1, -1    Não temos equilíbrio de Nash
+
+             Papel    1, -1      0, 0      -1, 1
+                                                    Otimalidade de Pareto   → (0, 0) → Empate
+Jogador 1
+                                                       Melhor para todos
+            Tesoura   -1, 1     1, -1       0, 0
+TEORIA DOS JOGOS
+   1970: MYCIN
+Representação da Dinâmica do Jogo
+   Forma Normal: matriz de ações/estratégias/payoff
+      Cada linha e coluna correspondem às estratégias possíveis dos jogadores.
+      Escolher uma ação sem saber o movimento do oponente.
+   Forma Extensiva: inclui o tempo dos movimentos
+      Jogadores se movem sequencialmente (turno a turno).
+      Reagir a ações anteriores.
+      Movimentos sequenciais   → Representação em árvore.
+FORMA EXTENSIVA
+   1970: MYCIN
+        S₀          Estado inicial do jogo
+
+    PLAYER(s)       Define de quem é a vez de jogar
+
+    ACTIONS(s)      Conjunto de ações legais em s
+
+  RESULT(s, a)      Modelo de transição de estado
+
+ TERMINAL-TEST(s)   Verifica se o jogo terminou
+
+  UTILITY(s, p)     Valor numérico do resultado terminal para o jogador p
+TEORIA DOS JOGOS
+   1970: MYCIN
+Exemplo de Jogo Forma Extensiva: Jogo da Velha
+
+
+
+
+                                Árvore relativamente pequena: 9!
+                                    Dois jogadores: Max e Min
+TEORIA DOS JOGOS
+   1970: MYCIN
+     Aplicações Reais desses tipos de Jogos
+    Economia: Empresas decidindo padrões tecnológicos
+
+    Política: Países escolhendo tratados ou alianças
+
+    Tecnologia: Usuários escolhendo plataformas
+
+    Vida cotidiana: Coordenação de agendas e preferência de grupos
+
+
+       Existe espaço para cooperação e coordenação
+                →
+                O desafio é alinhar preferências
+TEORIA DOS JOGOS
+   1970: MYCIN
+
+ Busca Adversária?
+   Teoria dos Jogos fornece o modelo matemático: jogadores,
+
+   estratégias, payoffs, equilíbrio.
+
+   Busca Adversária é a aplicação prática em IA: algoritmos que
+
+   simulam decisões estratégicas em jogos competitivos.
+BUSCA ADVERSÁRIA
+  1970: MYCIN    - CONCEITO
+
+   Definição: É a busca em ambientes onde existem dois ou mais
+
+   agentes competindo entre si.
+
+   Ideia central: Cada jogador tenta maximizar seus ganhos e ao
+
+   mesmo tempo, minimizar os ganhos do adversário.
+
+
+      Jogos de tabuleiro: Xadrez, Damas, Jogo da Velha.
+BUSCA ADVERSÁRIA - APLICAÇÕES
+
+ Muito além de jogos de tabuleiro....
+
+     Jogos digitais   → IA de inimigos em videogames
+     Estratégias de negociação
+
+     Planejamento militar e econômico
+
+     Competição entre empresas (modelos de mercado)
+BUSCA ADVERSÁRIA
+  1970: MYCIN
+
+Jogadores: dois agentes (MAX e MIN)
+
+Estados: possíveis posições no jogo
+
+Ações: movimentos permitidos em cada estado
+
+Função de utilidade: valor atribuído a estados terminais
+
+Função de avaliação: aproximação da utilidade em estados não
+
+terminais, usado quando não é possível expandir toda a árvore.
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+  Cada jogador assume que o outro joga de forma ótima.
+
+     Expande a árvore de jogo até estados terminais ou
+
+     profundidade limite.
+
+     MAX escolhe o movimento com maior valor
+
+     MIN escolhe o movimento com menor valor
+
+  Garante a jogada ótima contra um adversário racional.
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+    “Eu escolho a melhor jogada assumindo que meu
+
+     adversário sempre fará a pior jogada para mim”
+
+
+      MAX quer maximizar o valor
+
+      MIN quer minimizar o valor
+ALGORITMO  MINIMAX
+   1970: MYCIN
+MINIMAX - EXERCÍCIO
+  1970: MYCIN
+ALGORITMO  MINIMAX
+   1970: MYCIN
+                     Árvore com 3 jogadas
+
+                     Cada movimento são 2 jogadas
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+
+
+
+     Função de avaliação em relação ao jogador de maximização
+ALGORITMO  MINIMAX
+   1970: MYCIN
+ALGORITMO  MINIMAX
+   1970: MYCIN
+ALGORITMO  MINIMAX
+   1970: MYCIN
+ALGORITMO  MINIMAX
+   1970: MYCIN
+ Exemplo: É a vez do computador (X) jogar:
+ALGORITMO  MINIMAX
+   1970: MYCIN
+ Exemplo: É a vez do computador (X) jogar:
+
+
+
+                                 Há 3 lugares vazios para escolher
+                                 Para cada lugar vazio, ele imagina todos os
+                                 movimentos futuros possíveis.
+                                 Escolhe o movimento que leva ao melhor
+                                 resultado.
+ALGORITMO  MINIMAX
+   1970: MYCIN
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+
+
+
+                     Completude?
+                     Ótimo?
+                     Complexidade em Tempo?
+                     Complexidade em Espaço?
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+Completude: sim (em jogos finitos)
+
+Ótimo: sim (contra um adversário perfeito)
+
+Complexidade - similar busca profundidade
+               m
+   Tempo: O(b )
+                                             Completude?
+   Espaço: O(bm)                             Ótimo?
+                                             Complexidade em Tempo?
+                                             Complexidade em Espaço?
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+Completude: sim (em jogos finitos)                   Xadrez:
+                                                   b ~ 35
+Ótimo: sim (contra um adversário perfeito)         m ~ 40
+
+Complexidade - similar busca profundidade      5.790576107×10⁶¹
+                                               estados a visitar
+               m
+   Tempo: O(b )
+                                             Completude?
+   Espaço: O(bm)                             Ótimo?
+                                             Complexidade em Tempo?
+                                             Complexidade em Espaço?
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+Como reduzir a complexidade de tempo desse algoritmo?
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+Como reduzir a complexidade de tempo desse algoritmo?
+
+
+
+    Se eu já sei que uma jogada é pior do que outra que eu encontrei,
+
+                 não preciso continuar analisando ela.
+ALGORITMO  MINIMAX
+   1970: MYCIN
+
+Como reduzir a complexidade de tempo desse algoritmo?
+
+
+
+    Se eu já sei que uma jogada é pior do que outra que eu encontrei,
+
+                 não preciso continuar analisando ela.
+
+
+                       Alpha-Beta Pruning
+ALPHA-BETA PRUNING
+   1970: MYCIN
+
+   Durante a busca:
+
+       Às vezes sabemos que um caminho não será escolhido
+
+       Então podemos parar de explorá-lo
+
+
+α (alpha): o melhor valor que MAX consegue até agora
+
+β (beta): o melhor valor que MIN consegue até agora
+ALPHA-BETA PRUNING
+   1970: MYCIN
+
+ Alpha-Beta Pruning é uma otimização do Minimax
+
+ Ele não muda o resultado final, apenas evita cálculos desnecessários.
+
+ Alpha e Beta são limites (bounds) durante a busca.
+
+     Alpha (α): valor da melhor (maior) escolha no caminho do MAX
+
+     Beta (β): valor da melhor (menor) escolha no caminho do MIN
+
+                     Se α ≥ β   → podemos podar
+ALPHA-BETA PRUNING
+   1970: MYCIN
+
+ MAX encontrou uma jogada que garante valor 10   → α = 10
+ Agora está explorando outra opção
+
+ MIN encontra uma resposta que leva a valor 5   →β=5
+                            → podemos podar
+                     Se α ≥ β
+
+  Esse ramo nunca será escolhido → pode ser ignorado → podado!
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ Começamos com:
+    α = -∞
+    β = +∞
+ Vamos descendo na árvore
+ Atualizamos:
+    α nos nós MAX
+    β nos nós MIN
+ Sempre checamos:
+         →
+    α ≥ β cortar ramo
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ Começamos com:
+    α = -∞
+    β = +∞                  Assumimos que o adversário joga
+ Vamos descendo na árvore          de forma ótima!
+
+ Atualizamos:                  MIN e MAX nunca escolheriam
+                               algo pior para eles.
+    α nos nós MAX
+    β nos nós MIN           Descartamos possibilidades piores.
+
+ Sempre checamos:
+         →
+    α ≥ β cortar ramo
+COMPARAÇÃO  ALGORITMOS
+  1970: MYCIN
+
+
+       Minimax       Alpha-Beta Pruning
+
+                 m                 m/2
+    Tempo: O(b )      Tempo: O(b         )
+
+    Espaço: O(bm)     Espaço: O(bm)
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+ALPHA-BETA PRUNING
+   1970: MYCIN
+P R Ó X I M AS AU L AS. . . .
+
+Unidade 3:
+Raciocínio, Planejamento e
+Representação de Problemas
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

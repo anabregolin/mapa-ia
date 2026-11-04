@@ -1,0 +1,11 @@
+# Material original do Moodle (660 MB): fica só na máquina
+conteudo-moodle/**/*.pdf
+
+# Dependências e build
+node_modules/
+dist/
+*.tsbuildinfo
+
+# Sistema/editor
+.DS_Store
+*.log

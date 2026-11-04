@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Busca local: Hill Climbing vs Simulated Annealing</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: #f7f6f2;
+    color: #2c2c2a;
+    margin: 0;
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+  }
+  .wrap { max-width: 1180px; width: 100%; }
+  .course-header { text-align: center; margin-bottom: 1.25rem; }
+  .course-name {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #DC143C;
+    margin: 0;
+  }
+  .course-professor {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c2c2a;
+    margin: 4px 0 0;
+  }
+  h1 { font-size: 24px; font-weight: 600; margin: 0 0 0.25rem; text-align: center; }
+  p.subtitle { color: #5f5e5a; font-size: 15px; margin: 0 0 1.5rem; text-align: center; }
+  .shared-controls {
+    display: flex; justify-content: center; gap: 12px; flex-wrap: wrap;
+    margin-bottom: 1.5rem; background: #ffffff; border: 1px solid #e0ddd3;
+    border-radius: 16px; padding: 1rem 1.5rem;
+  }
+  .panels { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  @media (max-width: 860px) { .panels { grid-template-columns: 1fr; } }
+  .panel { background: #ffffff; border: 1px solid #e0ddd3; border-radius: 16px; padding: 1.5rem; }
+  .panel h2 { font-size: 17px; font-weight: 600; margin: 0 0 0.75rem; }
+  svg { width: 100%; height: auto; display: block; cursor: crosshair; }
+  .controls { display: flex; gap: 16px; flex-wrap: wrap; margin: 0.75rem 0; align-items: center; }
+  .control-group { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: #5f5e5a; }
+  .control-group input[type="range"] { width: 140px; }
+  .buttons { display: flex; gap: 8px; flex-wrap: wrap; margin: 0.75rem 0; }
+  button {
+    font-family: inherit; font-size: 13px; font-weight: 500; padding: 8px 12px;
+    border-radius: 8px; border: 1px solid #cac7bb; background: #ffffff; color: #2c2c2a; cursor: pointer;
+  }
+  button.primary { background: #2c2c2a; color: #ffffff; border-color: #2c2c2a; }
+  button:hover { background: #f1efe8; }
+  button.primary:hover { background: #454542; }
+  button:active { transform: scale(0.98); }
+  .status { font-size: 13px; color: #5f5e5a; margin: 0 0 0.5rem; min-height: 34px; }
+  .status.accepted-worse { color: #854f0b; font-weight: 500; }
+  .status.global { color: #0f6e56; font-weight: 500; }
+  .status.stopped { color: #993c1d; font-weight: 500; }
+  .stats { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 0.5rem; }
+  .metric { background: #f1efe8; border-radius: 8px; padding: 8px 10px; min-width: 76px; flex: 1; }
+  .metric .label { font-size: 10.5px; color: #5f5e5a; margin: 0 0 2px; }
+  .metric .value { font-size: 15px; font-weight: 500; margin: 0; }
+  .temp-bar-track { width: 100%; height: 8px; background: #e0ddd3; border-radius: 4px; overflow: hidden; margin: 8px 0 0; }
+  .temp-bar-fill { height: 100%; background: #F2A623; border-radius: 4px; width: 100%; }
+  .legend { display: flex; gap: 14px; margin-top: 0.75rem; font-size: 12px; color: #5f5e5a; flex-wrap: wrap; }
+  .legend span { display: inline-flex; align-items: center; gap: 5px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .note {
+    font-size: 12.5px; color: #5f5e5a; background: #f1efe8; border-radius: 8px;
+    padding: 8px 10px; margin-top: 0.75rem; line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="course-header">
+    <p class="course-name">Inteligência Artificial</p>
+    <p class="course-professor">Profª. Me. Katherine B E de Vargas</p>
+  </div>
+  <h1>Busca local: hill climbing vs. simulated annealing</h1>
+  <p class="subtitle">Mesmo ponto de partida nos dois. Vamos comparar o comportamento de cada algoritmo: se ele escapa do máximo local ou fica preso.</p>
+
+  <div class="shared-controls">
+    <button class="primary" onclick="sharedRandomStart()">Sortear posição inicial (para os dois)</button>
+    <button onclick="resetAll()">Reiniciar tudo</button>
+  </div>
+
+  <div class="panels">
+
+    <!-- HILL CLIMBING -->
+    <div class="panel">
+      <h2>Hill climbing</h2>
+      <svg id="hc-svg" viewBox="0 0 680 340" role="img" aria-label="Paisagem de busca com hill climbing">
+        <line x1="40" y1="270" x2="640" y2="270" stroke="#cac7bb" stroke-width="1"/>
+        <text x="40" y="292" font-size="11" fill="#5f5e5a">estado (x)</text>
+        <path id="hc-curve" fill="none" stroke="#2c2c2a" stroke-width="1.5"/>
+        <g>
+          <line id="hc-global-leader" stroke="#5f5e5a" stroke-width="1" stroke-dasharray="3 3"/>
+          <text id="hc-global-text" font-size="11" fill="#5f5e5a">máximo global</text>
+        </g>
+        <circle id="hc-agent" r="8" fill="#378ADD" stroke="#0C447C" stroke-width="1.5"/>
+      </svg>
+      <div class="buttons">
+        <button onclick="hcStep()">Passo</button>
+        <button onclick="hcRun()">Executar até parar</button>
+      </div>
+      <p class="status" id="hc-status">Sorteie ou clique numa posição inicial.</p>
+      <div class="stats">
+        <div class="metric"><p class="label">f(x)</p><p class="value" id="hc-fx">–</p></div>
+        <div class="metric"><p class="label">Passos</p><p class="value" id="hc-iter">0</p></div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:#378ADD"></span> subindo</span>
+        <span><span class="dot" style="background:#D85A30"></span> preso (máx. local)</span>
+      </div>
+    </div>
+
+    <!-- SIMULATED ANNEALING -->
+    <div class="panel">
+      <h2>Simulated annealing</h2>
+      <svg id="sa-svg" viewBox="0 0 680 340" role="img" aria-label="Paisagem de busca com simulated annealing">
+        <line x1="40" y1="270" x2="640" y2="270" stroke="#cac7bb" stroke-width="1"/>
+        <text x="40" y="292" font-size="11" fill="#5f5e5a">estado (x)</text>
+        <path id="sa-curve" fill="none" stroke="#2c2c2a" stroke-width="1.5"/>
+        <g>
+          <line id="sa-global-leader" stroke="#5f5e5a" stroke-width="1" stroke-dasharray="3 3"/>
+          <text id="sa-global-text" font-size="11" fill="#5f5e5a">máximo global</text>
+        </g>
+        <g id="sa-trail"></g>
+        <circle id="sa-agent" r="8" fill="#378ADD" stroke="#0C447C" stroke-width="1.5"/>
+      </svg>
+      <div class="controls">
+        <div class="control-group">
+          <label for="t0">T0: <span id="t0-out">80</span></label>
+          <input type="range" id="t0" min="5" max="150" value="80" step="1" oninput="document.getElementById('t0-out').textContent=this.value">
+        </div>
+        <div class="control-group">
+          <label for="cooling">alfa: <span id="cooling-out">0.98</span></label>
+          <input type="range" id="cooling" min="0.90" max="0.995" value="0.98" step="0.005" oninput="document.getElementById('cooling-out').textContent=this.value">
+        </div>
+        <div class="control-group">
+          <label for="epoch">tentativas por temperatura (L): <span id="epoch-out">15</span></label>
+          <input type="range" id="epoch" min="1" max="40" value="15" step="1" oninput="document.getElementById('epoch-out').textContent=this.value">
+        </div>
+      </div>
+      <div class="buttons">
+        <button onclick="saStep()">Passo</button>
+        <button onclick="saRun()">Executar até esfriar</button>
+      </div>
+      <p class="status" id="sa-status">Sorteie ou clique numa posição inicial.</p>
+      <div class="temp-bar-track"><div class="temp-bar-fill" id="sa-temp-fill"></div></div>
+      <div class="stats">
+        <div class="metric"><p class="label">T</p><p class="value" id="sa-temp">80.0</p></div>
+        <div class="metric"><p class="label">f(x)</p><p class="value" id="sa-fx">–</p></div>
+        <div class="metric"><p class="label">Época</p><p class="value" id="sa-epoch">0/0</p></div>
+        <div class="metric"><p class="label">Tentativas</p><p class="value" id="sa-iter">0</p></div>
+      </div>
+      <div class="legend">
+        <span><span class="dot" style="background:#378ADD"></span> aceito (melhora)</span>
+        <span><span class="dot" style="background:#F2A623"></span> aceito (pior, exploração)</span>
+        <span><span class="dot" style="background:#D85A30"></span> T esgotada</span>
+      </div>
+      <p class="note">"Época" = quantas vezes a temperatura já esfriou. Em cada época, o algoritmo faz <b>L</b> tentativas de movimento antes de resfriar, não uma só. É esse número total de tentativas (época × L) que determina se dá tempo de escapar do vale inicial.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+const N = 101;
+const xs = [];
+for (let i = 0; i < N; i++) xs.push(i);
+function f(x) {
+  return 45 + 25*Math.sin(x*0.15) + 15*Math.sin(x*0.05+1) + 8*Math.sin(x*0.4+2);
+}
+const ys = xs.map(f);
+const minY = Math.min(...ys), maxY = Math.max(...ys);
+const PX0 = 40, PX1 = 640, PY0 = 250, PY1 = 60;
+function toPx(x) { return PX0 + (x/(N-1))*(PX1-PX0); }
+function toPy(y) { return PY0 - ((y-minY)/(maxY-minY))*(PY0-PY1); }
+let globalIdx = ys.indexOf(Math.max(...ys));
+
+function drawCurve(prefix) {
+  let path = "M";
+  xs.forEach((x,i) => { path += (i===0?"":" L") + toPx(x).toFixed(1) + " " + toPy(ys[i]).toFixed(1); });
+  document.getElementById(prefix+"-curve").setAttribute("d", path);
+  const gx = toPx(globalIdx), gy = toPy(ys[globalIdx]);
+  document.getElementById(prefix+"-global-leader").setAttribute("x1", gx);
+  document.getElementById(prefix+"-global-leader").setAttribute("y1", gy-8);
+  document.getElementById(prefix+"-global-leader").setAttribute("x2", Math.min(gx+40,600));
+  document.getElementById(prefix+"-global-leader").setAttribute("y2", 45);
+  const gt = document.getElementById(prefix+"-global-text");
+  gt.setAttribute("x", Math.min(gx+44,604));
+  gt.setAttribute("y", 48);
+}
+drawCurve("hc");
+drawCurve("sa");
+
+/* ---------- HILL CLIMBING (inalterado) ---------- */
+let hcX = 20, hcIter = 0, hcRunning = false, hcHandle = null;
+
+function hcDraw(color, stroke) {
+  const c = document.getElementById("hc-agent");
+  c.setAttribute("cx", toPx(hcX));
+  c.setAttribute("cy", toPy(ys[hcX]));
+  c.setAttribute("fill", color);
+  c.setAttribute("stroke", stroke);
+}
+function hcSetStatus(msg, cls) {
+  const el = document.getElementById("hc-status");
+  el.textContent = msg;
+  el.className = "status" + (cls ? " " + cls : "");
+}
+function hcUpdateStats() {
+  document.getElementById("hc-fx").textContent = ys[hcX].toFixed(1);
+  document.getElementById("hc-iter").textContent = hcIter;
+}
+function hcStep() {
+  const left = hcX > 0 ? ys[hcX-1] : -Infinity;
+  const right = hcX < N-1 ? ys[hcX+1] : -Infinity;
+  const here = ys[hcX];
+  if (left <= here && right <= here) {
+    hcDraw("#D85A30", "#4A1B0C");
+    const isGlobal = hcX === globalIdx;
+    hcSetStatus(isGlobal ? "Chegou ao máximo global! f(x) = " + here.toFixed(1) : "Preso em máximo local. f(x) = " + here.toFixed(1), isGlobal ? "global" : "stopped");
+    hcRunning = false;
+    return false;
+  }
+  hcX = right > left ? hcX+1 : hcX-1;
+  hcIter++;
+  hcDraw("#378ADD", "#0C447C");
+  hcSetStatus("Subindo... f(x) = " + ys[hcX].toFixed(1));
+  hcUpdateStats();
+  return true;
+}
+function hcRun() {
+  if (hcRunning) return;
+  hcRunning = true;
+  hcHandle = setInterval(() => {
+    const moved = hcStep();
+    if (!moved) { clearInterval(hcHandle); hcRunning = false; }
+  }, 200);
+}
+document.getElementById("hc-svg").addEventListener("click", (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const clickPx = (e.clientX - rect.left) * (680/rect.width);
+  const x = Math.round(((clickPx - PX0)/(PX1-PX0)) * (N-1));
+  if (x >= 0 && x < N) {
+    if (hcRunning) { clearInterval(hcHandle); hcRunning = false; }
+    hcX = x; hcIter = 0;
+    hcDraw("#378ADD", "#0C447C");
+    hcUpdateStats();
+    hcSetStatus("Posicionado em x = " + hcX + ", f(x) = " + ys[hcX].toFixed(1));
+  }
+});
+
+let saX = 20, saTemp = 80, saT0 = 80, saIter = 0, saEpochNum = 0, saEpochTrials = 0;
+let saRunning = false, saHandle = null;
+let saTrail = [];
+const MIN_TEMP = 0.5;
+const MAX_TRAIL = 35;
+
+function saEstTotalEpochs() {
+  const alpha = parseFloat(document.getElementById("cooling").value);
+  return Math.max(1, Math.ceil(Math.log(MIN_TEMP / saT0) / Math.log(alpha)));
+}
+
+function saDraw(color, stroke) {
+  const c = document.getElementById("sa-agent");
+  c.setAttribute("cx", toPx(saX));
+  c.setAttribute("cy", toPy(ys[saX]));
+  c.setAttribute("fill", color);
+  c.setAttribute("stroke", stroke);
+}
+function saDrawTrail() {
+  const g = document.getElementById("sa-trail");
+  g.innerHTML = "";
+  saTrail.forEach((x, i) => {
+    const opacity = ((i + 1) / saTrail.length) * 0.35;
+    const el = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+    el.setAttribute("cx", toPx(x));
+    el.setAttribute("cy", toPy(ys[x]));
+    el.setAttribute("r", 3);
+    el.setAttribute("fill", "#378ADD");
+    el.setAttribute("opacity", opacity.toFixed(2));
+    g.appendChild(el);
+  });
+}
+function saSetStatus(msg, cls) {
+  const el = document.getElementById("sa-status");
+  el.textContent = msg;
+  el.className = "status" + (cls ? " " + cls : "");
+}
+function saUpdateStats() {
+  document.getElementById("sa-temp").textContent = saTemp.toFixed(1);
+  document.getElementById("sa-fx").textContent = ys[saX].toFixed(1);
+  document.getElementById("sa-iter").textContent = saIter;
+  document.getElementById("sa-epoch").textContent = saEpochNum + "/" + saEstTotalEpochs();
+  document.getElementById("sa-temp-fill").style.width = Math.min(100, (saTemp / saT0) * 100).toFixed(1) + "%";
+}
+
+function saStep() {
+  if (saTemp <= MIN_TEMP) {
+    saDraw("#D85A30", "#4A1B0C");
+    const isGlobal = saX === globalIdx;
+    saSetStatus(isGlobal ? "T esgotada: parou no máximo global! f(x) = " + ys[saX].toFixed(1) : "T esgotada: parou em f(x) = " + ys[saX].toFixed(1), isGlobal ? "global" : "stopped");
+    saRunning = false;
+    return false;
+  }
+  const cooling = parseFloat(document.getElementById("cooling").value);
+  const L = parseInt(document.getElementById("epoch").value, 10);
+
+  const stepSize = Math.floor(Math.random() * 3) + 1; // 1 a 3
+  const direction = Math.random() < 0.5 ? -1 : 1;
+  const candidate = saX + stepSize * direction;
+
+  if (candidate >= 0 && candidate < N) {
+    const delta = ys[candidate] - ys[saX];
+    let accept = false, worseAccepted = false;
+    if (delta >= 0) {
+      accept = true;
+    } else {
+      const prob = Math.exp(delta / saTemp);
+      if (Math.random() < prob) { accept = true; worseAccepted = true; }
+    }
+    if (accept) {
+      saTrail.push(saX);
+      if (saTrail.length > MAX_TRAIL) saTrail.shift();
+      saX = candidate;
+      if (worseAccepted) {
+        saDraw("#F2A623", "#854F0B");
+        saSetStatus("Aceitou movimento pior (passo " + (stepSize*direction) + "). f(x) = " + ys[saX].toFixed(1) + ", T = " + saTemp.toFixed(1), "accepted-worse");
+      } else {
+        saDraw("#378ADD", "#0C447C");
+        saSetStatus("Movimento aceito. f(x) = " + ys[saX].toFixed(1) + ", T = " + saTemp.toFixed(1));
+      }
+    } else {
+      saDraw("#378ADD", "#0C447C");
+      saSetStatus("Movimento rejeitado. Permanece em f(x) = " + ys[saX].toFixed(1) + ", T = " + saTemp.toFixed(1));
+    }
+  }
+
+  saIter++;
+  saEpochTrials++;
+  if (saEpochTrials >= L) {
+    saTemp *= cooling;
+    saEpochTrials = 0;
+    saEpochNum++;
+  }
+  saDrawTrail();
+  saUpdateStats();
+  return true;
+}
+
+function saRun() {
+  if (saRunning) return;
+  saRunning = true;
+  saHandle = setInterval(() => {
+    let moved = true;
+    for (let i = 0; i < 6 && moved; i++) { moved = saStep(); }
+    if (!moved) { clearInterval(saHandle); saRunning = false; }
+  }, 55);
+}
+
+function saResetToX(x) {
+  saX = x;
+  saT0 = parseFloat(document.getElementById("t0").value);
+  saTemp = saT0;
+  saIter = 0; saEpochNum = 0; saEpochTrials = 0;
+  saTrail = [];
+  saDraw("#378ADD", "#0C447C");
+  saDrawTrail();
+  saUpdateStats();
+}
+
+document.getElementById("sa-svg").addEventListener("click", (e) => {
+  const rect = e.currentTarget.getBoundingClientRect();
+  const clickPx = (e.clientX - rect.left) * (680/rect.width);
+  const x = Math.round(((clickPx - PX0)/(PX1-PX0)) * (N-1));
+  if (x >= 0 && x < N) {
+    if (saRunning) { clearInterval(saHandle); saRunning = false; }
+    saResetToX(x);
+    saSetStatus("Posicionado em x = " + x + ", T0 = " + saT0.toFixed(1));
+  }
+});
+
+function sharedRandomStart() {
+  const x = Math.floor(Math.random() * N);
+  if (hcRunning) { clearInterval(hcHandle); hcRunning = false; }
+  if (saRunning) { clearInterval(saHandle); saRunning = false; }
+  hcX = x; hcIter = 0;
+  hcDraw("#378ADD", "#0C447C");
+  hcUpdateStats();
+  hcSetStatus("Posição inicial compartilhada: x = " + x + ", f(x) = " + ys[x].toFixed(1));
+  saResetToX(x);
+  saSetStatus("Posição inicial compartilhada: x = " + x + ", T0 = " + saT0.toFixed(1));
+}
+function resetAll() {
+  if (hcRunning) { clearInterval(hcHandle); hcRunning = false; }
+  if (saRunning) { clearInterval(saHandle); saRunning = false; }
+  hcX = 20; hcIter = 0;
+  hcDraw("#378ADD", "#0C447C");
+  hcUpdateStats();
+  hcSetStatus("Reiniciado. Clique na curva ou sorteie uma posição.");
+  saResetToX(20);
+  saSetStatus("Reiniciado. Clique na curva ou sorteie uma posição.");
+}
+
+hcDraw("#378ADD", "#0C447C");
+hcUpdateStats();
+saResetToX(20);
+</script>
+</body>
+</html>

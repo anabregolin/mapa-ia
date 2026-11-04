@@ -1,0 +1,614 @@
+                        Disciplina: Inteligência Artificial
+                        Profª Katherine Bianchini Esper
+
+
+Gabarito: Unidade 2 - Solução de Problemas e Algoritmos de Busca
+
+Questão 1 - As características de um agente são determinadas por seus ambientes. Analise as
+afirmações sobre ambientes de agentes e suas propriedades.
+
+  I.​    Um agente que joga xadrez, no contexto do jogo, possui um ambiente parcialmente observável,
+         estocástico, estático e sequencial. Errado: Xadrez é completamente observável e
+         determinístico. Estático e sequencial estão corretos.
+ II.​    No jogo de dama, um agente-jogador executa as ações em um ambiente completamente
+         observável, estocástico, dinâmico e discreto. Errado: Damas é sim observável e discreto,
+         porém é determinístico e estático.
+ III.​   Um agente-robô que foi enviado à Marte para coletar amostras do solo, e utiliza análise de
+         imagens para se mover e identificar as amostras. Ele possui um ambiente parcialmente
+         observável, estocástico, sequencial e dinâmico. Correto!
+
+Quais alternativas estão corretas?
+    A.​ II
+    B.​ III
+    C.​ I e II
+    D.​ I e III
+    E.​ Nenhuma
+
+Questão 2 - Forneça o estado inicial, o teste de objetivo, a função sucessora e a função de custo para
+cada um dos itens a seguir:
+
+    a)​ Você tem que colorir um mapa plano usando apenas quatro cores, de tal modo que não haja
+         duas regiões adjacentes com a mesma cor.
+
+Estado inicial: Nenhuma região colorida.
+Teste de objetivo: Todas as regiões coloridas e nenhuma região adjacente com a mesma cor.
+Função sucessora: Atribuir uma cor a uma região que esteja sem cor.
+Função de custo: Número total de colorações realizadas.
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+   b)​ Um macaco com um metro de altura está em uma sala em que algumas bananas estão presas
+       no teto, a 2.5 metros de altura. Ele gostaria de alcançar as bananas. A sala contém dois
+       engradados empilháveis, móveis e escaláveis, com um metro de altura cada.
+
+Estado inicial: Macaco está no chão e sem possuir as bananas, bananas presas no teto a 2.5m, dois
+engradados de 1m de altura no chão.
+Teste de objetivo: Macaco alcançou as bananas.
+Função sucessora: Subir no engradado, descer do engradado, mudar engradado de lugar, andar de
+um lugar até outro, agarrar as bananas.
+Função de custo: Número total de ações.
+
+Questão 3 - A partir de quais critérios, geralmente, avaliamos as estratégias de busca?
+
+Os critérios   que geralmente utilizamos para avaliar as estratégias de busca são: completude,
+otimalidade, complexidade de tempo e complexidade de espaço.
+
+Questão 4 - Cite, no mínimo, uma vantagem e uma desvantagem dos algoritmos de busca em largura
+e em profundidade.
+
+Busca em Largura:
+   ●​ Vantagem: garante encontrar a solução com o menor número de passos. É completa se o
+       espaço de estados é finito.
+   ●​ Desvantagem: consome muita memória, pois armazena todos os nós de cada nível da árvore.
+
+Busca em Profundidade:
+   ●​ Vantagem: Usa pouca memória em comparação com a busca em largura.
+   ●​ Desvantagem: Não garante encontrar a melhor solução e pode entrar em caminhos muito
+       profundos ou infinitos.
+
+Questão 5 - Qual algoritmo garante encontrar a solução com o menor número de passos, se existir?
+
+   A.​ DFS
+   B.​ BFS
+   C.​ Greedy Best-First Search
+   D.​ Hill Climbing
+
+Questão 6 - O algoritmo A* é ótimo em qual situação?
+                          Disciplina: Inteligência Artificial
+                          Profª Katherine Bianchini Esper
+
+   A.​ h(n) ≥ custo real
+   B.​ h(n) = 0
+   C.​ h(n) é admissível
+   D.​ h(n) é aleatória
+
+Questão 7 - Qual algoritmo usa menos memória, mas pode não encontrar a solução?
+
+   A.​ BFS
+   B.​ DFS
+   C.​ Custo Uniforme
+   D.​ A*
+
+Questão 8 - Considere o grafo abaixo para resolver as questões. O nó inicial é S e o objetivo é G. No
+grafo, os valores nas fronteiras representam o custo real de um nó até outro.
+
+
+
+
+As heurísticas h(n) para cada nó são:
+
+   ●​ h(S) = 6                          ●​ h(C) = 5                             ●​ h(F) = 0.5
+   ●​ h(A) = 4                          ●​ h(D) = 6                             ●​ h(H) = 2
+   ●​ h(B) = 3                          ●​ h(E) = 1                             ●​ h(G) = 0
+
+8.1 - Qual caminho o algoritmo BFS encontra primeiro?
+   a)​ S ➜ A ➜ E ➜ G
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+   b)​ S ➜ B ➜ F ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ D ➜ G
+
+8.2 - Qual é o caminho ótimo encontrado pela Busca de Custo Uniforme (UCS)?
+   a)​ S ➜ A ➜ E ➜ G
+   b)​ S ➜ B ➜ F ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ D ➜ G
+
+8.3 - Usando Greedy Best-First Search, qual sequência de expansão é mais provável?
+   a)​ S ➜ B ➜ F ➜ G
+   b)​ S ➜ A ➜ D ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ E ➜ G
+
+8.4 - Qual caminho o A* encontra?
+   a)​ S ➜ B ➜ F ➜ G
+   b)​ S ➜ A ➜ E ➜ G
+   c)​ S ➜ C ➜ H ➜ G
+   d)​ S ➜ A ➜ D ➜ G
+
+8.5 - Sobre os algoritmos acima, qual afirmação é correta?
+   a)​ BFS sempre encontra o caminho de menor custo.
+   b)​ Greedy garante uma ótima solução se a heurística for admissível.
+   c)​ UCS é equivalente ao A* quando h(n) = 0.
+   d)​ A* não depende da heurística para ser ótimo.
+
+8.6 - Se a heurística superestimar o custo real em alguns nós, o que acontece com o A*?
+   a)​ Continua ótimo sempre
+   b)​ Se torna BFS
+   c)​ Pode perder otimalidade
+   d)​ Se torna UCS.
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+Questão 9 - Explique e compare o funcionamento dos algoritmos de Busca Gulosa e A*.
+Considerando que ambos os algoritmos estejam utilizando a mesma heurística, qual é mais robusto?
+Justifique.
+
+O algoritmo de Busca Gulosa utiliza como função de avaliação: 𝑓(𝑛) = ℎ(𝑛), ou seja, ele sempre
+expande o nó que aparenta estar mais perto do objetivo, se guiando pelos nós com menor valor
+heurístico ℎ(𝑛).
+
+O algoritmo A* utiliza como função de avaliação 𝑓(𝑛) = 𝑔(𝑛) + ℎ(𝑛), considerando tanto o custo
+acumulado 𝑔(𝑛) desde o início quanto a estimativa ℎ(𝑛) até o objetivo.
+
+Se os dois algoritmos estiverem utilizando a mesma heurística ℎ(𝑛), o algoritmo A* é mais robusto por
+considerar o custo acumulado do caminho, evitando escolhas aparentemente promissoras que podem
+levar a caminhos mais caros ou que não tenham conexão com o objetivo.
+
+Questão 10 - Dado um estado inicial no jogo 8-puzzle e um estado final a ser encontrado:
+
+
+
+
+Encontre o caminho mais econômico para alcançar o estado final a partir do estado inicial usando o
+algoritmo A*. Para isso, considere:
+
+    ●​ g(n) = profundidade do nó
+    ●​ h(n) = número de peças fora do lugar
+
+A resposta desse exercício estará em um arquivo separado.
+                         Disciplina: Inteligência Artificial
+                         Profª Katherine Bianchini Esper
+
+Questão 11 - Utilize o algoritmo de busca local Hill Climbing na rede mostrada abaixo. Queremos
+chegar ao nó em formato de estrela (n0) partindo do nó n18. Mostre a sequência de nós visitados
+durante a execução do algoritmo. Utilize a distância em linha reta aproximada como função heurística.
+Caso o algoritmo fique preso em um mínimo local, utilize a variação do Hill Climbing com
+reinicialização aleatória.
+
+
+
+
+Considerando que estamos partindo de n18 e vamos utilizar Hill Climbing, vamos sempre analisar o
+vizinho com menor função heurística (nesse caso, a distância aproximada em linha reta).
+
+Sequência de passos:
+   ●​ n18: Avaliar os vizinhos (n13, n17 e n19)
+           ○​ O mais próximo de n0 é n13. Se move para n13.
+   ●​ n18 → n13: Avaliar vizinhos (n8, n12, n14 e n18)
+           ○​ O melhor vizinho é n8. Se move para n8.
+   ●​ n18 → n13 → n8: Avaliar vizinhos (n3, n7, n9 e n13)
+           ○​ O vizinho mais próximo de n0 é n3. Se move para n3.
+   ●​ n18 → n13 → n8 → n3: Avaliar os vizinhos (n2, n4 e n8)
+           ○​ A distância em linha reta de n3 até n0 é menor que a dos vizinhos.
+           ○​ Resultado: Nenhum vizinho melhora a heurística e o algoritmo para.
+           ○​ Nesse ponto, ele ficou preso em um mínimo local. Vamos utilizar a reinicialização
+               aleatória para sair desse mínimo local.
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+Reinicialização aleatória: Iniciamos o algoritmo em outro nó da rede. Por exemplo: n19.
+   ●​ n19: Avaliar os vizinhos (n14, n18 e n20)
+          ○​ O vizinho mais próximo de n0 é n14. Se move para n14.
+   ●​ n19 → n14: Avaliar os vizinhos (n13, n15, n9 e n19)
+          ○​ O vizinho mais próximo de n0 é n9. Se move para n9.
+   ●​ n19 → n14 → n9: Avaliar os vizinhos (n4, n8, n10 e n14)
+          ○​ O vizinho mais próximo de n0 é n4. Se move para n4.
+   ●​ n19 → n14 → n9 → n4: Avaliar os vizinhos (n3, n5 e n9)
+          ○​ O vizinho mais próximo de n0 é n3. Se move para n3.
+   ●​ n19 → n14 → n9 → n4 → n3: Avaliar os vizinhos (n2, n4 e n8)
+          ○​   Nenhum vizinho melhora a heurística e o algoritmo para
+          ○​ E mais uma vez, o algoritmo ficou preso em um mínimo local.
+
+Teríamos que reinicializar outras vezes até, por exemplo, cair em n6:
+   ●​ n6: Avaliar os vizinhos (n1, n7 e n11)
+          ○​ O vizinho mais próximo de n0 é n1. Se move para n1.
+   ●​ n6 → n1: Avaliar os vizinhos (n2, n6 e n0).
+          ○​ O nó mais próximo do objetivo é o próprio objetivo. Se move para n0.
+   ●​ n6 → n1 → n0
+
+O sucesso do Hill Climbing pode depender fortemente do ponto inicial e pequenas mudanças na
+posição inicial podem mudar completamente o resultado. O algoritmo não aprende com falhas
+anteriores, então muitas vezes pode ser necessário reiniciar várias vezes até cair em um ponto que
+escape de um mínimo local.
+
+Questão 12 - Analise as afirmações abaixo sobre as versões clássicas dos algoritmos Hill-Climbing e
+Simulated Annealing e assinale verdadeiro (V) ou falso (F). Quando a afirmação for falsa, corrija.
+
+( V ) Tanto o Hill-Climbing quanto o Simulated Annealing são algoritmos de refinamento.
+
+( F ) Diferente do Simulated Annealing, o Hill-Climbing mantém a árvore de busca durante a execução.
+Nenhum dos dois mantém a árvore de busca. Os dois trabalham com o estado atual e vizinhos.
+
+( V ) O Hill-Climbing sempre se move em direção ao melhor valor, escolhe sempre o estado vizinho
+sucessor melhor avaliado pela sua função heurística.
+
+( F ) O Hill-Climbing, diferente do Simulated Annealing, é controlado pelo parâmetro temperatura (T).
+Esse parâmetro geralmente é iniciado em zero e lentamente aumentado durante o processo de busca.
+                        Disciplina: Inteligência Artificial
+                        Profª Katherine Bianchini Esper
+
+Está invertido. Simulated Annealing é controlado pelo parâmetro T e o parâmetro é
+normalmente iniciado com valor alto e diminuindo gradualmente ao longo da busca.
+
+( V ) O Hill-Climbing para quando nenhum estado vizinho sucessor tiver valor melhor que o atual.
+
+( F ) O Simulated Annealing sempre aceita soluções piores que a atual. Nem sempre, ele aceita
+soluções piores com alguma probabilidade.
+
+Questão 13 - Considerando as versões clássicas dos algoritmos, por que o Simulated Annealing
+geralmente é melhor que o Hill Climbing? Fundamente sua resposta.
+
+O Simulated Annealing geralmente é considerado melhor que o Hill Climbing porque consegue
+escapar de máximos/mínimos locais e regiões ruins do espaço de busca. Ele consegue escapar
+desses pontos por aceitar movimentos temporariamente piores com certa probabilidade, permitindo
+que o algoritmo explore mais o espaço de busca a partir de saltos para outros estados. O Hill Climbing
+apenas escolhe estados vizinhos que são melhores que o atual, então em pontos que não existem
+vizinhos melhores, ele para a execução, mesmo que exista uma solução melhor em outra região do
+espaço de busca.
+
+Questão 14 - Considerando algoritmos genéticos, qual o papel da função de fitness (aptidão)? Em sua
+resposta, indique: como ela influencia o processo de seleção e o que pode acontecer se a função de
+fitness for mal definida?
+
+A função de fitness é responsável por avaliar quão boa é uma solução candidata para o problema. Ela
+atribui um valor de desempenho para cada indivíduo da população e influencia diretamente no
+processo de seleção, pois indivíduos com maior fitness possuem maior probabilidade de serem
+selecionados para reprodução e geração de novos indivíduos. Se ela for mal definida, o algoritmo pode
+evoluir soluções ruins ou distantes do objetivo do problema, podendo ocasionar em convergência
+prematura e prejudicando a qualidade da busca. Isso pode ocasionar em soluções ruins ou pouco
+diversificadas.
+
+Questão 15 - Se eliminarmos a mutação de um algoritmo genético, ele ainda pode encontrar a
+solução? O algoritmo ainda pode convergir? Justifique.
+
+Sim, mesmo sem a mutação um algoritmo genético pode encontrar uma solução e convergir. A
+ausência de mutação reduz significativamente a diversidade genética da população e, com o tempo,
+os indivíduos tendem a ficar muito parecidos, fazendo o algoritmo convergir prematuramente para
+                      Disciplina: Inteligência Artificial
+                      Profª Katherine Bianchini Esper
+
+ótimos locais. A mutação é importante porque introduz novas características na população, permitindo
+explorar regiões do espaço de busca que não seriam alcançadas apenas pelo crossover. O algoritmo
+pode ficar preso em soluções subótimas.
+
+Questão 16 - Considere os dois cromossomos abaixo, extraídos de uma população atual de um
+algoritmo genético.
+
+
+                          1       1       1        0       1         0   1   1
+
+                          0       1       0        1       1         1   0   0
+
+   (a)​ Quais filhos seriam gerados se fosse aplicado o crossover uniponto na posição central dos
+       cromossomos?
+
+Filho 1:
+
+  1        1    1     0       1       1       0        0
+
+Filho 2:
+
+  0        1    0     1       1       0       1        1
+
+   (b)​ Quais filhos seriam gerados se fosse aplicado crossover uniforme?
+
+Filho 1:
+
+  1        1    1     1       1       1       1        0
+
+Filho 2:
+
+  0        1    0     0       1       0       0        1
+
+Questão 17 - Considere uma população com 4 indivíduos e seus respectivos valores de fitness:
+
+                                          Indivíduo            Fitness
+                                              A​   ​            10​
+                                              B​       ​        20
+                                              C​       ​        30
+                                              D​       ​        40
+                        Disciplina: Inteligência Artificial
+                        Profª Katherine Bianchini Esper
+
+Foi aplicado uma seleção por roleta nessa população. Sabendo disso, classifique as afirmações como
+verdadeiras (V) ou falsas (F), corrigindo as falsas.
+
+( V ) A probabilidade de seleção de A é 10%.
+
+( V ) O indivíduo D tem o dobro de probabilidade de B.
+
+( F ) A probabilidade de seleção de C é maior que a soma das probabilidades de A e B. É igual.
+
+( F ) Se todos os fitness fossem multiplicados por 2, as probabilidades de seleção mudam. Se todos os
+fitness forem multiplicados pelo mesmo valor, as probabilidades permanecem iguais.
+
+( F ) A seleção roleta garante que o indivíduo de maior fitness sempre será escolhido em uma rodada.
+A seleção por roleta é probabilística, então o indivíduo tem maior chance de ser escolhido, mas não há
+garantia.
+
+( V ) A probabilidade de seleção de B é 0,2.
+
+( V ) Se um novo indivíduo E com fitness 40 for adicionado, a probabilidade de D diminui.
+
+Questão 18 - Considere a seguinte equação:
+
+                                        5𝑥 + 𝑦² + 𝑤 + 𝑧³ = 185
+
+   a)​ Proponha uma maneira de codificar os cromossomos.
+Cada cromossomo pode ser representado por um conjunto de genes inteiros: (𝑥, 𝑦, 𝑤, 𝑧) que conterá
+os valores das variáveis x, y, w e z.
+   b)​ Defina uma função fitness para avaliar a qualidade dos cromossomos.
+Em equações, queremos minimizar o erro. Sabemos que a equação tem resultado 185, então quando
+o erro é Zero, nossa fitness é igual à 1 (valor ideal). Podemos considerar:
+
+                                   5𝑥 + 𝑦² + 𝑤 + 𝑧³ = 𝑟𝑒𝑠𝑢𝑙𝑡𝑎𝑑𝑜
+                                        𝑒𝑟𝑟𝑜 = |185 − 𝑟𝑒𝑠𝑢𝑙𝑡𝑎𝑑𝑜|
+                                                            1
+                                           𝑓𝑖𝑡𝑛𝑒𝑠𝑠 =     1 + 𝑒𝑟𝑟𝑜
+
+Logo, quanto menor o erro, maior a função fitness. Com erro zero, nossa fitness é 1.
+
+   c)​ Defina como o método de seleção dos pais será utilizado.
+Podemos fazer seleção com vários métodos diferentes. Os mais comuns e vistos em aula são: por
+roleta, torneio ou rank. Para esse exemplo, escolhi a roleta. A ideia é que indivíduos com maior fitness
+vão possuir maior probabilidade de serem escolhidos para reprodução.
+                         Disciplina: Inteligência Artificial
+                         Profª Katherine Bianchini Esper
+
+   d)​ Defina os operadores genéticos de crossover e mutação.
+Escolhi fazer um crossover de um ponto (considerando que temos apenas 4 genes, vou fazer um corte
+no meio). E escolhi fazer mutação aleatoriamente em um gene (que pode ser x, y, w ou z).
+
+   e)​ Gere uma população inicial de 4 cromossomos e avalie a fitness deles.
+Para gerar a população inicial, preciso escolher os valores de (𝑥, 𝑦, 𝑤, 𝑧). Na tabela abaixo deixei
+descrito os 4 cromossomos iniciais e os valores do cálculo do 𝑟𝑒𝑠𝑢𝑙𝑡𝑎𝑑𝑜, 𝑒𝑟𝑟𝑜 e 𝑓𝑖𝑡𝑛𝑒𝑠𝑠, descritos no
+item b) dessa questão.
+
+
+     Cromossomo                     Resultado               Erro                    Fitness
+
+      (4, 7, 10, 5)                    204                   19                       0.05
+
+       (6, 5, 8, 4)                    127                   58                      0.017
+
+      (3, 8, 15, 4)                    158                   27                      0.036
+
+      (7, 6, 20, 5)                    216                   31                      0.031
+
+
+   f)​ Aplique os operadores de crossover e mutação sobre essa população para gerar uma nova
+       geração. Em seguida, avalie a fitness da nova geração. Repita esse processo por 8 gerações
+       ou até que a solução do problema seja encontrada.
+
+Considerando então os valores da função fitness, vamos calcular as probabilidades de seleção de
+cada cromossomo utilizando o método de roleta. Primeiro, fazemos a soma total da fitness:
+                              0. 05 + 0. 017 + 0. 036 + 0. 031 = 0. 134
+
+Agora, vamos calcular as probabilidades de seleção dos indivíduos:
+                           0.05
+   ●​ (4, 7, 10, 5) −>     0.134
+                                   ≈ 37. 3%
+                          0.017
+   ●​ (6, 5, 8, 4) −>     0.134
+                                  ≈ 12. 7%
+                           0.036
+   ●​ (3, 8, 15, 4) −>     0.134
+                                   ≈ 26. 8%
+                           0.031
+   ●​ (7, 6, 20, 5) −>     0.134
+                                   ≈ 23. 2%
+
+Assim, os indivíduos com maior fitness possuem maior probabilidade de serem selecionados para
+reprodução. Supondo que os indivíduos selecionados pela roleta foram: (4, 7, 10, 5) e (3, 8, 15, 4) ,
+vamos aplicar crossover e mutação nesses indivíduos. O mesmo processo será realizado com os
+                         Disciplina: Inteligência Artificial
+                         Profª Katherine Bianchini Esper
+
+indivíduos (6, 5, 8, 4) e (7, 6, 20, 5) , a fim de utilizar toda a população inicial para gerar a próxima
+geração.
+
+Crossover Uniponto (4, 7, 10, 5) e (3, 8, 15, 4) :
+   ●​ Pai 1: (4, 7 | 10, 5)
+   ●​ Pai 2: (3, 8 | 15, 4)
+   ●​ Filho 1: (4, 7, 15, 4)
+   ●​ Filho 2: (3, 8, 10, 5)
+
+Crossover Uniponto (6, 5, 8, 4) e (7, 6, 20, 5) :
+   ●​ Pai 3: (6, 5 | 8, 4)
+   ●​ Pai 4: (7, 6 | 20, 5)
+   ●​ Filho 3: (6, 5, 20, 5)
+   ●​ Filho 4: (7, 6, 8, 4)
+
+Mutação: Vou aplicar mutação aleatória nos quatro filhos:
+   ●​ Filho 1: (4, 7, 15, 4) ⇒ (4, 7, 12, 4) -> Alterando o gene w
+   ●​ Filho 2: (3, 8, 10, 5) ⇒ (3, 8, 5, 5) -> Alterando o gene w
+   ●​ Filho 3: (6, 5, 20, 5) ⇒ (1, 5, 20, 5) -> Alterando o gene x
+   ●​ Filho 4: (7, 6, 8, 4) ⇒ (7, 6, 8, 5) -> Alterando o gene z
+
+Avaliação da fitness dos 4 filhos gerados:
+
+     Cromossomo                     Resultado                     Erro                 Fitness
+
+       (4, 7, 12, 4)                    145                       40                     0.024
+
+       (3, 8, 5, 5)                     209                       24                     0.04
+
+       (1, 5, 20, 5)                    175                       10                     0.091
+
+       (7, 6, 8, 5)                     204                       19                     0.05
+
+
+Com isso, finalizamos a Geração 1 do algoritmo genético. A nova população passa a ser formada
+pelos cromossomos:
+   ●​ (4, 7, 12, 4), (3, 8, 5, 5), (1, 5, 20, 5) e (7, 6, 8, 5)
+                        Disciplina: Inteligência Artificial
+                        Profª Katherine Bianchini Esper
+
+A partir dessa nova população, o processo deve continuar repetidamente. Esse ciclo é repetido até
+encontrarmos uma solução exata para a equação (erro=0) ou atingir o limite de 8 gerações definido no
+enunciado. Observa-se que, ao longo das gerações, os indivíduos com maior fitness tendem a
+sobreviver e transmitir suas características, aproximando gradualmente a população de soluções
+melhores para o problema.
+
+Questão 19 - Classifique as afirmações como verdadeiras (V) ou falsas (F). Corrija as falsas.
+
+( V ) A busca em largura (BFS) é completa e ótima quanto todos os custos de passo são iguais.
+
+( F ) A busca em profundidade (DFS) sempre encontra a solução com menor profundidade. DFS não
+garante solução com menor profundidade!
+
+( V ) O algoritmo A* é ótimo se a heurística for admissível.
+
+( F ) A busca gulosa (Greedy Best-First) garante encontrar a solução ótima. Não garante solução ótima
+pois ele escolhe os nós com base na heurística, ignorando o custo percorrido.
+
+( V ) O Hill Climbing pode ficar preso em máximos locais.
+
+( V ) O algoritmo Minimax assume que o adversário joga de forma ótima.
+
+( F ) A poda alfa-beta (Alpha Beta Pruning) pode alterar o resultado final do Minimax. A poda alfa-beta
+não altera o resultado final do Minimax, apenas reduz o número de nós avaliados tornando a busca
+mais eficiente.
+
+( V ) A busca de custo uniforme sempre expande o nó com menor custo acumulado.
+
+Questão 20 - Sobre Minimax e Alpha-Beta Pruning, qual alternativa é a correta?
+
+   a)​ A poda alfa-beta altera o resultado final do Minimax, mas melhora a eficiência.
+   b)​ O Minimax assume que o jogador adversário joga de forma aleatória
+   c)​ Alpha-Beta Pruning pode reduzir o número de nós avaliados
+   d)​ O Minimax só funciona em árvores com profundidade fixa de 2 níveis.
+   e)​ Alpha-beta elimina a necessidade de função de utilidade.
+
+Questão 21 - Classifique as afirmações como verdadeiras (V) ou falsas (F).
+
+( V ) Minimax sempre encontra a melhor jogada se a árvore for totalmente explorada.
+( F ) A poda alfa-beta pode melhorar o pior caso do algoritmo. A poda melhora o desempenho no
+melhor caso e no caso médio, mas no pior caso possui a mesma complexidade do Minimax tradicional.
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+( V ) O valor alfa representa o melhor valor garantido para o jogador MAX.
+( V ) O valor beta representa o pior valor garantido para o jogador MIN.
+
+Questão 22 - Considere a árvore de jogo:
+
+
+
+
+21.1 - Qual o valor retornado pelo Minimax na raiz? O valor retornado é 6. Na árvore abaixo, em
+vermelho estão os valores escolhidos por Max e em azul os escolhidos por Min.
+
+
+
+
+21.2 - Qual o caminho escolhido? A ⇒ D ⇒ M
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+21.3 - Se aplicarmos alfa-beta da esquerda para a direita, quantos nós podem ser podados?
+
+Alpha é o melhor valor já garantido para MAX e beta é o melhor valor já garantido para MIN. Sempre
+que alfa for maior ou igual a beta, podemos podar a árvore.
+
+Passo 1: Raiz A (MAX)
+   ●​ α =     −∞
+   ●​ β =     +∞
+Passo 2: Explorar B (MIN)
+   ●​ E(MAX): 𝐸 = 𝑚𝑎𝑥(3, 12) = 12
+           ○​ Em B: β = 𝑚𝑖𝑛(+ ∞, 12) = 12
+   ●​ F(MAX): 𝐹 = 5
+           ○​ β = 𝑚𝑖𝑛(12, 5) = 5
+   ●​ G(MAX): 𝐺 = 𝑚𝑎𝑥(2, 9) = 9
+           ○​ β = 𝑚𝑖𝑛(9, 5) = 5
+   ●​ 𝐵 = 𝑚𝑖𝑛(12, 5, 9) = 5
+   ●​ Atualiza A (MAX):
+           ○​ α = 𝑚𝑎𝑥(− ∞, 5) = 5
+Passo 3: Explorar C (MIN)
+   ●​ C recebe α = 5
+   ●​ H (MAX): 𝐻 = 6
+           ○​ β = 𝑚𝑖𝑛(+ ∞, 6) = 6
+           ○​ Como β = 6 > α = 5 , então continuamos.
+   ●​ I (MAX): 𝐼 = 𝑚𝑎𝑥(1, 4) = 4
+           ○​ β = 𝑚𝑖𝑛(6, 4) = 4
+           ○​ β = 4 < α = 5 , aqui acontece uma poda do Ramo J!
+   ●​ 𝐶 = 4
+
+Explicação: C é nó MIN. Então C já encontrou uma opção de valor 4. Mas A (MAX) já possui uma
+alternativa melhor, que é 5. Logo, MAX nunca escolherá C. Não importa o valor de J. Mesmo que J
+fosse 8, C continuaria escolhendo 4. Então J é inútil e a subárvore J é podada.
+
+Passo 4: Explorar D (MIN)
+   ●​ K (MAX): 𝐾 = 𝑚𝑎𝑥(7, 2) = 7
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+          ○​ β = 𝑚𝑖𝑛(+ ∞, 7) = 7
+   ●​ L (MAX): 𝐿 = 10
+          ○​ β = 𝑚𝑖𝑛(7, 10) = 7
+   ●​ M (MAX): 𝑀 = 𝑚𝑎𝑥(0, 6, 5) = 6
+          ○​ β = 𝑚𝑖𝑛(7, 6) = 6
+   ●​ 𝐷 = 6
+
+A(MAX) escolhe entre {B = 5, C = 4, D = 6}: A = 6.
+E apenas uma poda foi feita em J.
+
+21.4 - Se invertemos a ordem do alfa-beta, da direita para a esquerda, o que acontece?
+
+Se mudarmos a ordem, vamos visitar D → C → B.
+
+Passo 1: Raiz A (MAX)
+   ●​ α =     −∞
+   ●​ β =     +∞
+Passo 2: Explorar D (MIN)
+Calculamos:
+   ●​ 𝐾 = 𝑚𝑎𝑥(7, 2) = 7
+          ○​ β = 𝑚𝑖𝑛(+ ∞, 7) = 7
+   ●​ 𝐿 = 10
+          ○​ β = 𝑚𝑖𝑛(10, 7) = 7
+   ●​ 𝑀 = 𝑚𝑎𝑥(0, 6, 5) = 6
+          ○​ β = 𝑚𝑖𝑛(7, 6) = 6
+   ●​ Logo: 𝐷 = 𝑚𝑖𝑛(7, 10, 6) = 6
+   ●​ Na raiz A: α = 𝑚𝑎𝑥(− ∞, 6) = 6
+
+Passo 3: Explorar C (MIN)
+
+   ●​ C recebe α = 6
+   ●​ H(MAX) = 6, então β = 6
+   ●​ Nesse ponto temos: β = 6 ≤ α = 6 , e aqui acontece uma poda!
+   ●​ Isso significa que I e J serão podados inteiros!
+   ●​ 𝐶 = 6
+                       Disciplina: Inteligência Artificial
+                       Profª Katherine Bianchini Esper
+
+Passo 4: Explorar B (MIN)
+
+   ●​ B recebe α = 6
+   ●​ E(MAX): 𝐸 = 𝑚𝑎𝑥(3, 12) = 12
+          ○​ β = 𝑚𝑖𝑛(+ ∞, 12) = 12
+   ●​ F(MAX): 𝐹 = 5
+          ○​ β = 𝑚𝑖𝑛(12, 5) = 5
+   ●​ Nesse ponto temos: β = 5 < α = 6 , e aqui acontece uma poda!
+   ●​ Isso significa que G é podado.
+   ●​ 𝐶 = 5
+
+A(MAX) escolhe entre {B = 5, C = 4, D = 6}: A = 6.
+
+   ●​ Em C, após avaliar H=6, ocorre a poda: I e J são podados.
+   ●​ Em B, após avaliar E=12 e F=5, ocorre a poda: G é podado.
+
+Ao todo, 3 nós foram podados: I, J e G.
+

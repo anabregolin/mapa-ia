@@ -1,0 +1,620 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                             AULA 3
+
+
+BUSCA NÃO-INFORMADA
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+                 AULA ANTERIOR
+
+
+O que são   Diferentes                     Agentes em      Exercícios
+                         Representação
+                                           ambientes
+ agentes    ambientes     de problemas
+                                         determinísticos
+                                                           Exemplos
+OBJETIVOS AULA
+  IA NÃO É CHAT GPT!
+
+
+
+   Algoritmos de Busca
+   Busca não-informada
+     BFS, DFS e custo uniforme
+REPRESENTAÇÃO
+   IA NÃO É CHAT GPT! DE PROBLEMAS
+
+   Como encontrar a solução dentro de um espaço de estados?
+Como agentes cognitivos decidem em ambientes determinísticos?
+REPRESENTAÇÃO
+   IA NÃO É CHAT GPT! DE PROBLEMAS
+
+   Como encontrar a solução dentro de um espaço de estados?
+Como agentes cognitivos decidem em ambientes determinísticos?
+
+
+
+              ALGORITMOS DE BUSCA!
+ALGORTIMOS DE BUSCA
+
+
+Por que precisamos de busca?
+ ALGORTIMOS DE BUSCA
+
+
+Por que precisamos de busca?
+Se um espaço de estados é enorme, como
+escolhemos por onde começar? Como
+encontrar o caminho até o objetivo?
+BUSCA EM ÁRVORE
+                          Espaço de Estados como Grafo
+
+
+BUSCA EM ÁRVORE:
+
+   Raiz: estado inicial
+   Nós: estados alcançados por ações
+   Arestas: ações que levam de um estado a outro
+   Folhas: Estados finais (objetivos ou estados sem saída)
+ALGORTIMOS DE BUSCA
+                 Espaço de Estados como Grafo: BUSCA EM ÁRVORE
+
+
+
+
+Estado inicial   → transições → estados intermediários → objetivo.
+ALGORTIMOS DE BUSCA
+
+         Estado Inicial
+
+
+
+
+                          Simular a exploração do espaço
+                          de estados e gerar sucessores
+                                 para os estados
+BUSCA EM ÁRVORE
+ ÁRVORE DE BUSCA
+
+Por que usar árvore de busca?
+
+   Um agente cognitivo/deliberativo precisa raciocinar sobre
+   sequências de ações.
+
+   A árvore organiza sistematicamente todas as possibilidades de
+   evolução do estado.
+
+   Permite aplicar algoritmos de busca
+
+   É a ponte representação de problemas e planejamento de ações
+ ÁRVORE DE BUSCA
+
+Por que usar árvore de busca?
+
+   Um agente cognitivo/deliberativo precisa raciocinar sobre
+   sequências de ações.
+
+   A árvore organiza sistematicamente todas as possibilidades de
+   evolução do estado.
+
+   Permite aplicar algoritmos de busca
+
+   É a ponte representação de problemas e planejamento de ações
+ALGORTIMOS DE BUSCA
+            DeterminísticoOx
+   Totalmente observável      Não-determinístico
+                         Episódico
+                         (Acessível)
+                            Estático
+                              que  éxxx
+                                     uma
+                                      Não-episódico
+                                       Parcialmente
+                                        Dinâmico
+                                           busca?   (estocástico)
+                                                    observável  (Inacessível)
+
+
+Definição: Processo de exploração sistemática de um espaço de
+estados para encontrar uma sequência de ações que leva do estado
+inicial ao estado objetivo.
+
+Objetivo: Encontrar uma sequência de ações que leva do estado
+inicial até o objetivo.
+
+Exemplo: Procurar uma rota em um mapa ou resolver um labirinto.
+ALGORTIMOS DE BUSCA
+ALGORTIMOS DE BUSCA
+          Determinístico x
+ Totalmente observável
+              Busca         Não-determinístico
+                    não-informada
+                       Episódico
+                       (Acessível)
+                          Estáticoxxx vs.
+                                    Não-episódico
+                                     Parcialmente
+                                      Dinâmico     (estocástico)
+                                          Busca Informada
+                                                   observável  (Inacessível)
+
+
+
+Busca não-informada:
+   Não usa conhecimento extra
+   Explora sistematicamente
+
+Busca informada:
+   Usa heurísticas (estimativas)
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+
+Definição: Algoritmos que não utilizam conhecimento adicional
+sobre o problema além da definição formal.
+Estratégia: Exploração sistemática do espaço de estados
+
+Exemplos:
+     PLANEJAMENTO
+   Busca em largura (BFS)
+   Busca em profundidade (DFS)
+   Busca de custo uniforme
+BUSCA NÃO-INFORMADA
+   1970: MYCIN      - BFS
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+  Começamos com o nó raiz e depois expandimos para os nós filhos
+
+                                   A
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+  Começamos com o nó raiz e depois expandimos para os nós filhos
+
+                                   A
+
+
+                          B                 C
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+  Começamos com o nó raiz e depois expandimos para os nós filhos
+
+                                   A
+
+
+                          B                 C
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+  Começamos com o nó raiz e depois expandimos para os nós filhos
+
+                                   A
+
+
+                          B                 C
+
+
+                      D        E
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+  Começamos com o nó raiz e depois expandimos para os nós filhos
+
+                                   A
+
+
+                          B                 C
+
+
+                      D        E        F        G
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+  Começamos com o nó raiz e depois expandimos para os nós filhos
+
+                                   A
+
+
+                          B                 C
+                                                          Busca FIFO (fila)
+                                                          First In, First Out
+                      D        E        F        G
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+       Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+
+
+  PLANEJAMENTO
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+
+  Explicação: explora estados por níveis, garantindo encontrar a
+  solução mais curta em número de passos.
+
+  Vantagens: encontra solução ótima em termos de passos.
+   PLANEJAMENTO
+
+
+  Limitações: consome muita memória em espaços grandes.
+ALGORTIMOS DE BUSCA
+
+Como nós avaliamos “o quão boa”
+é a nossa estratégia de busca?
+ ALGORTIMOS DE BUSCA
+
+Nós avaliamos as estratégias de busca de diferentes maneiras:
+
+
+         COMPLETUDE                     OTIMALIDADE
+
+
+
+              COMPLEXIDADE TEMPO
+
+
+
+               COMPLEXIDADE ESPAÇO
+  ALGORTIMOS DE BUSCA
+
+Nós avaliamos as estratégias de busca de diferentes maneiras:
+
+
+Completude: Essa estratégia encontra uma solução, se ela existir?
+Otimalidade: Essa é uma solução ótima (menor distância/custo)?
+Complexidade Tempo: Quanto tempo demora para eu achar a solução?
+Complexidade Espaço: Quanta memória é necessária durante a busca?
+ALGORTIMOS DE BUSCA
+
+
+Tempo e memória são medidos em relação:
+   b: fator de ramificação (branching factor)
+   d: profundidade da solução ótima
+   m: profundidade máxima do espaço de estados
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em amplitude/largura é:
+
+ COMPLETUDE?
+
+
+ OTIMALIDADE?
+
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em amplitude/largura é:
+
+ COMPLETUDE?           Sim, se o espaço é finito!
+
+ OTIMALIDADE?
+
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em amplitude/largura é:
+
+ COMPLETUDE?           Sim, se o espaço é finito!
+
+ OTIMALIDADE?          Sim, menor número de passos (custo 1)
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em amplitude/largura é:
+
+ COMPLETUDE?           Sim, se o espaço é finito!
+
+ OTIMALIDADE?          Sim, menor número de passos (custo 1)
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em amplitude/largura é:
+
+ COMPLETUDE?           Sim, se o espaço é finito!
+
+ OTIMALIDADE?          Sim, menor número de passos (custo 1)
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ALGORTIMOS DE BUSCA
+
+
+Tabela para b = 10 (fator ramificação)
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+         Busca em Largura/Amplitude - BFS (Breadth-First Search)
+
+  Esse tipo de busca falha em detectar estados repetidos, tornando
+  um problema linear em algo exponencial!
+
+
+   PLANEJAMENTO
+BUSCA NÃO-INFORMADA
+   1970: MYCIN      - DFS
+            Busca em Profundidade - DFS (Deep-First Search)
+
+
+  Explora o espaço de estados indo o mais fundo possível em um
+  ramo antes de retroceder.
+
+                  Seguir uma ação até o limite,
+               depois voltar e explorar alternativas
+BUSCA NÃO-INFORMADA
+   1970: MYCIN      - DFS
+              Busca em Profundidade - DFS (Deep-First Search)
+
+
+ 1. Começa no estado inicial (raiz da árvore)
+ 2. Escolhe uma ação e segue para o próximo estado
+ 3. Continua expandindo até:
+    a. Encontrar o objetivo, ou
+    b. Chegar a um estado sem ações possíveis (folha)
+ 4. Retrocede e tenta outro caminho
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+           Busca em Profundidade - DFS (Deep-First Search)
+
+
+
+
+  PLANEJAMENTO
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em profundidade é:
+
+ COMPLETUDE?           Não! Falha em espaços prof. infinita
+
+ OTIMALIDADE?
+
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em profundidade é:
+
+ COMPLETUDE?           Não! Falha em espaços prof. infinita
+
+ OTIMALIDADE?          Não!
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em profundidade é:
+
+ COMPLETUDE?           Não! Falha em espaços prof. infinita
+
+ OTIMALIDADE?          Não!
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+ ALGORTIMOS DE BUSCA
+
+O algoritmo de busca em profundidade é:
+
+ COMPLETUDE?           Não! Falha em espaços prof. infinita
+
+ OTIMALIDADE?          Não!
+
+ COMPLEXIDADE TEMPO?
+
+
+ COMPLEXIDADE ESPAÇO?
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+            Busca em Profundidade - DFS (Deep-First Search)
+
+
+
+  Explicação: explora até o fundo antes de retroceder.
+
+  Vantagens: usa pouca memória.
+   PLANEJAMENTO
+  Limitações: pode se perder em caminhos longos
+
+  sem solução.
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+                       Busca de Custo Uniforme
+
+
+
+  Em casos de custo associado, as vezes o menor número de
+
+  passos não é a melhor solução.
+   PLANEJAMENTO
+
+  Mesma ideia de FIFO, porém ordenado pelo custo!
+
+     Variação busca em largura, mas considerando custos
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+                       Busca de Custo Uniforme
+
+  Ao invés de expandir por nível (BFS), expande sempre o
+
+  estado com menor custo associado a partir do inicial.
+
+  O custo precisa ser maior que zero, para o algoritmo não
+  PLANEJAMENTO
+  entrar em loop
+
+
+  Equivalente ao algoritmo de Dijkstra para encontrar o
+
+           caminho mais barato em um grafo.
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+                       Busca de Custo Uniforme
+
+
+
+  Começa no estado inicial com custo zero.
+
+  Mantém uma fila de prioridade ordenada pelo custo acumulado.
+   PLANEJAMENTO
+  A cada passo, expande o estado com menor custo total
+
+  Continua até encontrar um estado objetivo
+
+  Garante que o primeiro objetivo encontrado é menor custo!
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+                 Busca de Custo Uniforme
+
+
+
+
+  PLANEJAMENTO
+COMPARAÇÃO ENTRE ALGORITMOS
+
+
+  Algoritmo            Vantagem                       Limitação
+
+      BFS         Solução ótima em passos       Alto consumo de memória
+
+      DFS             Pouca memória         Pode não encontrar solução rápida
+
+ Custo uniforme   Solução ótima em custo      Mais lento em grafos grandes
+COMPARAÇÃO ENTRE ALGORITMOS
+
+
+  Algoritmo            Vantagem                       Limitação
+
+      BFS         Solução ótima em passos       Alto consumo de memória
+
+      DFS             Pouca memória         Pode não encontrar solução rápida
+
+ Custo uniforme   Solução ótima em custo      Mais lento em grafos grandes
+
+
+                                                       Pode se perder em
+                                                     profundidades infinitas!
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+                   Busca Limitada em Profundidade
+
+
+
+                 E se o nosso objetivo estiver
+                 além do limite estabelecido?
+  PLANEJAMENTO
+  COMO DEFINIR O LIMITE DE
+ PROFUNDIDADE (SEM CHUTAR)?
+ITERATIVE DEEPNING
+    1970: MYCIN    DEPTH-FIRST SEARCH
+
+
+  function IterativeDeepningSearch(problem)
+               ←
+       for depth 0 to ∞ do
+               ←
+            result DepthLimitedSearch(problem, depth)
+            if result ≠ cutoff then return result
+    PLANEJAMENTO
+        end for
+  end function
+ITERATIVE DEEPNING
+    1970: MYCIN    DEPTH-FIRST SEARCH
+
+
+  function IterativeDeepningSearch(problem)
+                ←
+       for depth 0 to ∞ do
+                ←
+            result DepthLimitedSearch(problem, depth)
+            if result ≠ cutoff then return result
+    PLANEJAMENTO
+        end for
+  end function                                A mesma ideia do DFS com um
+                                           incremento gradual de limite de
+                                            profundidade, até o objetivo ser
+                                                      atingido.
+BUSCA NÃO-INFORMADA
+   1970: MYCIN
+                 Iterative Deepning Depth-first search
+
+
+  Consumo de memória parecido com DFS
+
+  Combina os benefícios de DFS e BFS
+  PLANEJAMENTO
+    Otimalidade da busca em amplitude com a
+    memória da busca em profundidade.
+
+
+                                              Melhor dos dois mundos
+ALGORTIMOS DE BUSCA
+          Determinístico x
+ Totalmente observável
+              Busca         Não-determinístico
+                    não-informada
+                       Episódico
+                       (Acessível)
+                          Estáticoxxx vs.
+                                    Não-episódico
+                                     Parcialmente
+                                      Dinâmico     (estocástico)
+                                          Busca Informada
+                                                   observável  (Inacessível)
+
+
+
+Busca não-informada:
+   Não usa conhecimento extra
+   Explora sistematicamente
+
+Busca informada:
+   Usa heurísticas (estimativas)
+PRÓXIMA AUL A:
+
+
+SOLUÇÃO DE PROBLEMAS
+BUSCA INFORMADA
+
+UNIDADE 2
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+

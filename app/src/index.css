@@ -1,0 +1,17 @@
+@import "tailwindcss";
+
+:root {
+  color-scheme: dark;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: #050816;
+}
+
+html, body, #root { height: 100%; margin: 0; }
+
+.react-flow__edge-text { font-size: 12px; fill: #e2e8f0; }
+.react-flow__edge-textbg { fill: #0f172a; }
+.react-flow__controls button { background: #0f172a; border-color: #1e293b; fill: #cbd5e1; }
+.react-flow__controls button:hover { background: #1e293b; }
+
+* { scrollbar-color: #334155 transparent; scrollbar-width: thin; }
+.katex-display { margin: 0.25em 0; }

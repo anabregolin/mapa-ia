@@ -1,0 +1,800 @@
+INTELIGÊNCIA ARTIFICIAL
+
+
+                                           AULA 13
+
+               PLANEJAMENTO
+                    CLÁSSICO
+               PROFª. ME. KATHERINE BIANCHINI ESPER DE VARGAS
+OBJETIVOS AULA
+  IA NÃO É CHAT GPT!
+
+
+  Introdução ao Planejamento
+  Formalismos
+  Modelagem de Problemas
+PLANEJAMENTO
+   1970: MYCIN VS BUSCA
+O que acontece se utilizarmos os algoritmos de busca no mundo real?
+
+Por exemplo:
+   Quero comprar um livro com ISBN 1234567890.
+   Ações do agente: Buy(X), onde X é o número do ISBN.
+
+Em busca, nosso agente deve explorar todos os estados possíveis até
+encontrar um que satisfaça a condição de objetivo:
+
+    Cerca de 10 bilhões de estados precisam ser examinados para ver se
+    um deles contém: Have(1234567890)     → Teste de objetivo.
+PLANEJAMENTO
+   1970: MYCIN VS BUSCA
+O que acontece se utilizarmos os algoritmos de busca no mundo real?
+
+Por exemplo:                                                 Ineficiente! Não há
+                                                           raciocínio direcionado,
+   Quero comprar um livro com ISBN 1234567890.            apenas exploração cega.
+   Ações do agente: Buy(X), onde X é o número do ISBN.
+
+Em busca, nosso agente deve explorar todos os estados possíveis até
+encontrar um que satisfaça a condição de objetivo:
+
+    Cerca de 10 bilhões de estados precisam ser examinados para ver se
+    um deles contém: Have(1234567890)     → Teste de objetivo.
+PLANEJAMENTO
+   1970: MYCIN VS BUSCA
+ Se tivermos um agente sensato (sensible agent):
+    Agente que não age de forma cega, mas que raciocina de maneira lógica e
+    eficiente para alcançar seu objetivo.
+
+ Nosso agente raciocina sobre ações e efeitos para chegar no objetivo.
+    Ele sabe que Buy(Y) resulta em Have(Y):
+PLANEJAMENTO
+   1970: MYCIN VS BUSCA
+ Se tivermos um agente sensato (sensible agent):
+    Agente que não age de forma cega, mas que raciocina de maneira lógica e
+    eficiente para alcançar seu objetivo.
+
+ Nosso agente raciocina sobre ações e efeitos para chegar no objetivo.
+    Ele sabe que Buy(Y) resulta em Have(Y): Buy(Y)   → Have(Y)
+PLANEJAMENTO
+   1970: MYCIN VS BUSCA
+ Se tivermos um agente sensato (sensible agent):
+    Agente que não age de forma cega, mas que raciocina de maneira lógica e
+    eficiente para alcançar seu objetivo.
+
+ Nosso agente raciocina sobre ações e efeitos para chegar no objetivo.
+    Ele sabe que Buy(Y) resulta em Have(Y): Buy(Y)    → Have(Y)
+    Então se o objetivo é Have(1234567890):
+        Basta executar: Buy(1234567890)
+
+               O agente não precisa explorar todos os estados possíveis:
+         Ele deduz diretamente a sequência de ações que levam ao objetivo.
+PLANEJAMENTO
+   1970: MYCIN VS BUSCA
+
+ Diferença essencial:
+
+    Busca explora estados até encontrar um que satisfaça o objetivo.
+    Planejamento usa o conhecimento sobre ações e efeitos para
+    construir um plano que leve ao objetivo de forma lógica e direta.
+
+
+             O agente raciocina sobre pré-condições e
+            efeitos das ações para chegar ao resultado!
+PLANEJAMENTO
+   1970: MYCIN VS BUSCA
+ Busca (Search):
+    Trabalha diretamente no espaço de estados.
+    Solução   → Sequência de ações.
+    Pouco ou nenhum uso da estrutura interna das ações.
+
+ Planejamento (Planning)
+    Usa representação explícita e fatorada do mundo.
+    Estados descritos por conjuntos de variáveis/proposições.
+    Ações têm estrutura interna (pré-condições e efeitos).
+    Permite raciocínio simbólico e abstração.
+PRINCIPAL DESAFIO DE
+   IA NÃO É CHAT GPT!
+PLANEJAMENTO EM IA
+      Como representar problemas de forma que os
+  algoritmos consigam resolvê-los de maneira eficiente?
+PRINCIPAL DESAFIO DE
+   IA NÃO É CHAT GPT!
+PLANEJAMENTO EM IA
+      Como representar problemas de forma que os
+  algoritmos consigam resolvê-los de maneira eficiente?
+  Precisamos de uma representação padrão de problemas de planejamento:
+     Estados (como o mundo está em determinado momento)
+     Ações (o que pode ser feito, com pré-condições e efeitos)
+     Objetivos (condições que queremos alcançar)
+PRINCIPAL DESAFIO DE
+   IA NÃO É CHAT GPT!
+PLANEJAMENTO EM IA
+      Como representar problemas de forma que os
+  algoritmos consigam resolvê-los de maneira eficiente?
+ Essa representação precisa ser expressiva o suficiente para descrever uma grande
+ variedade de problemas   → Se for simples, não é possível modelar situações reais.
+ Essa representação precisa ser restritiva o suficiente para que os algoritmos
+ sejam eficientes e seja possível encontrar planos em tempo razoável.
+PRINCIPAL DESAFIO DE
+   IA NÃO É CHAT GPT!
+PLANEJAMENTO EM IA
+      Como representar problemas de forma que os
+  algoritmos consigam resolvê-los de maneira eficiente?
+
+ Primeiro sistema formal de representação de problemas de planejamento
+ em IA foi criado em 1960 por Richard Fikes e Nils Nilsson   → STRIPS.
+            STRIPS (Stanford Research Institute Problem Solver)
+PRINCIPAL DESAFIO DE
+   IA NÃO É CHAT GPT!
+PLANEJAMENTO EM IA
+      Como representar problemas de forma que os
+  algoritmos consigam resolvê-los de maneira eficiente?
+
+      Nós vamos utilizar uma linguagem baseada em STRIPS   → PDDL
+  PDDL é a linguagem padrão de planejamento atualmente e foi criado
+  para unificar diferentes versões e formalismos de STRIPS, permitindo
+  comparações entre algoritmos.
+PDDL E STRIPS
+  1970: MYCIN
+           PDDL   → Planning Domain Definition Language
+  Criado nos anos 1990 e é usado até hoje nas competições
+  internacionais de planejamento.
+
+  É uma linguagem declarativa:
+     Descrevemos o domínio (ações, pré-condições e efeitos)
+     Descrevemos o problema (estado inicial e objetivos)
+PDDL E STRIPS
+  1970: MYCIN
+Como PDDL é uma extensão de STRIPS, precisamos entender a
+estrutura dos dados em STRIPS e como organizar a estrutura de ações:
+
+Action:
+Precondition:
+Effect:
+PDDL E STRIPS
+  1970: MYCIN
+Como PDDL é uma extensão de STRIPS, precisamos entender a
+estrutura dos dados em STRIPS e como organizar a estrutura de ações:
+
+Action: Comprar(x)
+Precondition:
+Effect:
+PDDL E STRIPS
+  1970: MYCIN
+Como PDDL é uma extensão de STRIPS, precisamos entender a
+estrutura dos dados em STRIPS e como organizar a estrutura de ações:
+
+Action: Comprar(x)
+Precondition:
+Effect: Tenho(x)
+PDDL E STRIPS
+  1970: MYCIN
+Como PDDL é uma extensão de STRIPS, precisamos entender a
+estrutura dos dados em STRIPS e como organizar a estrutura de ações:
+
+Action: Comprar(x)
+                                               Preciso estar em um lugar
+Precondition: Estar(p), Vender(p, x)
+                                                  p, tal que p vende x
+Effect: Tenho(x)
+
+            Linguagem restrita   → Algoritmos eficientes
+REPRESENTAÇÃO ESTADOS
+
+ Estados são representados como conjunções de literais positivos.
+    Conjunto de proposições verdadeiras!    Rico   ∧ Feliz
+REPRESENTAÇÃO ESTADOS
+
+ Estados são representados como conjunções de literais positivos.
+     Conjunto de proposições verdadeiras!     Rico    ∧ Feliz
+  Literais de primeira ordem: lógica de predicados!
+     Podemos usar lógica de predicados para descrever estados.
+
+  EstáEm(Avião1, PortoAlegre)    ∧ EstáEm(Avião2, SaoPaulo)
+REPRESENTAÇÃO ESTADOS
+Ground e function-free:
+
+   Ground: todos os termos são instâncias concretas (sem variáveis livres)
+
+  EstáEm(Avião1, PortoAlegre) Ground!           EstáEM(x, y) Não é!
+REPRESENTAÇÃO ESTADOS
+Ground e function-free:
+
+   Ground: todos os termos são instâncias concretas (sem variáveis livres)
+
+  EstáEm(Avião1, PortoAlegre) Ground!           EstáEM(x, y) Não é!
+   Function-free: não usamos funções complexas dentro dos termos, apenas
+   constantes. Espaço estados finito e manipulável.
+
+           At(Katherine, PortoAlegre) Function-free!
+         At(Pai(Katherine), PortoAlegre) Não é Function-free!
+REPRESENTAÇÃO
+   1970: MYCIN ESTADOS
+
+Consideramos a hipótese do mundo fechado: Closed World Assumption (CWA)
+
+Tudo que não menciosamos em um estado, vamos assumir que é falso.
+Tudo que não é explicitamente verdadeiro é considerado falso!
+
+                       EstáEm(Avião1, PortoAlegre)
+
+        Se temos essa proposição, assumimos que Katherine não
+        está em nenhum outro lugar, mesmo que não esteja escrito.
+        Evita ter que listar todas as negações possíveis.
+REPRESENTAÇÃO
+   1970: MYCIN OBJETIVOS
+
+ Objetivos   → São condições que definem sucesso.
+ Objetivos (Goals) são conjunções de literais positivos ground.
+
+              Rico   ∧ Famoso      At(Avião1, PortoAlegre)
+
+ Um estado s satisfaz um objetivo se s contém todos átomos do objetivo.
+
+       Rico   ∧ Famoso ∧ Infeliz      Rico   ∧ Famoso ∧ Feliz
+REPRESENTAÇÃO
+   1970: MYCIN AÇÕES
+
+ Ações são representadas e definidas por:
+    Pré-condições: o que precisa ser verdadeiro antes da ação.
+    Efeito: o que acontece quando executo a ação.
+
+ AÇÃO(Voar(a, origem, destino))
+ PRE-CONDIÇÃO: Em(a, origem)    ∧ Avião(a) ∧ Aero(origem) ∧ Aero(destino)
+ EFEITOS: ¬Em(a, origem)   ∧ Em(a, destino)
+                                     Lista de adições (add list)
+                                     Lista de remoções (delete list)
+AÇÕES VS ESQUEMAS
+   1970: MYCIN    AÇÕES
+
+  AÇÃO(Voar(a, origem, destino))
+  PRE-CONDIÇÃO: Em(a, origem)    ∧ Avião(a) ∧ Aero(origem) ∧ Aero(destino)
+  EFEITOS: ¬Em(a, origem)   ∧ Em(a, destino)
+Uma ação é uma instância concreta, com todos os parâmetros substituídos por constantes.
+
+                AÇÃO(Voar(Avião1, PortoAlegre, SãoPaulo))
+Um esquema de ações é um modelo genérico que pode gerar muitas ações concretar ao
+                                    →
+substituir as variáveis por constantes Representação compacta e reutilizável!
+
+                         AÇÃO(Voar(a, origem, destino))
+SEMÂNTICAS I
+   1970: MYCIN
+
+ Uma ação é aplicável em um estado se ela satisfaz as pré-condições.
+ Quando usamos esquemas de ações, precisamos verificar se existe uma
+ substituição legal que torne as pré-condições verdadeiras no estado atual.
+
+ Estado Atual: Dois aviões em dois aeroportos diferentes
+
+   At(P1, CGH)   ∧ At(P2, POA) ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA)
+SEMÂNTICAS I
+   1970: MYCIN
+Esquema de ação:
+ AÇÃO(Fly(p, from, to))
+ PRE-CONDIÇÃO: At(p, from)     ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+ EFEITOS: ¬At(p, from)   ∧ At(p, to)
+                 Estado Atual: Dois aviões em dois aeroportos diferentes
+       At(P1, CGH)   ∧ At(P2, POA) ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA)
+Substituir: {p/P1, from/CGH, to/POA} → Instanciar as variáveis com constantes do estado atual
+SEMÂNTICAS I
+   1970: MYCIN
+Esquema de ação:
+ AÇÃO(Fly(p, from, to))
+ PRE-CONDIÇÃO: At(p, from)     ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+ EFEITOS: ¬At(p, from)   ∧ At(p, to)
+                 Estado Atual: Dois aviões em dois aeroportos diferentes
+       At(P1, CGH)   ∧ At(P2, POA) ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA)
+Substituir: {p/P1, from/CGH, to/POA} → Instanciar as variáveis com constantes do estado atual
+                         Todas as pré-condições são verdadeiras no estado!
+                AÇÃO(Fly(P1, CGH, POA)) A ação concreta é aplicável!
+SEMÂNTICAS II
+   1970: MYCIN
+                   Qual estado resulta de uma ação aplicável?
+
+Começando em um estado s, o resultado da ação aplicável a é um novo estado s’,
+que é idêntico, exceto por:
+    Todos os literais positivos P que são efeitos da ação a são adicionados a s’
+    Todos os literais negativos ¬P efeitos da ação a são removidos de s’
+
+
+             Todos os literais não mencionados, não são alterados!
+SEMÂNTICAS II
+   1970: MYCIN
+Esquema de ação:
+ AÇÃO(Fly(p, from, to))
+ PRE-CONDIÇÃO: At(p, from)     ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+ EFEITOS: ¬At(p, from)   ∧ At(p, to)
+               Estado Atual (s): Dois aviões em dois aeroportos diferentes
+       At(P1, CGH)   ∧ At(P2, POA) ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA)
+                                       AÇÃO(Fly(P1, CGH, POA))
+SEMÂNTICAS II
+   1970: MYCIN
+Esquema de ação:
+ AÇÃO(Fly(p, from, to))
+ PRE-CONDIÇÃO: At(p, from)     ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+ EFEITOS: ¬At(p, from)   ∧ At(p, to)
+               Estado Atual (s): Dois aviões em dois aeroportos diferentes
+       At(P1, CGH)   ∧ At(P2, POA) ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA)
+                                       AÇÃO(Fly(P1, CGH, POA))
+                                Novo estado (s’): Resultado da ação a
+       At(P1, CGH)   ∧ At(P2, POA) ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA)
+SEMÂNTICAS II
+   1970: MYCIN
+Esquema de ação:
+ AÇÃO(Fly(p, from, to))
+ PRE-CONDIÇÃO: At(p, from)     ∧ Plane(p) ∧ Airport(from) ∧ Airport(to)
+ EFEITOS: ¬At(p, from)   ∧ At(p, to)
+               Estado Atual (s): Dois aviões em dois aeroportos diferentes
+       At(P1, CGH)   ∧ At(P2, POA) ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA)
+                                       AÇÃO(Fly(P1, CGH, POA))
+                                Novo estado (s’): Resultado da ação a
+       At(P2, POA)   ∧Plane(P1) ∧ Plane(P2) ∧ Airport(CGH) ∧ Airport(POA) ∧ At(P1, POA)
+EXERCÍCIOS FIXAÇÃO
+    1970: MYCIN
+Ação
+Action(Fly(p, from, to))
+Precondition: At(p, from)   ∧
+                            Plane(p)∧ Airport(from)∧ Airport(to)
+Effect: ¬At(p, from)∧  At(p, to)
+
+Estado Atual
+At(C1, SFO)    ∧
+               At(C2, JFK)  ∧ At(P1, SFO) ∧  At(P2, JFK)∧
+Cargo(C1) ∧  Cargo(C2)  ∧ Plane(P1) ∧  Plane(P2) ∧             ∧
+                                                    Airport(SFO)
+Airport(JFK)
+
+
+Qual o resultado de aplicar Fly(P1, SFO, JFK) no estado atual?
+EXERCÍCIOS FIXAÇÃO
+    1970: MYCIN
+                                                Depois de substituir, verificamos
+ Ação - Após aplicar {p/P1, from/SFO, to/JFK}       que a ação é aplicável!
+ Action(Fly(P1, SFO, JFK))
+ Precondition: At(P1, SFO)  ∧Plane(P1)   ∧ Airport(SFO)∧ Airport(JFK)
+ Effect: ¬At(P1, SFO) ∧ At(P1, JFK)
+EXERCÍCIOS FIXAÇÃO
+    1970: MYCIN
+ Ação - Após aplicar {p/P1, from/SFO, to/JFK}
+ Action(Fly(P1, SFO, JFK))
+ Precondition: At(P1, SFO)    ∧
+                             Plane(P1)   ∧ Airport(SFO)∧ Airport(JFK)
+ Effect: ¬At(P1, SFO) ∧ At(P1, JFK)
+
+ Estado Anterior
+ At(C1, SFO)   ∧At(C2, JFK)   ∧At(P1, SFO)      ∧
+                                              At(P2, JFK) ∧
+ Cargo(C1) ∧  Cargo(C2)   ∧Plane(P1)   ∧Plane(P2)   ∧Airport(SFO)∧
+ Airport(JFK)
+EXERCÍCIOS FIXAÇÃO
+    1970: MYCIN
+ Ação - Após aplicar {p/P1, from/SFO, to/JFK}
+ Action(Fly(P1, SFO, JFK))
+ Precondition: At(P1, SFO)    ∧
+                             Plane(P1)   ∧ Airport(SFO)∧ Airport(JFK)
+ Effect: ¬At(P1, SFO) ∧ At(P1, JFK)
+
+ Novo Estado
+ At(C1, SFO)   ∧At(C2, JFK)   ∧At(P1, SFO)      ∧
+                                              At(P2, JFK) ∧
+ Cargo(C1) ∧  Cargo(C2)   ∧Plane(P1)   ∧Plane(P2)   ∧Airport(SFO)∧
+ Airport(JFK)
+EXERCÍCIOS FIXAÇÃO
+    1970: MYCIN
+ Ação - Após aplicar {p/P1, from/SFO, to/JFK}
+ Action(Fly(P1, SFO, JFK))
+ Precondition: At(P1, SFO)    ∧
+                             Plane(P1)   ∧ Airport(SFO)∧ Airport(JFK)
+ Effect: ¬At(P1, SFO) ∧ At(P1, JFK)
+
+ Novo Estado
+ At(C1, SFO)   ∧At(C2, JFK)   ∧At(P1, JFK)      ∧
+                                              At(P2, JFK) ∧
+ Cargo(C1) ∧  Cargo(C2)   ∧Plane(P1)   ∧Plane(P2)   ∧Airport(SFO)∧
+ Airport(JFK)
+SEMÂNTICAS III
+   1970: MYCIN
+
+         Tendo a semântica das ações, podemos pensar em planos:
+
+  A solução para um problema de planejamento é uma sequência de ações que
+  quando executada a partir do estado inicial, vai resultar em um estado que
+  satisfaça o objetivo (goal).
+EXEMPLO COMPLETO
+   1970: MYCIN   EM STRIPS
+
+               ∧                ∧           ∧           ∧
+Init(At(C1, SFO) At(C2, JFK) At(P1, SFO) At(P2, JFK) Cargo(C1)
+    ∧          ∧            ∧           ∧           ∧
+       Cargo(C2) Plane(P1) Plane(P2) Airport(JFK) Airport(SFO)
+               ∧
+Goal(At(C1, JFK) At(C2, SFO))
+Action(Load(c,p,a),
+                    ∧           ∧       ∧       ∧
+    PRECOND: At(c,a) At(p,a) Cargo(c) Plane(p) Airport(a)
+                    ∧
+    EFFECT: ¬At(c,a) In(c,p))
+Action(Unload(c,p,a),
+                    ∧           ∧       ∧       ∧
+    PRECOND: In(c,p) At(p,a) Cargo(c) Plane(p) Airport(a)
+    EFFECT: At(c,a)∧  ¬In(c,p))
+Action(Fly(p,from,to),
+                        ∧           ∧           ∧
+    PRECOND: At(p,from) Plane(p) Airport(from) Airport(to)
+    EFFECT: ¬At(p,from) ∧ At(p,to))
+EXERCÍCIO - ENCONTRE
+   1970: MYCIN       O PLANO PARA:
+               ∧                ∧           ∧           ∧
+Init(At(C1, SFO) At(C2, JFK) At(P1, SFO) At(P2, JFK) Cargo(C1)
+    ∧          ∧            ∧           ∧           ∧
+       Cargo(C2) Plane(P1) Plane(P2) Airport(JFK) Airport(SFO)
+               ∧
+Goal(At(C1, JFK) At(C2, SFO))
+Action(Load(c,p,a),
+                    ∧           ∧       ∧       ∧
+    PRECOND: At(c,a) At(p,a) Cargo(c) Plane(p) Airport(a)
+                    ∧
+    EFFECT: ¬At(c,a) In(c,p))
+Action(Unload(c,p,a),
+                    ∧           ∧       ∧       ∧
+    PRECOND: In(c,p) At(p,a) Cargo(c) Plane(p) Airport(a)
+    EFFECT: At(c,a)∧  ¬In(c,p))
+Action(Fly(p,from,to),
+                        ∧           ∧           ∧
+    PRECOND: At(p,from) Plane(p) Airport(from) Airport(to)
+    EFFECT: ¬At(p,from) ∧ At(p,to))
+EXERCÍCIO - ENCONTRE
+   1970: MYCIN       O PLANO PARA:
+Sequência de ações (plano):
+
+  1. Load(C1, P1, SFO)
+     a. Carrega a carga C1 no avião P1 em SFO
+     b. Estado: C1 dentro de P1, P1 ainda em SFO
+ 2. Fly(P1, SFO, JFK)
+     a. Avião P1 voa de SFO para JFK
+     b. Estado: P1 em JFK com C1 dentro
+ 3. Unload(C1, P1, JFK)
+     a. Descarrega C1 em JFK
+     b. Estado: C1 agora em JFK (objetivo parcialmente atingido)
+EXERCÍCIO - ENCONTRE
+   1970: MYCIN       O PLANO PARA:
+Sequência de ações (plano):
+
+ 4. Load(C2, P2, JFK)
+     a. Carrega a carga C2 no avião P2 em JFK
+     b. Estado: C2 dentro de P2, P2 ainda em JFK
+ 5. Fly(P2, JFK, SFO)
+     a. Avião P2 voa de JFK para SFO
+     b. Estado: P2 em SFO com C2 dentro
+ 6. Unload(C2, P2, SFO)
+     a. Descarrega C2 em SFO
+     b. Estado: C2 agora em SFO (objetivo final atingido)
+EXERCÍCIO - ENCONTRE
+   1970: MYCIN       O PLANO PARA:
+
+
+
+        Load(C1, P1, SFO)   Fly(P1, SFO, JFK)   Unload(C1, P1, JFK)
+START                                                                 GOAL
+
+        Load(C2, P2, JFK)   Fly(P2, JFK, SFO)   Unload(C2, P2, SFO)
+PROGRESSÃO VS
+  1970: MYCIN REGRESSÃO
+
+Tópicos fundamentais em Planejamento Clássico:
+
+Progressão (Forward Search)
+   Parte do estado inicial
+   Aplica ações até alcançar o objetivo
+
+Regressão (Backward Search)
+   Parte do objetivo
+   Pergunta: “Qual ação pode produzir isso?”
+PROGRESSÃO (FORWARD
+   1970: MYCIN      SEARCH)
+Começar do estado inicial e aplicar ações sucessivas até alcançar o objetivo.
+   Processo:
+       Estado inicial s0
+       Verifica quais ações são aplicáveis
+       Gera novos estados s1 , s2, ...
+       Continua até encontrar um estado que satisfaça o objetivo
+   Vantagem: natural e direto, fácil de implementar.
+   Desvantagem: pode explorar muitos estados irrelevantes, especialmente
+   quando o espaço de estados é grande.
+REGRESSÃO (BACKWARD
+   1970: MYCIN      SEARCH)
+Começar do estado objetivo e buscar ações que produzem ele.
+   Processo:
+      Objetivo G.
+      Busca ações cujo efeito satisfaça parte de G.
+      Substitui G por suas pré-condições (novos subobjetivos).
+      Continua até que os subobjetivos sejam satisfeitos pelo estado inicial.
+   Vantagem: foca diretamente em ações relevantes para o objetivo, evitando
+   explorar estados inúteis.
+   Desvantagem: pode ser mais complexo de implementar, exige raciocínio
+   sobre pré-condições e efeitos.
+CLASSICAL PLANNING
+   1970: MYCIN
+Nosso livro “Artificial Intelligence: Modern Approach” (Russel & Norvig) assume:
+
+  1.Determinismo: ações têm efeitos previsíveis
+ 2.Ambiente totalmente observável
+ 3.Estático: mundo não muda sozinho
+ 4.Discreto: Estados e ações são discretos
+ 5.Sem concorrência: uma ação por vez
+
+            Esse modelo é conhecido como Planejamento Clássico!
+EXERCÍCIO FIXAÇÃO
+Modelagem STRIPS: Mundo dos Blocos
+
+
+
+
+                                                             A
+                                     D                       B
+                A           B        C                       D         C
+
+     Posição1        Posição2   Posição3   Posição1   Posição2   Posição3
+
+
+
+                    ESTADO INICIAL                      OBJETIVO
+EXERCÍCIO FIXAÇÃO
+Modelagem STRIPS: Mundo dos Blocos
+                                                                                                            A
+Modelar o estado inicial, as ações (pré-condições                                   D                       B
+   e efeitos) e o objetivo utilizando STRIPS.
+                                                               A           B        C                       D         C
+
+Ações possíveis:                                    Posição1        Posição2   Posição3   Posição1   Posição2   Posição3
+
+
+
+
+   Pegar(X, P)→ Pegar bloco X na posição P da mesa                 ESTADO INICIAL                      OBJETIVO
+
+
+   Largar(X, P) → Largar bloco X na posição P da mesa
+   Empilhar(X, Y) → Colocar o bloco X em cima bloco Y
+   Desempilhar(X, Y) → Tirar bloco X de cima do bloco Y
+
+Restrição: O braço robótico só pega um bloco por vez!
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+      Vamos criar alguns predicados para descrever a
+          posição dos objetos no estado inicial:
+
+
+
+
+                                                                             D
+                                                         A          B        C
+
+                                              Posição1       Posição2   Posição3
+
+                                                         ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+           Vamos criar alguns predicados para descrever a
+               posição dos objetos no estado inicial:
+
+   Indicar qual bloco está em uma determinada posição da mesa
+
+
+
+
+                                                                                      D
+                                                                  A          B        C
+
+                                                       Posição1       Posição2   Posição3
+
+                                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+           Vamos criar alguns predicados para descrever a
+               posição dos objetos no estado inicial:
+
+   Indicar qual bloco está em uma determinada posição da mesa
+   Indicar dois blocos empilhados: bloco sobre outro bloco
+
+
+
+                                                                                      D
+                                                                  A          B        C
+
+                                                       Posição1       Posição2   Posição3
+
+                                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+           Vamos criar alguns predicados para descrever a
+               posição dos objetos no estado inicial:
+
+   Indicar qual bloco está em uma determinada posição da mesa
+   Indicar dois blocos empilhados: bloco sobre outro bloco
+   Indicar que o topo de um bloco está livre
+
+
+                                                                                      D
+                                                                  A          B        C
+
+                                                       Posição1       Posição2   Posição3
+
+                                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+           Vamos criar alguns predicados para descrever a
+               posição dos objetos no estado inicial:
+
+   Indicar qual bloco está em uma determinada posição da mesa
+   Indicar dois blocos empilhados: bloco sobre outro bloco
+   Indicar que o topo de um bloco está livre
+   Indicar que o braço está livre
+
+                                                                                      D
+                                                                  A          B        C
+
+                                                       Posição1       Posição2   Posição3
+
+                                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+           Vamos criar alguns predicados para descrever a
+               posição dos objetos no estado inicial:
+
+   Indicar qual bloco está em uma determinada posição da mesa
+   Indicar dois blocos empilhados: bloco sobre outro bloco
+   Indicar que o topo de um bloco está livre
+   Indicar que o braço está livre
+   Indicar que o braço está segurando um bloco
+                                                                                      D
+                                                                  A          B        C
+
+                                                       Posição1       Posição2   Posição3
+
+                                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+           Vamos criar alguns predicados para descrever a
+               posição dos objetos no estado inicial:
+
+   Indicar qual bloco está em uma determinada posição da mesa
+   Indicar dois blocos empilhados: bloco sobre outro bloco
+   Indicar que o topo de um bloco está livre
+   Indicar que o braço está livre
+   Indicar que o braço está segurando um bloco
+   Indicar que a posição da mesa está livre                                           D
+                                                                  A          B        C
+
+                                                       Posição1       Posição2   Posição3
+
+                                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+              Estado Inicial:
+
+
+
+
+                                                               D
+                                           A          B        C
+
+                                Posição1       Posição2   Posição3
+
+                                           ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+                    Estado Inicial:
+  NaMesa(A, P1)   ∧ NaMesa(B, P2) ∧ NaMesa(C, P3)
+
+
+                                                                      D
+                                                  A          B        C
+
+                                       Posição1       Posição2   Posição3
+
+                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+                    Estado Inicial:
+  NaMesa(A, P1)   ∧ NaMesa(B, P2) ∧ NaMesa(C, P3)
+                    ∧ Sobre(D, C)
+
+                                                                      D
+                                                  A          B        C
+
+                                       Posição1       Posição2   Posição3
+
+                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+      1970: MYCIN
+                     Estado Inicial:
+  NaMesa(A, P1)   ∧ NaMesa(B, P2) ∧ NaMesa(C, P3)
+  ∧Sobre(D, C)    ∧ Livre(A) ∧ Livre(B) ∧ Livre(D)
+
+                                                                      D
+                                                  A          B        C
+
+                                       Posição1       Posição2   Posição3
+
+                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+      1970: MYCIN
+                     Estado Inicial:
+  NaMesa(A, P1)   ∧ NaMesa(B, P2) ∧ NaMesa(C, P3)
+  ∧Sobre(D, C)    ∧ Livre(A) ∧ Livre(B) ∧ Livre(D)
+                     ∧ BraçoLivre
+                                                                      D
+                                                  A          B        C
+
+                                       Posição1       Posição2   Posição3
+
+                                                  ESTADO INICIAL
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+                 Objetivo:
+
+
+
+
+                                               A
+                                               B
+                                               D         C
+
+                             Posição1   Posição2   Posição3
+
+                                          OBJETIVO
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+                                  Objetivo:
+    Sobre(A, B)         ∧ Sobre(B, D) ∧ NaMesa(C, P3)
+                         ∧ NaMesa(D, P2)
+   Podemos incluir PosiçãoLivre(P1) no objetivo, mas
+                                                                         A
+   considerando que só temos 4 blocos e definimos a
+     posição deles, não vai interferir no resultado.                     B
+                                                                         D         C
+
+                                                       Posição1   Posição2   Posição3
+
+                                                                    OBJETIVO
+RESOLUÇÃO MUNDO BLOCOS
+     1970: MYCIN
+ Ação: Pegar     Pegar um bloco X que está em uma posição P da mesa
+
+ Action(Pegar(X, P))
+ Precondition: Livre(X)∧ NaMesa(X, P) ∧ BraçoLivre
+ Effect: Segurando(X) ∧ ¬NaMesa(X, P) ∧ ¬Livre(X) ∧ ¬BraçoLivre
+ ∧ PosiçãoLivre(P)
+ Ação: Largar          Largar um bloco X em uma posição P da mesa
+
+ Action(Largar(X, P))
+ Precondition: Segurando(X)∧ PosiçãoLivre(P)
+ Effect: NaMesa(X, P) ∧ Livre(X) ∧ BraçoLivre ∧ ¬Segurando(X)
+ ∧ ¬PosiçãoLivre(P)
+RESOLUÇÃO MUNDO BLOCOS
+     1970: MYCIN
+ Ação: Empilhar              Colocar um bloco X em cima de um bloco Y
+
+ Action(Empilhar(X, Y))
+ Precondition: Livre(Y)∧ Segurando(X)
+ Effect: Sobre(X, Y) ∧ Livre(X) ∧ BraçoLivre ∧ ¬Segurando(X)
+ ∧ ¬Livre(Y)
+ Ação: Desempilhar            Tirar um bloco X de cima de um bloco Y
+
+ Action(Desempilhar(X, Y))
+ Precondition: Sobre(X, Y)∧ Livre(X) ∧ BraçoLivre
+ Effect: Segurando(X) ∧ Livre(Y) ∧ ¬Sobre(X,Y) ∧ ¬Livre(X)
+ ∧ ¬BraçoLivre
+RESOLUÇÃO MUNDO BLOCOS
+   1970: MYCIN
+
+    Podemos descrever todo esse domínio e problema em PDDL
+     para fazer o teste na IDE https://editor.planning.domains/
+        Arquivos domain.pddl e problema.pddl no Moodle!
+D Ú V I DAS , P R O B L E M AS , S U G E STÕ E S ?
+
+katherine.esper@pucrs.br
+
