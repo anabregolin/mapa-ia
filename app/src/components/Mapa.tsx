@@ -39,7 +39,7 @@ function nosDaEtapa(pos: number): string[] {
 }
 
 export function Mapa() {
-  const { selecionado, hover, etapa, origemEtapa, corPor, revelar, estudados, exercicios, selecionar, setHover, setEtapa } = useMapa()
+  const { selecionado, hover, etapa, origemEtapa, corPor, revelar, estudados, exercicios, tema, selecionar, setHover, setEtapa } = useMapa()
   const rf = useReactFlow()
   const caixa = useRef<HTMLDivElement>(null)
   // as animações de câmera só valem depois que o React Flow fez o enquadramento inicial
@@ -162,8 +162,8 @@ export function Mapa() {
         zIndex: 5,
         style: { stroke: '#f472b6', strokeWidth: 2, strokeDasharray: '6 5' },
         label: c.nota,
-        labelStyle: { fill: '#fbcfe8', fontSize: 12 },
-        labelBgStyle: { fill: '#1e1b2e', fillOpacity: 0.9 },
+        labelStyle: { fill: 'var(--color-pink-200)', fontSize: 12 },
+        labelBgStyle: { fill: 'var(--rotulo-fundo)', fillOpacity: 0.9 },
         labelBgPadding: [6, 3],
         labelBgBorderRadius: 4,
       })
@@ -256,17 +256,18 @@ export function Mapa() {
         onPaneClick={() => selecionar(null)}
         onMoveEnd={aoMover}
         onInit={() => setPronto(true)}
-        colorMode="dark"
+        colorMode={tema === 'claro' ? 'light' : 'dark'}
       >
-        <Background variant={BackgroundVariant.Dots} gap={28} size={1.2} color="#1e293b" />
+        <Background variant={BackgroundVariant.Dots} gap={28} size={1.2} color="var(--color-slate-800)" />
         <Controls showInteractive={false} position="bottom-left" style={{ bottom: 96 }} />
         <MiniMap
           position="bottom-right"
-          style={{ bottom: 96, background: '#0b1020' }}
+          className="!hidden sm:!block"
+          style={{ bottom: 96, background: 'var(--fundo-2)' }}
           pannable
           zoomable
           nodeColor={(n) => (n as NoMapaTipo).data.cor}
-          maskColor="rgba(2,6,23,.7)"
+          maskColor={tema === 'claro' ? 'rgba(148,163,184,.35)' : 'rgba(2,6,23,.7)'}
         />
       </ReactFlow>
     </div>

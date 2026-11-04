@@ -25,7 +25,7 @@ export function BarraTempo() {
   // ← / → andam uma etapa (fora de campos de texto)
   useEffect(() => {
     const tecla = (e: KeyboardEvent) => {
-      if ((e.target as HTMLElement).closest('input:not([type=checkbox]), textarea, select')) return
+      if ((e.target as HTMLElement).closest('input:not([type=checkbox]), textarea, select') || useMapa.getState().revisaoAberta) return
       const atualPos = useMapa.getState().etapa
       if (e.key === 'ArrowRight' && atualPos < ULTIMA_ETAPA) setEtapa(atualPos + 1, 'barra')
       if (e.key === 'ArrowLeft' && atualPos > 0) setEtapa(atualPos - 1, 'barra')
@@ -34,7 +34,7 @@ export function BarraTempo() {
     return () => window.removeEventListener('keydown', tecla)
   }, [setEtapa])
 
-  const corDe = (u?: string) => (u ? unidadePorId.get(u as never)!.cor : '#e2e8f0')
+  const corDe = (u?: string) => (u ? unidadePorId.get(u as never)!.cor : 'var(--color-slate-200)')
 
   return (
     <div className="pointer-events-auto absolute inset-x-0 bottom-0 z-20 border-t border-tinta/10 bg-slate-950/85 px-4 pb-3 pt-2 backdrop-blur-md sm:px-8">
@@ -97,7 +97,7 @@ export function BarraTempo() {
             style={{
               left: `${pct(ETAPAS[i].pos)}%`,
               width: `${pct(1)}%`,
-              background: e.avaliacao ? '#475569' : corDe(e.unidade),
+              background: e.avaliacao ? 'var(--color-slate-600)' : corDe(e.unidade),
               opacity: e.pos <= etapa ? 0.9 : 0.25,
             }}
           />
@@ -113,7 +113,7 @@ export function BarraTempo() {
               className={e.avaliacao ? 'h-3 w-3 rotate-45 border-2 bg-slate-950' : 'h-2.5 w-2.5 rounded-full'}
               style={{
                 borderColor: e.avaliacao ? '#fbbf24' : undefined,
-                background: e.avaliacao ? undefined : e.pos <= etapa ? corDe(e.unidade) : '#334155',
+                background: e.avaliacao ? undefined : e.pos <= etapa ? corDe(e.unidade) : 'var(--color-slate-700)',
               }}
             />
             <div className="pointer-events-none absolute bottom-5 left-1/2 hidden -translate-x-1/2 whitespace-nowrap rounded bg-slate-800 px-2 py-0.5 text-xs text-slate-200 group-hover:block">

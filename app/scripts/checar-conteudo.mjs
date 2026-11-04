@@ -26,6 +26,15 @@ for (const [k, c] of Object.entries(CALCULADORAS)) {
   const r = c.calcular(Object.fromEntries(c.entradas.map((e) => [e.id, e.valor])))
   tex(r.conta, k + ' conta'); tex(r.resultado, k + ' resultado')
 }
+const { TERMOS } = await ld('/src/content/termos.ts')
+const sem = (x) => x.replace(/\s+/g, '')
+for (const [id, partes] of Object.entries(TERMOS)) {
+  const f = FORMULAS.find((x) => x.id === id)
+  if (!f) { erros.push(`termos de fórmula inexistente ${id}`); continue }
+  const junto = partes.map((p) => (typeof p === 'string' ? p : p[0])).join('')
+  if (sem(junto) !== sem(f.latex)) erros.push(`${id}: termos não formam a fórmula\n  ${junto}\n  ${f.latex}`)
+  partes.forEach((p) => typeof p !== 'string' && tex(p[0], `${id} termo`))
+}
 const vistos = new Set()
 for (const x of EXERCICIOS) {
   if (vistos.has(x.id)) erros.push(`id repetido ${x.id}`); vistos.add(x.id)
@@ -63,7 +72,7 @@ espera('Q11 n19', subir('n19').at(-1).caminho.join('>'), 'n19>n14>n9>n4>n3')
 espera('L5 Q3 k=1', knn(PONTOS_Q3, NOVO_Q3, 1, 'euclidiana').classe, 2)
 espera('L5 Q3 k=3', knn(PONTOS_Q3, NOVO_Q3, 3, 'euclidiana').classe, 1)
 console.log(`demos ${DEMOS.length} (internas ${internas.size}) · gabaritos das demos conferidos`)
-console.log(`tópicos ${TOPICOS.length} · explicações ${Object.keys(EXPLICACOES).length} · fórmulas ${FORMULAS.length} · calculadoras ${Object.keys(CALCULADORAS).length} · exercícios ${EXERCICIOS.length} (com passos ${EXERCICIOS.filter((x) => x.passos?.length).length})`)
+console.log(`tópicos ${TOPICOS.length} · explicações ${Object.keys(EXPLICACOES).length} · fórmulas ${FORMULAS.length} · calculadoras ${Object.keys(CALCULADORAS).length} · termo a termo ${Object.keys(TERMOS).length} · exercícios ${EXERCICIOS.length} (com passos ${EXERCICIOS.filter((x) => x.passos?.length).length})`)
 if (erros.length) { console.error(erros.join("\n")); process.exitCode = 1 } else console.log("sem erros")
 
 

@@ -1,8 +1,10 @@
-import type { ReactNode } from 'react'
-import { DemoArvore } from './DemoArvore'
-import { DemoBusca } from './DemoBusca'
-import { DemoHill } from './DemoHill'
-import { DemoKNN } from './DemoKNN'
+import { lazy, type ReactNode } from 'react'
+
+// cada demo é carregada só quando abre
+const DemoBusca = lazy(() => import('./DemoBusca').then((m) => ({ default: m.DemoBusca })))
+const DemoArvore = lazy(() => import('./DemoArvore').then((m) => ({ default: m.DemoArvore })))
+const DemoHill = lazy(() => import('./DemoHill').then((m) => ({ default: m.DemoHill })))
+const DemoKNN = lazy(() => import('./DemoKNN').then((m) => ({ default: m.DemoKNN })))
 
 /** Demos feitas no próprio app: o campo `url` da demo é a chave aqui. */
 export const DEMOS_INTERNAS: Record<string, () => ReactNode> = {

@@ -1,13 +1,94 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import katex from 'katex'
 import 'katex/dist/katex.min.css'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { CALCULADORAS } from '../content/calculadoras'
+import { TERMOS, type Parte } from '../content/termos'
 import type { Calculadora, Formula } from '../content/tipos'
 
 export function Tex({ latex, display = false }: { latex: string; display?: boolean }) {
   const html = useMemo(() => katex.renderToString(latex, { throwOnError: false, displayMode: display }), [latex, display])
   return <span dangerouslySetInnerHTML={{ __html: html }} />
+}
+
+/** Junta as partes marcando cada termo com \htmlData para achar no DOM depois. */
+export function latexComTermos(partes: Parte[]) {
+  let i = 0
+  return partes.map((p) => (typeof p === 'string' ? p : `\\htmlData{termo=${i++}}{${p[0]}}`)).join('')
+}
+
+/** Fórmula em que cada termo explica a si mesmo (mouse ou toque) e pode ser montada termo a termo. */
+function FormulaTermos({ partes }: { partes: Parte[] }) {
+  const termos = partes.filter((p): p is [string, string] => typeof p !== 'string')
+  const html = useMemo(
+    () => katex.renderToString(latexComTermos(partes), { displayMode: true, throwOnError: false, strict: 'ignore', trust: (c) => c.command === '\\htmlData' }),
+    [partes],
+  )
+  const ref = useRef<HTMLDivElement>(null)
+  const [ativo, setAtivo] = useState<number | null>(null)
+  /** null = fórmula inteira; n = só os n primeiros termos */
+  const [montados, setMontados] = useState<number | null>(null)
+  const destaque = ativo ?? (montados ? montados - 1 : null)
+
+  useEffect(() => {
+    ref.current?.querySelectorAll<HTMLElement>('[data-termo]').forEach((el) => {
+      const i = Number(el.dataset.termo)
+      el.classList.toggle('termo-oculto', montados !== null && i >= montados)
+      el.classList.toggle('termo-ativo', i === destaque)
+    })
+  }, [html, montados, destaque])
+
+  const termoDe = (alvo: EventTarget) => {
+    const el = (alvo as HTMLElement).closest<HTMLElement>('[data-termo]')
+    return el ? Number(el.dataset.termo) : null
+  }
+
+  return (
+    <div>
+      <div
+        ref={ref}
+        className="formula-termos overflow-x-auto py-1 text-slate-100"
+        onMouseOver={(e) => setAtivo(termoDe(e.target))}
+        onMouseLeave={() => setAtivo(null)}
+        onClick={(e) => setAtivo(termoDe(e.target))}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+      <div className="min-h-[2.5rem] rounded-md bg-cyan-400/5 px-2 py-1.5 text-xs leading-snug text-slate-300">
+        {destaque !== null && termos[destaque] ? (
+          <motion.div key={destaque} initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+            <span className="mr-1 text-cyan-300">
+              <Tex latex={termos[destaque][0]} />
+            </span>
+            {termos[destaque][1]}
+          </motion.div>
+        ) : (
+          <span className="text-slate-500">Passe o mouse (ou toque) em cada parte da fórmula.</span>
+        )}
+      </div>
+      <div className="mt-1.5 flex gap-1.5 text-xs">
+        {montados === null ? (
+          <button className="rounded-md bg-cyan-400/15 px-2 py-1 text-cyan-200 hover:bg-cyan-400/25" onClick={() => setMontados(1)}>
+            montar termo a termo
+          </button>
+        ) : (
+          <>
+            <button className="rounded-md px-2 py-1 text-slate-300 hover:bg-tinta/10 disabled:opacity-30" onClick={() => setMontados(montados - 1)} disabled={montados <= 1}>
+              ◀
+            </button>
+            {montados < termos.length ? (
+              <button className="rounded-md bg-cyan-400/15 px-2 py-1 text-cyan-200 hover:bg-cyan-400/25" onClick={() => setMontados(montados + 1)}>
+                próximo termo ({montados}/{termos.length})
+              </button>
+            ) : (
+              <button className="rounded-md px-2 py-1 text-slate-300 hover:bg-tinta/10" onClick={() => setMontados(null)}>
+                pronto ✓
+              </button>
+            )}
+          </>
+        )}
+      </div>
+    </div>
+  )
 }
 
 /** "Troque os valores": a conta e o resultado mudam enquanto você digita. */
@@ -64,9 +145,13 @@ export function FormulaAnimada({ formula }: { formula: Formula }) {
   return (
     <div className="rounded-xl border border-tinta/10 bg-slate-900/70 p-3">
       <div className="mb-1 text-xs font-semibold uppercase tracking-wider text-violet-300">{formula.nome}</div>
-      <div className="overflow-x-auto py-1 text-slate-100">
-        <Tex latex={formula.latex} display />
-      </div>
+      {TERMOS[formula.id] ? (
+        <FormulaTermos partes={TERMOS[formula.id]} />
+      ) : (
+        <div className="overflow-x-auto py-1 text-slate-100">
+          <Tex latex={formula.latex} display />
+        </div>
+      )}
 
       {formula.variaveis && (
         <ul className="mt-1 space-y-0.5 text-xs text-slate-400">

@@ -26,7 +26,7 @@ export const COR_NIVEL: Record<Nivel, string> = { 1: '#4ade80', 2: '#facc15', 3:
 export const NOME_NIVEL: Record<Nivel, string> = { 1: 'básico', 2: 'intermediário', 3: 'avançado' }
 
 const ANEL: Partial<Record<EstadoNo, string>> = {
-  foco: '0 0 0 3px #fff, 0 0 28px 4px rgba(255,255,255,.35)',
+  foco: '0 0 0 3px var(--tinta), 0 0 28px 4px color-mix(in srgb, var(--tinta) 35%, transparent)',
   ancestral: '0 0 0 2px #22d3ee, 0 0 18px rgba(34,211,238,.45)',
   descendente: '0 0 0 2px #fb923c, 0 0 18px rgba(251,146,60,.45)',
   parecido: '0 0 0 2px #f472b6, 0 0 18px rgba(244,114,182,.45)',
@@ -63,7 +63,7 @@ function NoMapaBase({ data }: NodeProps<NoMapaTipo>) {
         ? `linear-gradient(135deg, ${cor}, ${cor}99)`
         : tipo === 'grupo'
           ? `${cor}22`
-          : '#0f172aee'
+          : 'var(--no-fundo)'
 
   return (
     <div
@@ -74,7 +74,7 @@ function NoMapaBase({ data }: NodeProps<NoMapaTipo>) {
         width: w,
         height: h,
         background: fundo,
-        color: tipo === 'raiz' || tipo === 'unidade' ? '#0b1020' : '#e2e8f0',
+        color: tipo === 'raiz' || tipo === 'unidade' ? '#0b1020' : 'var(--color-slate-200)',
         border: tipo === 'topico' ? `1.5px ${naoVisto ? 'dashed' : semSlide ? 'dotted' : 'solid'} ${cinza}` : tipo === 'grupo' ? `1px solid ${cor}66` : 'none',
         boxShadow: ANEL[estado] ?? (tipo === 'topico' ? `0 0 14px ${cinza}22` : undefined),
         opacity: OPACIDADE[estado],
@@ -83,7 +83,7 @@ function NoMapaBase({ data }: NodeProps<NoMapaTipo>) {
       {tipo === 'topico' && nivel && (
         <span className="flex shrink-0 gap-[2px]" title={NOME_NIVEL[nivel]}>
           {[1, 2, 3].map((i) => (
-            <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: i <= nivel ? COR_NIVEL[nivel] : '#334155' }} />
+            <span key={i} className="h-1.5 w-1.5 rounded-full" style={{ background: i <= nivel ? COR_NIVEL[nivel] : 'var(--color-slate-700)' }} />
           ))}
         </span>
       )}

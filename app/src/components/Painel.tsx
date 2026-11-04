@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { DEMOS, demosDoTopico, exerciciosDoTopico } from '../content/exercicios'
 import { formulasDoTopico } from '../content/formulas'
 import { grupoPorId, topicoPorId, unidadePorId } from '../content/topicos'
@@ -213,7 +213,7 @@ export function Painel() {
 
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
-      if (e.key !== 'Escape') return
+      if (e.key !== 'Escape' || useMapa.getState().revisaoAberta) return
       if (demo) setDemo(null)
       else selecionar(null)
     }
@@ -239,7 +239,7 @@ export function Painel() {
                   <div className="text-xs font-medium" style={{ color: unidadePorId.get(tp.unidade)!.cor }}>
                     {tp.unidade.toUpperCase()} · {unidadePorId.get(tp.unidade)!.titulo} › {grupoPorId.get(tp.grupo)!.titulo}
                   </div>
-                  <h2 className="mt-1 text-2xl font-bold text-white">{tp.titulo}</h2>
+                  <h2 className="mt-1 text-2xl font-bold text-slate-50">{tp.titulo}</h2>
                 </div>
                 <button onClick={() => selecionar(null)} className="rounded-md px-2 py-1 text-slate-400 hover:bg-tinta/10" aria-label="Fechar">
                   ✕
@@ -368,7 +368,9 @@ export function Painel() {
               </button>
             </div>
             {demo.componente ? (
-              <div className="min-h-0 flex-1">{DEMOS_INTERNAS[demo.url]?.()}</div>
+              <div className="min-h-0 flex-1">
+                <Suspense fallback={<div className="p-6 text-sm text-slate-400">carregando…</div>}>{DEMOS_INTERNAS[demo.url]?.()}</Suspense>
+              </div>
             ) : (
               <iframe
                 src={`${import.meta.env.BASE_URL}${demo.url}`}

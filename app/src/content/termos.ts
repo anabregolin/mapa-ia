@@ -1,0 +1,128 @@
+// Fórmulas quebradas em termos: texto solto é "cola" (sinais, \frac{...}), [latex, explicação] é um termo
+// que acende ao passar o mouse e aparece um por vez no "montar termo a termo".
+// O checador confere que colar tudo dá exatamente a fórmula de formulas.ts.
+
+const L = String.raw
+
+export type Parte = string | [string, string]
+
+export const TERMOS: Record<string, Parte[]> = {
+  'f.astar': [
+    [L`f(n)`, 'custo total estimado de um caminho que passa por n; o A* expande o menor'],
+    ' = ',
+    [L`g(n)`, 'custo real já gasto da origem até n'],
+    ' + ',
+    [L`h(n)`, 'estimativa do que falta de n até o objetivo (heurística)'],
+  ],
+  'f.wastar': [
+    [L`f(n)`, 'prioridade do nó na fronteira'],
+    ' = ',
+    [L`g(n)`, 'custo real já gasto até n'],
+    ' + ',
+    [L`w`, 'peso maior que 1: confia mais na heurística, acha solução mais rápido, mas pode perder a ótima'],
+    L` \cdot `,
+    [L`h(n)`, 'estimativa do que falta até o objetivo'],
+  ],
+  'f.consistente': [
+    [L`h(n)`, 'estimativa no nó atual'],
+    L` \le `,
+    [L`c(n, a, n')`, "custo de um passo: ir de n para o vizinho n' com a ação a"],
+    ' + ',
+    [L`h(n')`, 'estimativa no vizinho. Junto: a estimativa nunca cai mais do que o custo do passo (desigualdade triangular)'],
+  ],
+  'f.sa': [
+    [L`P`, 'chance de aceitar um vizinho pior'],
+    ' = ',
+    [L`e^{\Delta E / T}`, 'com ΔE negativo (piora), fica entre 0 e 1; quanto maior a piora, menor a chance'],
+    L`, \quad `,
+    [L`\Delta E`, 'diferença de qualidade entre o vizinho e o atual'],
+    ' = ',
+    [L`f(x') - f(x)`, "valor do vizinho x' menos o do estado atual x; T alto aceita quase tudo, T baixo quase nada"],
+  ],
+  'f.roleta': [
+    [L`p_i`, 'probabilidade de o indivíduo i ser sorteado'],
+    ' = ',
+    L`\frac{`,
+    [L`\text{fitness}_i`, 'aptidão do indivíduo i (a fatia dele na roleta)'],
+    '}{',
+    [L`\sum_j \text{fitness}_j`, 'soma das aptidões de toda a população (a roleta inteira)'],
+    '}',
+  ],
+  'f.bayes': [
+    [L`P(A \mid B)`, 'posteriori: o que queremos, a chance de A depois de ver B'],
+    ' = ',
+    L`\frac{`,
+    [L`P(B \mid A)`, 'verossimilhança: quão comum é ver B quando A é verdade'],
+    L`\, `,
+    [L`P(A)`, 'priori: a chance de A antes de qualquer evidência'],
+    '}{',
+    [L`P(B)`, 'evidência: chance total de ver B, por qualquer causa (normaliza o resultado)'],
+    '}',
+  ],
+  'f.naive': [
+    [L`P(c \mid x_1, \dots, x_m)`, 'chance da classe c dados todos os atributos'],
+    L` \propto `,
+    [L`P(c)`, 'priori da classe: frequência dela no treino'],
+    ' ',
+    [L`\prod_{i=1}^{m} P(x_i \mid c)`, 'produto das chances de cada atributo dentro da classe; só vale multiplicar porque o "ingênuo" supõe atributos independentes'],
+  ],
+  'f.laplace': [
+    [L`P(x_i \mid c)`, 'chance do valor x_i dentro da classe c'],
+    ' = ',
+    L`\frac{`,
+    [L`\text{contagem}(x_i, c) + 1`, 'quantas vezes x_i aparece na classe, mais 1: nenhum valor fica com probabilidade zero'],
+    '}{',
+    [L`\text{contagem}(c) + k`, 'tamanho da classe mais k, o número de valores possíveis do atributo (para as chances somarem 1)'],
+    '}',
+  ],
+  'f.euclid': [
+    [L`d(x, y)`, 'distância entre os exemplos x e y'],
+    ' = ',
+    L`\sqrt{`,
+    [L`\sum_{i=1}^{n}`, 'soma sobre os n atributos'],
+    ' ',
+    [L`(x_i - y_i)^2`, 'diferença em cada atributo, ao quadrado (sinal some, diferenças grandes pesam mais)'],
+    '}',
+  ],
+  'f.minkowski': [
+    [L`d(x, y)`, 'distância entre x e y'],
+    ' = ',
+    L`\left(`,
+    [L`\sum_{i=1}^{n} |x_i - y_i|^p`, 'soma das diferenças de cada atributo elevadas a p'],
+    L`\right)`,
+    [L`^{1/p}`, 'raiz p: p = 1 dá Manhattan, p = 2 dá euclidiana'],
+  ],
+  'f.gini': [
+    [L`\text{Gini}(t)`, 'impureza do nó t: 0 quando todos são da mesma classe'],
+    ' = ',
+    [L`1`, 'parte do máximo'],
+    ' - ',
+    [L`\sum_j p(j \mid t)^2`, 'soma dos quadrados da proporção de cada classe j no nó; quanto mais concentrado, maior, e menor o Gini'],
+  ],
+  'f.gini-split': [
+    [L`\text{Gini}_{\text{split}}`, 'impureza da divisão inteira; escolhe-se a divisão com o menor'],
+    ' = ',
+    [L`\sum_{i=1}^{k}`, 'soma sobre os k filhos'],
+    ' ',
+    [L`\frac{n_i}{n}`, 'peso do filho i: fração dos exemplos que caiu nele'],
+    L`\, `,
+    [L`\text{Gini}(i)`, 'impureza do filho i'],
+  ],
+  'f.entropia': [
+    [L`E(t)`, 'entropia do nó t em bits: 0 se puro, 1 se meio a meio (duas classes)'],
+    ' = ',
+    [L`-`, 'o log de uma probabilidade é negativo; o sinal deixa a entropia positiva'],
+    [L`\sum_j`, 'soma sobre as classes j'],
+    ' ',
+    [L`p(j \mid t)`, 'proporção da classe j no nó'],
+    ' ',
+    [L`\log_2 p(j \mid t)`, 'informação de cada classe; classe com p = 0 entra como 0'],
+  ],
+  'f.ganho': [
+    [L`\text{Ganho}`, 'quanto a divisão reduz a incerteza; escolhe-se o atributo com o maior'],
+    ' = ',
+    [L`E(\text{pai})`, 'entropia antes de dividir'],
+    ' - ',
+    [L`\sum_{i=1}^{k} \frac{n_i}{n}\, E(i)`, 'entropia média dos filhos, ponderada pelo tamanho de cada um'],
+  ],
+}

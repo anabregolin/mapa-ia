@@ -8,7 +8,7 @@ export function Texto({ children }: { children: string }) {
     <>
       {partes.map((p, i) => {
         if (p.startsWith('$') && p.endsWith('$') && p.length > 2) return <Tex key={i} latex={p.slice(1, -1)} />
-        if (p.startsWith('**') && p.endsWith('**')) return <strong key={i} className="font-semibold text-white">{p.slice(2, -2)}</strong>
+        if (p.startsWith('**') && p.endsWith('**')) return <strong key={i} className="font-semibold text-slate-50">{p.slice(2, -2)}</strong>
         return <Fragment key={i}>{p}</Fragment>
       })}
     </>
