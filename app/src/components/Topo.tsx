@@ -90,7 +90,7 @@ function Busca() {
 }
 
 export function Topo() {
-  const { corPor, setCorPor, estudados, tema, alternarTema, setRevisaoAberta } = useMapa()
+  const { corPor, setCorPor, estudados, tema, alternarTema, setRevisaoAberta, visao, setVisao } = useMapa()
   const total = TOPICOS.filter((t) => !t.naoVisto).length
   const feitos = TOPICOS.filter((t) => !t.naoVisto && estudados[t.id]).length
 
@@ -115,6 +115,14 @@ export function Topo() {
         revisar
       </button>
       <button
+        onClick={() => setVisao(visao === '3d' ? '2d' : '3d')}
+        className="pointer-events-auto h-9 rounded-xl border border-tinta/10 bg-slate-950/80 px-3 text-sm font-medium text-slate-200 backdrop-blur hover:bg-slate-900"
+        title={visao === '3d' ? 'Ver como mapa 2D' : 'Ver como galáxia 3D'}
+      >
+        {visao === '3d' ? 'mapa 2D' : 'galáxia 3D'}
+      </button>
+      {visao === '2d' && (
+      <button
         onClick={alternarTema}
         className="pointer-events-auto grid h-9 w-9 place-items-center rounded-xl border border-tinta/10 bg-slate-950/80 text-base text-slate-200 backdrop-blur hover:bg-slate-900"
         title={tema === 'escuro' ? 'Tema claro' : 'Tema escuro'}
@@ -122,6 +130,7 @@ export function Topo() {
       >
         {tema === 'escuro' ? '☀' : '☾'}
       </button>
+      )}
 
       <div className="pointer-events-auto ml-auto hidden rounded-xl border border-tinta/10 bg-slate-950/80 px-3 py-2 text-xs text-slate-300 backdrop-blur md:block">
         <div className="mb-1.5 flex gap-1">

@@ -187,21 +187,6 @@ export function Mapa() {
     return () => clearTimeout(t)
   }, [etapa, origemEtapa, revelar, rf, pronto])
 
-  // Link direto: #u2.astar abre o tópico; a seleção atualiza o endereço.
-  useEffect(() => {
-    const doHash = () => {
-      const id = decodeURIComponent(location.hash.slice(1))
-      if (topicoPorId.has(id)) selecionar(id)
-    }
-    doHash()
-    window.addEventListener('hashchange', doHash)
-    return () => window.removeEventListener('hashchange', doHash)
-  }, [selecionar])
-  useEffect(() => {
-    const alvo = selecionado ? `#${selecionado}` : location.pathname + location.search
-    if (location.hash !== (selecionado ? `#${selecionado}` : '')) history.replaceState(null, '', alvo)
-  }, [selecionado])
-
   // Clicar num tópico "mergulha": zoom animado até ele, deixando espaço para o painel.
   useEffect(() => {
     if (!selecionado || !pronto) return

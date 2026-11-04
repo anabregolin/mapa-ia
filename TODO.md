@@ -15,7 +15,8 @@ para estudo, que mostra:
 | Camada | Tecnologia | Para quê |
 |---|---|---|
 | Base | **Vite + React + TypeScript** | Projeto rápido, componentes reutilizáveis, tipagem dos dados do curso |
-| Mapa mental | **React Flow** (`@xyflow/react`) | Nós e conexões com zoom, arrastar, clicar para expandir |
+| Mapa mental | **React Flow** (`@xyflow/react`) | Mapa 2D: nós e conexões com zoom, arrastar, clicar para expandir |
+| Galáxia 3D | **Three.js + React Three Fiber + drei** | Visão imersiva padrão: planetas, luas e estrelas, câmera que voa até cada parte |
 | Layout automático | **d3-hierarchy** (no lugar do ELK.js) | Árvore dos dois lados da raiz, sem nós sobrepostos e sem posicionar à mão |
 | Animações | **Framer Motion** | Transições ao entrar num nó, revelar passos de fórmulas |
 | Scroll / timeline | ~~GSAP + ScrollTrigger~~ | A barra foi feita com Framer Motion + pointer events; GSAP fica para se precisar de scroll |
@@ -65,6 +66,14 @@ MDX, Live Preview (ou só `npm run dev`).
 - [x] Cores por unidade/tema e por nível de dificuldade (botão no canto)
 - [x] Ao passar o mouse num nó: destacar pré-requisitos (azul), dependentes (laranja) e parecidos (rosa)
 - [x] Ao clicar: "mergulhar" no nó (zoom animado) e abrir o painel do tópico. Link direto: `#u2.astar`
+
+### Fase 3b — Galáxia 3D (visão padrão)
+- [x] Visão imersiva com Three.js (React Three Fiber + drei): sol "IA" no centro, unidades como planetas, grupos como luas, tópicos como estrelas (`lib/galaxia.ts`, `components/Galaxia.tsx`)
+- [x] Clicar entra em cada nível (galáxia → planeta → lua → tópico) com a câmera voando; trilha "Galáxia › U2 › Busca informada", Esc volta um nível
+- [x] Pré-requisitos (azul) e dependentes (laranja) como arcos em 3D; tópicos estudados ganham anel verde
+- [x] Barra do tempo leva a câmera até o grupo da aula; entrar num grupo move a barra
+- [x] Botão "mapa 2D" / "galáxia 3D" para alternar; painel, exercícios, demos e revisão iguais nas duas
+- [x] Celular: câmera mais afastada em tela em pé e rótulos maiores
 
 ### Fase 4 — Barra de controle cronológica
 - [x] Barra fixa que representa o curso do início ao fim

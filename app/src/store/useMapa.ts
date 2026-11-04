@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware'
 import { ETAPAS } from '../content/topicos'
 import { responder, type Nota, type ProgressoCartao } from '../content/cartoes'
 import type { ProgressoExercicio } from '../content/tipos'
+import type { Foco } from '../lib/galaxia'
 
 export const ULTIMA_ETAPA = ETAPAS[ETAPAS.length - 1].pos
 
@@ -11,6 +12,7 @@ export type OrigemEtapa = 'barra' | 'mapa'
 
 export type CorPor = 'unidade' | 'nivel'
 export type Tema = 'escuro' | 'claro'
+export type Visao = '3d' | '2d'
 
 const temaInicial = (): Tema => (typeof matchMedia !== 'undefined' && matchMedia('(prefers-color-scheme: light)').matches ? 'claro' : 'escuro')
 
@@ -21,6 +23,9 @@ interface EstadoMapa {
   origemEtapa: OrigemEtapa
   corPor: CorPor
   tema: Tema
+  visao: Visao
+  /** onde a câmera 3D está (não é salvo) */
+  foco3d: Foco
   /** esconde (fantasma) o que vem depois da etapa atual */
   revelar: boolean
   estudados: Record<string, true>
@@ -33,6 +38,8 @@ interface EstadoMapa {
   setEtapa: (etapa: number, origem: OrigemEtapa) => void
   setCorPor: (c: CorPor) => void
   alternarTema: () => void
+  setVisao: (v: Visao) => void
+  setFoco3d: (f: Foco) => void
   setRevelar: (r: boolean) => void
   alternarEstudado: (id: string) => void
   /** marca o exercício; repetir a mesma marca desmarca */
@@ -51,6 +58,8 @@ export const useMapa = create<EstadoMapa>()(
       origemEtapa: 'barra',
       corPor: 'unidade',
       tema: temaInicial(),
+      visao: '3d',
+      foco3d: { nivel: 'galaxia' },
       revelar: false,
       estudados: {},
       exercicios: {},
@@ -61,6 +70,8 @@ export const useMapa = create<EstadoMapa>()(
       setHover: (id) => set({ hover: id }),
       setEtapa: (etapa, origem) => set({ etapa, origemEtapa: origem }),
       setCorPor: (corPor) => set({ corPor }),
+      setVisao: (visao) => set({ visao }),
+      setFoco3d: (foco3d) => set({ foco3d }),
       alternarTema: () => set((s) => ({ tema: s.tema === 'escuro' ? 'claro' : 'escuro' })),
       setRevelar: (revelar) => set({ revelar }),
       alternarEstudado: (id) =>
@@ -84,7 +95,7 @@ export const useMapa = create<EstadoMapa>()(
     {
       name: 'mapa-ia',
       // só o progresso e as preferências vão para o localStorage
-      partialize: (s) => ({ etapa: s.etapa, corPor: s.corPor, tema: s.tema, revelar: s.revelar, estudados: s.estudados, exercicios: s.exercicios, cartoes: s.cartoes }),
+      partialize: (s) => ({ etapa: s.etapa, corPor: s.corPor, tema: s.tema, visao: s.visao, revelar: s.revelar, estudados: s.estudados, exercicios: s.exercicios, cartoes: s.cartoes }),
     },
   ),
 )

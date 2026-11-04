@@ -214,6 +214,8 @@ export function Painel() {
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || useMapa.getState().revisaoAberta) return
+      // avisa a galáxia que este Esc já foi usado
+      if (demo || useMapa.getState().selecionado) e.preventDefault()
       if (demo) setDemo(null)
       else selecionar(null)
     }
