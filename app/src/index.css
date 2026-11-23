@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "@fontsource-variable/lexend";
 
 @theme {
   --color-tinta: var(--tinta);
@@ -87,3 +88,41 @@ html, body, #root { height: 100%; margin: 0; }
 .formula-termos [data-termo] { cursor: help; border-radius: 3px; transition: opacity .35s, color .2s, background-color .2s; }
 .formula-termos .termo-ativo { color: var(--color-cyan-300); background: color-mix(in srgb, var(--color-cyan-300) 12%, transparent); }
 .formula-termos .termo-oculto { opacity: .1; }
+
+/* ───────────── Visual novo: claro, calmo, amigável ─────────────
+   papel quente + tinta suave; violeta = foco, coral/sol = alegria, menta = conquista */
+:root {
+  --papel: #fbf8f3;
+  --papel-2: #f4efe6;
+  --cartao: #ffffff;
+  --linha: #ece6dc;
+  --tinta-forte: #24222c;
+  --tinta: #3d3a47;
+  --tinta-suave: #77737f;
+  --foco: #6c5ce7;
+  --foco-claro: #efedff;
+  --sol: #ffc94d;
+  --coral: #ff8a6b;
+  --menta: #22b07d;
+  --menta-claro: #e3f6ee;
+  --alerta: #c77700;
+  --alerta-claro: #fff4dc;
+  --sombra: 0 1px 2px rgba(36, 34, 44, .04), 0 8px 24px -12px rgba(36, 34, 44, .12);
+  font-family: 'Lexend Variable', 'Lexend', ui-sans-serif, system-ui, sans-serif;
+}
+
+body { background: var(--papel); color: var(--tinta); }
+.fonte-leitura { font-size: 1.0625rem; line-height: 1.75; letter-spacing: .005em; }
+.botao-suave {
+  border-radius: 999px; padding: .35rem .85rem; font-size: .8125rem; color: var(--tinta);
+  background: var(--papel-2); transition: background .2s, transform .15s;
+}
+.botao-suave:hover { background: var(--linha); }
+.botao-foco {
+  border-radius: 999px; padding: .6rem 1.2rem; font-weight: 600; color: #fff; background: var(--foco);
+  box-shadow: 0 6px 18px -8px var(--foco); transition: transform .15s, filter .2s;
+}
+.botao-foco:hover { filter: brightness(1.08); transform: translateY(-1px); }
+.botao-foco:active { transform: translateY(0); }
+:focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }

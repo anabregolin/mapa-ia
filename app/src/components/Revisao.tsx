@@ -27,10 +27,9 @@ export function Revisao() {
 }
 
 function Sessao({ fechar }: { fechar: () => void }) {
-  const { cartoes, etapa, responderCartao, selecionar, zerarCartoes } = useMapa()
+  const { cartoes, responderCartao, selecionar, zerarCartoes } = useMapa()
   const [unidade, setUnidade] = useState<UnidadeId | 'todas'>('todas')
   const [tipo, setTipo] = useState<TipoCartao | 'todos'>('todos')
-  const [ateEtapa, setAteEtapa] = useState(true)
   const [inicio, setInicio] = useState(() => Date.now())
   // progresso no começo da sessão: responder não reordena a fila no meio
   const [retrato, setRetrato] = useState(cartoes)
@@ -39,8 +38,8 @@ function Sessao({ fechar }: { fechar: () => void }) {
   const [feitos, setFeitos] = useState(0)
 
   const filtrados = useMemo(
-    () => CARTOES.filter((c) => (unidade === 'todas' || c.unidade === unidade) && (tipo === 'todos' || c.tipo === tipo) && (!ateEtapa || c.etapa <= etapa)),
-    [unidade, tipo, ateEtapa, etapa],
+    () => CARTOES.filter((c) => (unidade === 'todas' || c.unidade === unidade) && (tipo === 'todos' || c.tipo === tipo)),
+    [unidade, tipo],
   )
   // a fila é montada na hora em que a sessão começa e só muda com as respostas
   const pendentes = useMemo(() => {
@@ -121,9 +120,6 @@ function Sessao({ fechar }: { fechar: () => void }) {
             </button>
           ))}
         </div>
-        <label className="flex items-center gap-1.5 text-slate-400" title="Usa a etapa escolhida na barra do tempo">
-          <input type="checkbox" checked={ateEtapa} onChange={(e) => filtrar(() => setAteEtapa(e.target.checked))} /> só até a etapa atual
-        </label>
       </div>
 
       <div className="mt-2 flex w-full max-w-2xl flex-wrap items-center gap-x-3 gap-y-0.5 whitespace-nowrap text-[11px] text-slate-500">

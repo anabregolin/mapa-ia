@@ -1,43 +1,82 @@
 import { ReactFlowProvider } from '@xyflow/react'
-import { lazy, Suspense, useEffect } from 'react'
 import '@xyflow/react/dist/style.css'
-import { BarraTempo } from './components/BarraTempo'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { Mapa } from './components/Mapa'
-import { Painel } from './components/Painel'
 import { Revisao } from './components/Revisao'
-import { Topo } from './components/Topo'
-import { useLinkDireto } from './lib/useLinkDireto'
+import { Topico } from './components/Topico'
+import { Trilha } from './components/Trilha'
+import { TelaQuadro } from './components/Quadro'
+import { ResolverCalculo, TelaTreino, treinoExiste } from './components/Treino'
+import { topicoPorId } from './content/topicos'
 import { useMapa } from './store/useMapa'
 
-// o Three.js só é baixado quando a galáxia aparece
-const Galaxia = lazy(() => import('./components/Galaxia'))
+type Rota = { tela: 'trilha' } | { tela: 'topico'; id: string } | { tela: 'mapa' } | { tela: 'treino' } | { tela: 'quadro' } | { tela: 'calculo'; id: string }
+
+function lerRota(): Rota {
+  const h = decodeURIComponent(location.hash.replace(/^#\/?/, ''))
+  if (h === 'mapa') return { tela: 'mapa' }
+  if (h === 'treino') return { tela: 'treino' }
+  if (h === 'quadro') return { tela: 'quadro' }
+  if (h.startsWith('treino/') && treinoExiste(h.slice(7))) return { tela: 'calculo', id: h.slice(7) }
+  // aceita #/t/u2.astar e o formato antigo #u2.astar
+  const id = h.startsWith('t/') ? h.slice(2) : h
+  if (topicoPorId.has(id)) return { tela: 'topico', id }
+  return { tela: 'trilha' }
+}
+
+function useRota() {
+  const [rota, setRota] = useState(lerRota)
+  const aoMudar = useMapa((s) => s._aoMudarRota)
+  useEffect(() => {
+    const ouvir = () => {
+      const r = lerRota()
+      setRota(r)
+      window.scrollTo({ top: 0 })
+    }
+    window.addEventListener('hashchange', ouvir)
+    return () => window.removeEventListener('hashchange', ouvir)
+  }, [])
+  useEffect(() => aoMudar(rota.tela === 'topico' ? rota.id : null), [rota, aoMudar])
+  return rota
+}
+
+function TelaMapa() {
+  return (
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-[var(--papel)]">
+      <ReactFlowProvider>
+        <Mapa />
+      </ReactFlowProvider>
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center gap-2 p-4">
+        <a href="#/" className="botao-suave pointer-events-auto shadow-[var(--sombra)]">
+          ← trilha
+        </a>
+        <span className="pointer-events-auto rounded-full bg-[var(--cartao)]/90 px-3 py-1 text-xs text-[var(--tinta-suave)] shadow-[var(--sombra)]">
+          visão geral das conexões · clique num tópico para estudar
+        </span>
+      </div>
+    </motion.div>
+  )
+}
 
 export default function App() {
-  const tema = useMapa((s) => s.tema)
-  const visao = useMapa((s) => s.visao)
-  useLinkDireto()
+  const rota = useRota()
   useEffect(() => {
-    // o espaço é escuro: na galáxia o tema claro fica só para o mapa 2D
-    document.documentElement.dataset.theme = tema === 'claro' && visao === '2d' ? 'light' : 'dark'
-  }, [tema, visao])
+    // os componentes herdados (fórmulas, exercícios, mapa) usam a escala clara
+    document.documentElement.dataset.theme = 'light'
+  }, [])
 
   return (
-    <ReactFlowProvider>
-      <div className="relative h-dvh w-full overflow-hidden bg-[var(--fundo)] text-slate-100">
-        <div className="absolute inset-x-0 bottom-[92px] top-0">
-          {visao === '3d' ? (
-            <Suspense fallback={<div className="grid h-full place-items-center bg-[#03040c] text-sm text-slate-400">abrindo a galáxia…</div>}>
-              <Galaxia />
-            </Suspense>
-          ) : (
-            <Mapa />
-          )}
-        </div>
-        <Topo />
-        <Painel />
-        <BarraTempo />
-        <Revisao />
-      </div>
-    </ReactFlowProvider>
+    <>
+      <AnimatePresence mode="wait">
+        {rota.tela === 'trilha' && <Trilha key="trilha" />}
+        {rota.tela === 'topico' && <Topico key={rota.id} id={rota.id} />}
+        {rota.tela === 'mapa' && <TelaMapa key="mapa" />}
+        {rota.tela === 'treino' && <TelaTreino key="treino" />}
+        {rota.tela === 'quadro' && <TelaQuadro key="quadro" />}
+        {rota.tela === 'calculo' && <ResolverCalculo key={rota.id} id={rota.id} />}
+      </AnimatePresence>
+      <Revisao />
+    </>
   )
 }

@@ -238,17 +238,16 @@ export function Mapa() {
         onNodeClick={(_, n) => topicoPorId.has(n.id) && selecionar(n.id)}
         onNodeMouseEnter={(_, n) => topicoPorId.has(n.id) && setHover(n.id)}
         onNodeMouseLeave={() => setHover(null)}
-        onPaneClick={() => selecionar(null)}
         onMoveEnd={aoMover}
         onInit={() => setPronto(true)}
         colorMode={tema === 'claro' ? 'light' : 'dark'}
       >
         <Background variant={BackgroundVariant.Dots} gap={28} size={1.2} color="var(--color-slate-800)" />
-        <Controls showInteractive={false} position="bottom-left" style={{ bottom: 96 }} />
+        <Controls showInteractive={false} position="bottom-left" style={{ bottom: 16 }} />
         <MiniMap
           position="bottom-right"
           className="!hidden sm:!block"
-          style={{ bottom: 96, background: 'var(--fundo-2)' }}
+          style={{ bottom: 16, background: 'var(--fundo-2)' }}
           pannable
           zoomable
           nodeColor={(n) => (n as NoMapaTipo).data.cor}

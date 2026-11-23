@@ -179,7 +179,7 @@ export const EXPLICACOES: Record<string, Camadas> = {
   'u2.teoria-jogos': {
     intuicao: L`Quando há outro jogador decidindo contra você, o melhor movimento depende do que ele vai fazer.`,
     definicao: L`**Soma zero**: o ganho de um é a perda do outro. **Informação perfeita**: todos veem o estado inteiro (xadrez sim, pôquer não). **Forma normal**: tabela de pagamentos; **forma extensiva**: árvore de jogadas.`,
-    detalhe: L`Von Neumann formalizou a área (teorema minimax, 1928). A estratégia de destruição mútua assegurada (MAD) da Guerra Fria é um exemplo histórico citado na aula.`,
+    detalhe: L`Von Neumann formalizou a área: o teorema minimax é de 1928, e o livro com Morgenstern, que a aula situa nos anos 1940, popularizou a teoria. A estratégia de destruição mútua assegurada (MAD) da Guerra Fria é um exemplo histórico citado na aula.`,
   },
   'u2.nash': {
     intuicao: L`Um ponto em que ninguém ganha nada mudando sozinho de estratégia, mesmo que todos pudessem estar melhor juntos.`,
@@ -321,7 +321,7 @@ export const EXPLICACOES: Record<string, Camadas> = {
   'u4.laplace': {
     intuicao: L`Nunca diga "impossível" só porque não viu ainda: some 1 em todas as contagens.`,
     definicao: L`$P(x_i \mid c) = \dfrac{\text{contagem}(x_i, c) + 1}{\text{contagem}(c) + k}$, onde $k$ é o número de valores distintos do atributo.`,
-    detalhe: L`No exemplo Taylor, 22, EUA: sem Laplace, feminino dá 0. Com Laplace, feminino ≈ 0,0025 e masculino ≈ 0,0053. O resultado não mudou, mas o modelo ficou mais robusto.`,
+    detalhe: L`No exemplo Taylor, 22, EUA: sem Laplace, feminino dá 0. Com Laplace, feminino ≈ 0,0025 e masculino ≈ 0,0053 (o slide trunca para 0,0024 e 0,0052; tanto faz, o vencedor é o mesmo). O resultado não mudou, mas o modelo ficou mais robusto.`,
     cuidado: L`O $k$ muda por atributo: 7 nomes, 9 idades e 3 países no exemplo da aula.`,
   },
 
