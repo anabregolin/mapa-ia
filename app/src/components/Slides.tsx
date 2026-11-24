@@ -5,6 +5,8 @@ import { topicoPorId } from '../content/topicos'
 import { useMapa } from '../store/useMapa'
 
 type Indice = Record<string, number>
+/** No site publicado não há slides (ficam fora do git); a dica de "npm run slides" só faz sentido no computador. */
+const LOCAL = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
 let cache: Promise<Indice | null> | null = null
 const lerIndice = () =>
   (cache ??= fetch(`${import.meta.env.BASE_URL}slides/indice.json`)
@@ -56,10 +58,12 @@ export function Slides({ id }: { id: string }) {
 
   if (indice === undefined || (!fontes.length && !fixadas.length)) return null
   if (indice === null)
-    return (
+    return LOCAL ? (
       <p className="mt-6 text-xs text-[var(--tinta-suave)]">
         📄 Os slides ainda não foram gerados nesta máquina. No terminal, dentro de <code>app/</code>: <code>npm run slides</code>
       </p>
+    ) : (
+      <p className="mt-6 text-xs text-[var(--tinta-suave)]">📄 Os slides da aula só aparecem no app do seu computador: eles não vão para o site.</p>
     )
 
   const total = atual ? indice[atual.arquivo] : 0
