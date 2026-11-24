@@ -72,3 +72,5 @@ export async function guardarVarias(gs: Gravacao[]) {
     }
   })
 }
+
+export const lerGravacao = (id: string) => pedir<Gravacao | undefined>('readonly', (l) => l.get(id))

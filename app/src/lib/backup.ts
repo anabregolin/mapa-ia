@@ -5,6 +5,7 @@
 //    que protegem contra um erro do app ou uma importação errada, mas NÃO contra limpar os dados do site;
 // 3) pedido ao navegador de armazenamento persistente, para ele não apagar sozinho quando faltar espaço.
 
+import { guardarFotos, todasFotos, type Foto } from './fotos'
 import { guardarVarias, todasGravacoes, type Gravacao } from './gravacoes'
 
 const CHAVE = 'mapa-ia'
@@ -14,7 +15,7 @@ const MAX_COPIAS = 8
 
 export interface Copia {
   em: number
-  motivo: 'diaria' | 'antes de importar'
+  motivo: 'diaria' | 'antes de importar' | 'antes de juntar com a nuvem'
   /** o valor cru da chave 'mapa-ia' */
   dados: string
 }
@@ -27,6 +28,16 @@ interface ArquivoBackup {
   dados: { state: Record<string, unknown>; version: number }
   /** gravações da explicação (IndexedDB), com o áudio em base64. Backups antigos não têm. */
   audios?: AudioSalvo[]
+  /** fotos do caderno (IndexedDB), em base64. Backups antigos não têm. */
+  fotos?: FotoSalva[]
+}
+
+interface FotoSalva {
+  id: string
+  em: number
+  nome: string
+  tipo: string
+  base64: string
 }
 
 interface AudioSalvo {
@@ -58,6 +69,11 @@ const audioValido = (a: unknown): a is AudioSalvo => {
   return !!x && typeof x.id === 'string' && typeof x.topico === 'string' && typeof x.em === 'number' && typeof x.duracao === 'number' && typeof x.tipo === 'string' && typeof x.base64 === 'string'
 }
 
+const fotoValida = (f: unknown): f is FotoSalva => {
+  const x = f as FotoSalva
+  return !!x && typeof x.id === 'string' && typeof x.em === 'number' && typeof x.nome === 'string' && typeof x.tipo === 'string' && typeof x.base64 === 'string'
+}
+
 const ler = (k: string) => {
   try {
     return localStorage.getItem(k)
@@ -87,7 +103,7 @@ function gravarCopias(copias: Copia[]) {
   }
 }
 
-function guardarCopia(motivo: Copia['motivo']) {
+export function guardarCopia(motivo: Copia['motivo']) {
   const dados = ler(CHAVE)
   if (!dados) return
   const copias = lerCopias()
@@ -146,8 +162,15 @@ export async function exportar(): Promise<number> {
   const audios = await Promise.all(
     gravacoes.map(async (g) => ({ id: g.id, topico: g.topico, em: g.em, duracao: g.duracao, tipo: g.blob.type, base64: await paraBase64(g.blob) })),
   )
+  let lista: Foto[] = []
+  try {
+    lista = await todasFotos()
+  } catch {
+    /* idem */
+  }
+  const fotos = await Promise.all(lista.map(async (f) => ({ id: f.id, em: f.em, nome: f.nome, tipo: f.blob.type, base64: await paraBase64(f.blob) })))
   const agora = new Date()
-  const arquivo: ArquivoBackup = { app: 'mapa-ia', formato: 1, salvoEm: agora.toISOString(), dados: JSON.parse(cru), audios }
+  const arquivo: ArquivoBackup = { app: 'mapa-ia', formato: 1, salvoEm: agora.toISOString(), dados: JSON.parse(cru), audios, fotos }
   const blob = new Blob([JSON.stringify(arquivo, null, 1)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -173,6 +196,7 @@ export interface Resumo {
   postits: number
   /** só se souber (backup em arquivo); o de agora fica no IndexedDB */
   audios?: number
+  fotos?: number
 }
 
 function resumir(state: Record<string, unknown>, salvoEm: Date | null): Resumo {
@@ -200,11 +224,13 @@ export async function lerArquivo(arquivo: File): Promise<{ resumo: Resumo; aplic
   if (obj?.app !== 'mapa-ia' || !dados || typeof dados.state !== 'object' || dados.state === null || typeof dados.version !== 'number')
     throw new Error('Esse arquivo não é um backup do Mapa de IA.')
   const audios = Array.isArray(obj.audios) ? obj.audios.filter(audioValido) : []
+  const fotos = Array.isArray(obj.fotos) ? obj.fotos.filter(fotoValida) : []
   return {
-    resumo: { ...resumir(dados.state, obj.salvoEm ? new Date(obj.salvoEm) : null), audios: audios.length },
+    resumo: { ...resumir(dados.state, obj.salvoEm ? new Date(obj.salvoEm) : null), audios: audios.length, fotos: fotos.length },
     aplicar: async () => {
       // áudio primeiro: se falhar, nada do progresso mudou ainda
       await guardarVarias(audios.map((a) => ({ id: a.id, topico: a.topico, em: a.em, duracao: a.duracao, blob: deBase64(a.base64, a.tipo) })))
+      await guardarFotos(fotos.map((f) => ({ id: f.id, em: f.em, nome: f.nome, blob: deBase64(f.base64, f.tipo) })))
       guardarCopia('antes de importar')
       localStorage.setItem(CHAVE, JSON.stringify(dados))
       location.reload()

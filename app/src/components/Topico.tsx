@@ -4,28 +4,37 @@ import { DEMOS, demosDoTopico, exerciciosDoTopico } from '../content/exercicios'
 import { EXPLICACOES } from '../content/explicacoes'
 import { formulasDoTopico } from '../content/formulas'
 import { grupoPorId, topicoPorId } from '../content/topicos'
-import type { Demo, Topico as TipoTopico } from '../content/tipos'
+import type { Demo, Exercicio, Topico as TipoTopico } from '../content/tipos'
 import { dependentesDe, parecidosDe, prereqsDe } from '../lib/grafo'
 import { NOME_NIVEL, unidade, vizinhosNaTrilha } from '../lib/trilha'
+import type { PaginaCaderno } from '../lib/caderno'
 import { useMapa } from '../store/useMapa'
 import { DemoModal, ItemExercicio } from './Exercicio'
+import { BotaoPomodoro } from './Pomodoro'
+import { BotaoCalculadora } from './Calculadora'
+import { RodapeFixo } from './RodapeFixo'
 import { FormulaAnimada } from './FormulaAnimada'
 import { TextoLeitura } from './Texto'
-import { BotaoAjustes } from './Ajustes'
-import { Preteste } from './Preteste'
+import { BotoesPaineis } from './Ajustes'
+import { FecharTopico, TesteAbertura } from './Teste'
 import { Lembrar } from './Lembrar'
 import { AvisoPausa, BotaoRelembrar } from './Relembrar'
-import { pretestePara } from '../content/preteste'
+import { chaveTeste, questoesPara } from '../lib/teste'
+import { formatarTempo, useCronometro } from '../lib/tempo'
+import { estimarTopico, explicarEstimativa, formatarEstimativa } from '../lib/estimativa'
 import { LinhaTreino } from './Treino'
-import { Anotacao, AvisoRevisita, PalavrasFlutuantes, temCartoes } from './Ferramentas'
+import { Anotacao, AvisoRevisita, BotaoAnotar, PalavrasChave, temCartoes } from './Ferramentas'
+import { palavrasDoTopico } from '../content/palavras'
 import { calculosDoTopico } from '../content/calculos'
-import { IconeStatus, useStatus } from './Trilha'
+import { useStatus } from './Trilha'
 import { CAMADAS_MARCAVEIS, Marcador, MarcasDoTopico, rolarAteMarca } from './Marcas'
 import type { Marca } from '../lib/marcas'
 import { AbasDoTopico } from './Abas'
+import { levarTopicoAoCaderno } from './Caderno'
 import { Explicar } from './Explicar'
-import { Slides } from './Slides'
+import { Slides, SlidesNoTexto } from './Slides'
 import { FiguraDoTopico } from './Figuras'
+import { Dica, DicaEstimativa } from './Dica'
 
 interface Camada {
   chave: string
@@ -34,13 +43,36 @@ interface Camada {
   /** frase do botão que abre esta camada */
   convite: string
   conteudo: ReactNode
+  /** vem depois do texto, fora da área de marcar (slides, exercício) */
+  depois?: ReactNode
 }
 
+/** "Tente agora": um ou dois exercícios da lista no meio do estudo, antes da pegadinha e das fórmulas */
+function TenteAgora({ exercicios, abrirDemo }: { exercicios: Exercicio[]; abrirDemo: (d: Demo) => void }) {
+  return (
+    <div className="mt-6 rounded-2xl border border-dashed border-[var(--linha)] bg-[var(--papel)] p-4">
+      <div className="rotulo-formula mb-1">✍️ Tente agora</div>
+      <p className="mb-3 text-sm text-[var(--tinta-suave)]">{exercicios.length > 1 ? 'Exercícios' : 'Um exercício'} da lista sobre o que você acabou de ler. Tente antes de abrir a resposta.</p>
+      <ul className="space-y-1.5">
+        {exercicios.map((ex) => (
+          <ItemExercicio key={ex.id} ex={ex} abrirDemo={(id) => abrirDemo(DEMOS.find((d) => d.id === id)!)} />
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+// contarCamadas (lib/camadas.ts) repete estas regras para o "% visto" da trilha: mudou aqui, muda lá.
 function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
   const c = EXPLICACOES[tp.id]
   const formulas = formulasDoTopico(tp.id)
-  const exercicios = exerciciosDoTopico(tp.id)
+  const todosExercicios = exerciciosDoTopico(tp.id)
   const demos = demosDoTopico(tp.id)
+  const calculos = calculosDoTopico(tp.id)
+  // até dois exercícios com enunciado vão para o meio do texto; saem do "Praticar" só se lá sobrar alguma coisa
+  const tente = c ? todosExercicios.filter((e) => e.enunciado).slice(0, 2) : []
+  const resto = todosExercicios.filter((e) => !tente.includes(e))
+  const exercicios = resto.length || demos.length || calculos.length ? resto : todosExercicios
   const resumo: Camada = {
     chave: 'resumo',
     rotulo: c ? 'Cola para revisar' : 'Em uma frase',
@@ -52,8 +84,14 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
   if (c) {
     camadas.push(
       { chave: 'intuicao', rotulo: 'Pensa assim', convite: '', conteudo: <><TextoLeitura>{c.intuicao}</TextoLeitura><FiguraDoTopico id={tp.id} camada="intuicao" /></> },
-      { chave: 'definicao', rotulo: 'Com o nome certo', convite: 'Agora com as palavras da prova', conteudo: <><TextoLeitura>{c.definicao}</TextoLeitura><FiguraDoTopico id={tp.id} camada="definicao" /></> },
-      { chave: 'detalhe', rotulo: 'Mergulho', convite: 'Quero o detalhe técnico', conteudo: <><TextoLeitura>{c.detalhe}</TextoLeitura><FiguraDoTopico id={tp.id} camada="detalhe" /></> },
+      { chave: 'definicao', rotulo: 'Com o nome certo', convite: 'Agora com as palavras da prova', conteudo: <><TextoLeitura>{c.definicao}</TextoLeitura><FiguraDoTopico id={tp.id} camada="definicao" /></>, depois: <SlidesNoTexto id={tp.id} /> },
+      {
+        chave: 'detalhe',
+        rotulo: 'Mergulho',
+        convite: 'Quero o detalhe técnico',
+        conteudo: <><TextoLeitura>{c.detalhe}</TextoLeitura><FiguraDoTopico id={tp.id} camada="detalhe" /></>,
+        depois: tente.length > 0 && <TenteAgora exercicios={tente} abrirDemo={abrirDemo} />,
+      },
     )
     if (c.cuidado)
       camadas.push({
@@ -78,7 +116,6 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
         </div>
       ),
     })
-  const calculos = calculosDoTopico(tp.id)
   if (exercicios.length || demos.length || calculos.length)
     camadas.push({
       chave: 'pratica',
@@ -125,60 +162,355 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
   return camadas
 }
 
-function Pilula({ id, rotulo }: { id: string; rotulo?: string }) {
+/**
+ * Fim do tópico: os outros jeitos de revisar ficam recolhidos numa linha só.
+ * À vista, no fim, ficam só o teste de fechar e o "como ficou?"; a anotação mora no rodapé fixo.
+ */
+function MaisRevisar({ id, cor, irParaLembrar, irParaMarca }: { id: string; cor: string; irParaLembrar?: () => void; irParaMarca: (m: Marca) => void }) {
+  const [aberto, setAberto] = useState(false)
+  const [slides, setSlides] = useState(false)
+  const [noCaderno, setNoCaderno] = useState<PaginaCaderno | null>(null)
+  const explicou = useMapa((s) => !!s.feynman[id]?.texto)
+  const [explicar, setExplicar] = useState(explicou)
+  const marcas = useMapa((s) => s.marcas.filter((m) => m.topico === id).length)
+  const atalho = 'botao-suave flex items-center gap-1.5'
+  // recolhido, a linha diz o que já tem lá dentro
+  const dentro = [marcas ? `🖍 ${marcas} ${marcas === 1 ? 'trecho marcado' : 'trechos marcados'}` : '', explicou ? '🗣 explicação escrita' : ''].filter(Boolean)
+  return (
+    <section className="mt-10 border-t border-[var(--linha)] pt-3" aria-label="mais jeitos de revisar">
+      <button className="flex w-full items-center gap-2 py-1.5 text-left" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>
+        <span className="rotulo-formula shrink-0">Mais jeitos de revisar</span>
+        <span className="min-w-0 flex-1 truncate text-xs text-[var(--tinta-suave)]">{dentro.length ? dentro.join(' · ') : 'cartões, caderno, slides, explicar'}</span>
+        <span className={`text-[var(--tinta-suave)] transition-transform ${aberto ? 'rotate-90' : ''}`} aria-hidden>
+          ▸
+        </span>
+      </button>
+      {aberto && (
+        <div className="mt-3 space-y-3 [&>p]:!mt-0 [&>section]:!mt-0">
+          <div className="flex flex-wrap gap-2">
+            {irParaLembrar && (
+              <button className={atalho} onClick={irParaLembrar}>
+                🃏 Testar memória
+              </button>
+            )}
+            <button className={atalho} onClick={() => setNoCaderno(levarTopicoAoCaderno(id))}>
+              📓 Pôr no caderno
+            </button>
+          </div>
+          {noCaderno && (
+            <p className="text-sm text-[var(--tinta-suave)]" role="status">
+              ✓ no caderno: {noCaderno.titulo.trim() || 'sem título'} ·{' '}
+              <a className="font-medium text-[var(--foco)] hover:underline" href={`#/caderno/${noCaderno.id}`}>
+                abrir
+              </a>
+            </p>
+          )}
+          <MarcasDoTopico id={id} irPara={irParaMarca} />
+          <Slides id={id} aberto={slides} setAberto={setSlides} />
+          <Explicar id={id} cor={cor} aberto={explicar} setAberto={setExplicar} />
+        </div>
+      )}
+    </section>
+  )
+}
+
+/** Um tópico ligado a este: bolinha de status + nome. Clicar abre o tópico. */
+function Pilula({ id }: { id: string }) {
   const selecionar = useMapa((s) => s.selecionar)
   const status = useStatus()(id)
   const tp = topicoPorId.get(id)!
+  const cor = unidade(tp.unidade).cor
   return (
     <button
       onClick={() => selecionar(id)}
-      title={rotulo}
-      className="flex max-w-full items-center gap-1.5 rounded-full border border-[var(--linha)] bg-[var(--cartao)] py-1 pl-1 pr-3 text-left text-sm text-[var(--tinta)] shadow-[var(--sombra)] transition-transform hover:-translate-y-0.5"
+      title={status === 'entendi' ? 'você já entendeu este' : 'ainda não marcado como entendido'}
+      className="inline-flex max-w-full items-center gap-2 rounded-xl bg-[var(--papel-2)] px-3 py-1.5 text-left text-sm text-[var(--tinta-forte)] transition-colors hover:bg-[var(--linha)]"
     >
-      <span className="scale-[.7]">
-        <IconeStatus status={status} cor={unidade(tp.unidade).cor} />
-      </span>
+      {status === 'entendi' ? (
+        <span className="text-xs font-bold text-[var(--menta)]" aria-label="entendido">
+          ✓
+        </span>
+      ) : (
+        <span
+          className="h-2.5 w-2.5 shrink-0 rounded-full"
+          style={status === 'novo' ? { boxShadow: 'inset 0 0 0 1.5px var(--tinta-suave)' } : { background: `conic-gradient(${cor} 0 50%, transparent 50% 100%)`, boxShadow: `inset 0 0 0 1.5px ${cor}` }}
+          aria-hidden
+        />
+      )}
       <span className="truncate">{tp.titulo}</span>
     </button>
   )
 }
 
-/** As conexões vistas de perto: o que vem antes, o que vem depois, o que se parece. */
-function Vizinhanca({ tp }: { tp: TipoTopico }) {
-  const antes = prereqsDe.get(tp.id)!
+/** Uma linha da ficha: rótulo à esquerda (em cima, no celular) e o conteúdo ao lado. */
+function LinhaFicha({ rotulo, children, empilhada = false }: { rotulo: ReactNode; children: ReactNode; empilhada?: boolean }) {
+  return (
+    <div className={`grid gap-1.5 py-3 first:pt-0 last:pb-0 ${empilhada ? '' : 'sm:grid-cols-[10.5rem_1fr] sm:gap-4'}`}>
+      <div className={`text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)] ${empilhada ? '' : 'sm:pt-2'}`}>{rotulo}</div>
+      <div className="min-w-0">{children}</div>
+    </div>
+  )
+}
+
+/** Tela larga o bastante para a coluna lateral do tópico (xl do Tailwind). */
+function useTelaLarga() {
+  const consulta = '(min-width: 1280px)'
+  const [larga, setLarga] = useState(() => window.matchMedia(consulta).matches)
+  useEffect(() => {
+    const m = window.matchMedia(consulta)
+    const mudar = () => setLarga(m.matches)
+    m.addEventListener('change', mudar)
+    return () => m.removeEventListener('change', mudar)
+  }, [])
+  return larga
+}
+
+/** Nível, status, tempo e abas: o que o tópico é e o que você já fez com ele. */
+function DadosTopico({ tp, cor }: { tp: TipoTopico; cor: string }) {
+  const status = useStatus()(tp.id)
+  const voltar = useMapa((s) => !!s.voltar[tp.id])
+  const alternarVoltar = useMapa((s) => s.alternarVoltar)
+  const ms = useMapa((s) => s.tempo[tp.id]?.ms ?? 0)
+  const estimativa = estimarTopico(tp.id)
+  return (
+    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-2 text-xs">
+      <span className="flex items-center gap-1.5 rounded-full px-2.5 py-0.5 font-medium text-[var(--tinta-forte)]" style={{ background: `color-mix(in srgb, ${cor} 14%, var(--cartao))` }}>
+        <span className="flex gap-0.5" aria-hidden>
+          {[1, 2, 3].map((n) => (
+            <span key={n} className="h-1.5 w-1.5 rounded-full" style={{ background: n <= tp.nivel ? cor : 'var(--linha)' }} />
+          ))}
+        </span>
+        {NOME_NIVEL[tp.nivel]}
+      </span>
+      <span className={`rounded-full px-2.5 py-0.5 ${status === 'entendi' ? 'bg-[var(--menta-claro)] text-[var(--menta)]' : 'bg-[var(--papel-2)] text-[var(--tinta-suave)]'}`}>
+        {status === 'entendi' ? '✓ entendido' : status === 'voltar' ? '⚑ para voltar' : status === 'andamento' ? '◐ em andamento' : '○ primeira vez'}
+      </span>
+      {tp.semSlide && <span className="rounded-full bg-[var(--papel-2)] px-2.5 py-0.5 text-[var(--tinta-suave)]">complementar (sem slide)</span>}
+      {tp.naoVisto && <span className="rounded-full bg-[var(--papel-2)] px-2.5 py-0.5 text-[var(--tinta-suave)]">extra · não visto em aula</span>}
+      <Dica
+        className="cursor-help px-1 tabular-nums text-[var(--tinta-suave)]"
+        texto={<DicaEstimativa e={estimativa} extra={ms >= 60_000 ? ['você já estudou aqui', formatarTempo(ms)] : undefined} />}
+      >
+        ⏲ {ms >= 60_000 ? `${formatarTempo(ms)} de ${formatarEstimativa(estimativa.min).replace('≈ ', '≈')}` : `${formatarEstimativa(estimativa.min)} de estudo`}
+        <span className="sr-only">
+          : {explicarEstimativa(estimativa)}
+          {ms >= 60_000 ? `. Você já estudou ${formatarTempo(ms)} aqui.` : ''}
+        </span>
+      </Dica>
+      <AbasDoTopico id={tp.id} />
+      <button
+        onClick={() => alternarVoltar(tp.id)}
+        className={`rounded-full px-2.5 py-0.5 ${voltar ? 'bg-[var(--alerta-claro)] text-[var(--alerta)]' : 'text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]'}`}
+      >
+        ⚑ {voltar ? 'marcado para voltar' : 'voltar depois'}
+      </button>
+    </div>
+  )
+}
+
+/** De que tópicos este depende e quantos ainda não foram entendidos. */
+function usePrereqs(id: string) {
+  const st = useStatus()
+  const antes = prereqsDe.get(id)!
+  return { antes, faltam: antes.filter((p) => st(p) !== 'entendi') }
+}
+
+/**
+ * Sobre o tópico: dados, palavras-chave, ligações com o resto da trilha e a fonte.
+ * Fica fora do texto: recolhido abaixo do título (tela estreita) ou na coluna da direita (tela larga).
+ * `lateral` = na coluna da direita: estreita, e as palavras só aparecem com "palavras-chave sempre à vista" ligado.
+ */
+function SobreTopico({ tp, cor, lateral = false }: { tp: TipoTopico; cor: string; lateral?: boolean }) {
+  const palavrasAVista = useMapa((s) => s.palavrasFlutuantes)
+  const { antes, faltam } = usePrereqs(tp.id)
   const depois = dependentesDe.get(tp.id)!
   const parecidos = parecidosDe(tp.id)
-  if (!antes.length && !depois.length && !parecidos.length) return null
+  const temPalavras = palavrasDoTopico(tp.id).length > 0
+  // as ligações ficam recolhidas numa linha; abrem sozinhas só quando falta entender algo de que este depende
+  const [aberta, setAberta] = useState(faltam.length > 0)
+  const resumo = [
+    antes.length ? `depende de ${antes.length}` : 'não depende de nada',
+    depois.length ? `abre caminho para ${depois.length}` : '',
+    parecidos.length ? `parecido com ${parecidos.length}` : '',
+  ].filter(Boolean)
   return (
-    <div className="mt-6 grid gap-3 text-sm sm:grid-cols-2">
-      {antes.length > 0 && (
-        <div>
-          <div className="mb-1.5 text-xs text-[var(--tinta-suave)]">← vem antes (bom já saber)</div>
-          <div className="flex flex-wrap gap-1.5">{antes.map((id) => <Pilula key={id} id={id} />)}</div>
+    <section className={`divide-y divide-[var(--linha)] rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] py-1 shadow-[var(--sombra)] ${lateral ? 'px-4' : 'px-5 sm:px-6'}`} aria-label="sobre este tópico">
+      <div className="py-3">
+        <DadosTopico tp={tp} cor={cor} />
+      </div>
+      {temPalavras && (!lateral || palavrasAVista) && (
+        <div className="py-3">
+          <div className="mb-2 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)]">Palavras-chave</div>
+          <PalavrasChave id={tp.id} cor={cor} />
         </div>
       )}
+      <div className="py-1.5">
+      <button className="flex w-full items-center gap-2 py-1.5 text-left text-sm" onClick={() => setAberta(!aberta)} aria-expanded={aberta}>
+        <span className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)]">Ligações</span>
+        <span className="min-w-0 flex-1 truncate text-[var(--tinta)]">
+          {!lateral && resumo.join(' · ')}
+          {faltam.length > 0 && <span className="text-[var(--coral)]">{lateral ? '' : ' · '}falta{faltam.length > 1 ? 'm' : ''} {faltam.length}</span>}
+        </span>
+        <span className={`text-[var(--tinta-suave)] transition-transform ${aberta ? 'rotate-90' : ''}`} aria-hidden>
+          ▸
+        </span>
+      </button>
+      {aberta && (
+      <div className="divide-y divide-[var(--linha)] pb-2 pt-2">
+      <LinhaFicha rotulo="Depende de" empilhada={lateral}>
+        {antes.length ? (
+          <>
+            <div className="flex flex-wrap gap-1.5">
+              {antes.map((id) => (
+                <Pilula key={id} id={id} />
+              ))}
+            </div>
+            <p className={`mt-2 text-xs ${faltam.length ? 'text-[var(--coral)]' : 'text-[var(--menta)]'}`}>
+              {!faltam.length
+                ? 'Você já entendeu tudo de que este tópico depende.'
+                : antes.length === 1
+                  ? 'Ainda não marcado como entendido. Dá para seguir, mas ele ajuda a entender este.'
+                  : `${antes.length - faltam.length} de ${antes.length} marcados como entendidos. Dá para seguir, mas os que faltam ajudam a entender este.`}
+            </p>
+          </>
+        ) : (
+          <p className={`text-sm text-[var(--tinta)] ${lateral ? '' : 'sm:pt-1.5'}`}>Nada: dá para começar por aqui.</p>
+        )}
+      </LinhaFicha>
       {depois.length > 0 && (
-        <div>
-          <div className="mb-1.5 text-xs text-[var(--tinta-suave)]">abre caminho para →</div>
-          <div className="flex flex-wrap gap-1.5">{depois.map((id) => <Pilula key={id} id={id} />)}</div>
-        </div>
+        <LinhaFicha rotulo="Abre caminho para" empilhada={lateral}>
+          <div className="flex flex-wrap gap-1.5">
+            {depois.map((id) => (
+              <Pilula key={id} id={id} />
+            ))}
+          </div>
+        </LinhaFicha>
       )}
       {parecidos.length > 0 && (
-        <div className="sm:col-span-2">
-          <div className="mb-1.5 text-xs text-[var(--tinta-suave)]">≈ parecido com (cuidado para não confundir)</div>
-          <ul className="space-y-1.5">
+        <LinhaFicha
+          empilhada={lateral}
+          rotulo={
+            <>
+              Parecido com <span className="block font-normal normal-case tracking-normal">não confundir</span>
+            </>
+          }
+        >
+          <ul className="space-y-2">
             {parecidos.map((c) => {
               const outro = c.de === tp.id ? c.para : c.de
               return (
-                <li key={outro} className="flex flex-wrap items-center gap-2">
+                <li key={outro} className="flex flex-wrap items-center gap-x-2 gap-y-1">
                   <Pilula id={outro} />
                   {c.nota && <span className="text-xs text-[var(--tinta-suave)]">{c.nota}</span>}
                 </li>
               )
             })}
           </ul>
+        </LinhaFicha>
+      )}
+      </div>
+      )}
+      </div>
+      {tp.fontes.length > 0 && (
+        <p className="py-3 text-xs text-[var(--tinta-suave)]">
+          📄 Fonte:{' '}
+          {tp.fontes.map((f, i) => (
+            <span key={f.arquivo + f.paginas}>
+              {i > 0 && ' · '}
+              <span className="text-[var(--tinta)]">{f.arquivo.replace(/-/g, ' ')}</span>
+              {f.paginas ? `, p. ${f.paginas}` : ''}
+            </span>
+          ))}
+        </p>
+      )}
+    </section>
+  )
+}
+
+/** Tela estreita: só uma linha abaixo do título; o "sobre" abre ali mesmo. */
+function SobreRecolhido({ tp, cor }: { tp: TipoTopico; cor: string }) {
+  const [aberto, setAberto] = useState(false)
+  const { faltam } = usePrereqs(tp.id)
+  return (
+    <div className="mt-3">
+      <button className="flex items-center gap-1.5 rounded-full py-1 text-xs text-[var(--tinta-suave)] hover:text-[var(--tinta-forte)]" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>
+        <span className={`transition-transform ${aberto ? 'rotate-90' : ''}`} aria-hidden>
+          ▸
+        </span>
+        Sobre este tópico
+        {faltam.length > 0 && !aberto && (
+          <span className="text-[var(--coral)]">
+            · falta{faltam.length > 1 ? 'm' : ''} {faltam.length} antes dele
+          </span>
+        )}
+      </button>
+      {aberto && (
+        <div className="mt-2">
+          <SobreTopico tp={tp} cor={cor} />
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * Rodapé fixo do tópico, como o cabeçalho: pomodoro, a troca de conteúdo (próxima camada ou, no fim, próximo tópico) e a anotação.
+ * Publica a própria altura em --rodape-fixo para as janelinhas flutuantes e avisos ficarem acima dele.
+ */
+/** Rodapé do tópico: ferramentas à esquerda e ← → para trocar de tópico. Abrir a próxima parte fica no fim do texto. */
+function RodapeTopico({ id, fim, anterior, proximo }: { id: string; /** chegou à última parte: o → ganha a cor da unidade */ fim: boolean; anterior?: TipoTopico; proximo?: TipoTopico }) {
+  const selecionar = useMapa((s) => s.selecionar)
+  return (
+    <RodapeFixo rotulo="rodapé do tópico" largura="max-w-[var(--leitura-largura,42rem)] xl:max-w-[calc(var(--leitura-largura,42rem)+21rem)]">
+      <BotaoPomodoro />
+      <BotaoCalculadora />
+      <span className="flex-1" />
+      <span className="flex shrink-0 items-center gap-1.5">
+        <button
+          className="botao-suave disabled:opacity-40"
+          disabled={!anterior}
+          onClick={() => anterior && selecionar(anterior.id)}
+          title={anterior ? `tópico anterior: ${anterior.titulo}` : 'este é o primeiro tópico'}
+          aria-label={anterior ? `tópico anterior: ${anterior.titulo}` : 'não há tópico anterior'}
+        >
+          ← <span className="hidden sm:inline">anterior</span>
+        </button>
+        <button
+          className={`disabled:opacity-40 ${fim && proximo ? 'rounded-full px-3.5 py-1.5 text-sm font-semibold text-white' : 'botao-suave'}`}
+          style={fim && proximo ? { background: unidade(proximo.unidade).cor } : undefined}
+          disabled={!proximo}
+          onClick={() => proximo && selecionar(proximo.id)}
+          title={proximo ? `próximo tópico: ${proximo.titulo}` : 'último tópico da trilha'}
+          aria-label={proximo ? `próximo tópico: ${proximo.titulo}` : 'não há próximo tópico'}
+        >
+          <span className="hidden sm:inline">próximo</span> →
+        </button>
+      </span>
+      <BotaoAnotar id={id} />
+    </RodapeFixo>
+  )
+}
+
+/** Fim do texto aberto até agora: o convite para descer mais uma parte. */
+function AbrirProxima({ convite, rotulo, n, total, cor, abrir }: { convite: string; rotulo: string; n: number; total: number; cor: string; abrir: () => void }) {
+  return (
+    <div className="mt-7 flex justify-center">
+      <button
+        onClick={abrir}
+        className="group flex max-w-full flex-col items-center gap-2 rounded-3xl px-6 py-3 text-center transition-colors hover:bg-[var(--cartao)]/70 focus-visible:bg-[var(--cartao)]/70"
+      >
+        <span className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[var(--tinta-suave)]">
+          parte {n} de {total} · {rotulo}
+        </span>
+        <span className="text-base font-semibold text-[var(--tinta-forte)]">{convite}</span>
+        <span
+          className="grid h-10 w-10 place-items-center rounded-full text-lg text-white shadow-[var(--sombra)] transition-transform group-hover:translate-y-0.5"
+          style={{ background: cor }}
+          aria-hidden
+        >
+          ↓
+        </span>
+      </button>
     </div>
   )
 }
@@ -196,8 +528,12 @@ export function Topico({ id }: { id: string }) {
   // pré-teste só na primeira vez que o tópico abre (decidido na montagem, antes de aprofundar() marcar a visita)
   const estudo = useMapa((s) => s.estudo)
   const pretestes = useMapa((s) => s.pretestes)
-  const [chutando, setChutando] = useState(() => estudo.preteste && profundidade[id] === undefined && !pretestes[id] && pretestePara(id).length > 0)
-  const [confirmarTudo, setConfirmarTudo] = useState(false)
+  const testes = useMapa((s) => s.testes)
+  useCronometro(id)
+  const larga = useTelaLarga()
+  const [chutando, setChutando] = useState(
+    () => estudo.preteste && profundidade[id] === undefined && !pretestes[id] && !testes[chaveTeste('abertura', id)] && questoesPara(id, 0).some((q) => q.tipo !== 'aberta'),
+  )
   const { anterior, proximo } = vizinhosNaTrilha(id, mostrarExtras)
   const fim = abertas >= camadas.length
   // quanto mais fundo, mais a cor da unidade aparece no fundo da página
@@ -247,7 +583,7 @@ export function Topico({ id }: { id: string }) {
     >
       {/* barra de cima */}
       <header className="sticky top-0 z-20 border-b border-[var(--linha)] bg-[var(--papel)]/85 backdrop-blur" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-        <div className="coluna-leitura mx-auto flex items-center gap-2 px-4 py-2.5 sm:px-6">
+        <div className="mx-auto flex items-center gap-2 px-4 py-2.5 sm:px-6 max-w-[var(--leitura-largura,42rem)] xl:max-w-[calc(var(--leitura-largura,42rem)+21rem)]">
           <button className="botao-suave" onClick={() => selecionar(null)}>
             ← trilha
           </button>
@@ -255,54 +591,44 @@ export function Topico({ id }: { id: string }) {
             {u.id.toUpperCase()} · {grupoPorId.get(tp.grupo)!.titulo}
           </span>
           <BotaoRelembrar />
-          <BotaoAjustes />
-          {/* régua de profundidade */}
-          <span className="flex items-center gap-1" aria-label={`camada ${abertas} de ${camadas.length}`}>
+          <BotoesPaineis className="botao-suave relative !px-2.5" />
+        </div>
+        {/* régua de profundidade: uma faixa por camada */}
+        <div className="mx-auto flex items-center gap-2 px-4 pb-2 sm:px-6 max-w-[var(--leitura-largura,42rem)] xl:max-w-[calc(var(--leitura-largura,42rem)+21rem)]">
+          <span className="flex flex-1 gap-1" aria-label={`camada ${abertas} de ${camadas.length}`}>
             {camadas.map((c, i) => (
               <button
                 key={c.chave}
                 title={c.rotulo}
-                onClick={() => i < abertas && refs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
-                className="h-2 rounded-full transition-all duration-500"
-                style={{ width: i < abertas ? 18 : 8, background: i < abertas ? u.cor : 'var(--linha)' }}
+                aria-label={c.rotulo}
+                disabled={i >= abertas}
+                onClick={() => refs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' })}
+                className="h-1.5 flex-1 rounded-full transition-colors duration-500"
+                style={{ background: i < abertas ? u.cor : 'var(--linha)' }}
               />
             ))}
+          </span>
+          <span className="shrink-0 text-[10px] tabular-nums text-[var(--tinta-suave)]">
+            {abertas}/{camadas.length}
           </span>
         </div>
       </header>
 
-      <main className="coluna-leitura relative z-10 mx-auto px-4 pb-32 pt-8 sm:px-6">
+      {/* tela larga: o texto fica na largura escolhida e a ficha vai para uma coluna à direita, que acompanha a rolagem */}
+      <div className={`mx-auto px-4 pb-16 pt-8 sm:px-6 max-w-[var(--leitura-largura,42rem)] xl:max-w-[calc(var(--leitura-largura,42rem)+21rem)] xl:grid xl:grid-cols-[minmax(0,1fr)_18rem] xl:gap-10`}>
+      <main className="relative z-10 min-w-0">
         <div className="text-xs font-medium uppercase tracking-[0.16em]" style={{ color: u.cor }}>
           {u.titulo}
         </div>
         <h1 className="mt-1 text-3xl font-semibold leading-tight text-[var(--tinta-forte)] sm:text-4xl">{tp.titulo}</h1>
-        <div className="mt-3 flex flex-wrap items-center gap-2 text-xs">
-          <span className="rounded-full px-2.5 py-0.5 font-medium" style={{ background: `color-mix(in srgb, ${u.cor} 14%, white)`, color: 'var(--tinta-forte)' }}>
-            {NOME_NIVEL[tp.nivel]}
-          </span>
-          {tp.semSlide && <span className="rounded-full bg-[var(--papel-2)] px-2.5 py-0.5 text-[var(--tinta-suave)]">complementar (sem slide)</span>}
-          {tp.naoVisto && <span className="rounded-full bg-[var(--papel-2)] px-2.5 py-0.5 text-[var(--tinta-suave)]">extra · não visto em aula</span>}
-          <AbasDoTopico id={id} />
-          <button
-            onClick={() => alternarVoltar(id)}
-            className={`ml-auto rounded-full px-2.5 py-0.5 ${voltar[id] ? 'bg-[var(--alerta-claro)] text-[var(--alerta)]' : 'text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]'}`}
-          >
-            ⚑ {voltar[id] ? 'marcado para voltar' : 'voltar depois'}
-          </button>
-        </div>
 
-        {/* durante o pré-teste, as palavras-chave e as ligações entregariam a resposta */}
-        {!chutando && (
-          <>
-            <PalavrasFlutuantes id={id} cor={u.cor} />
-            <AvisoRevisita id={id} irParaCola={irParaCola} />
-            <Vizinhanca tp={tp} />
-          </>
-        )}
+        {/* nível, tempo, palavras-chave e ligações não são o tópico: ficam recolhidos aqui ou na coluna da direita.
+            Durante o pré-teste, as palavras-chave e as ligações entregariam a resposta. */}
+        {!chutando && !larga && <SobreRecolhido tp={tp} cor={u.cor} />}
+        {!chutando && <AvisoRevisita id={id} irParaCola={irParaCola} />}
 
         {!chutando && <AvisoPausa key={id} irParaLembrar={irParaLembrar} />}
-        {!chutando && <MarcasDoTopico id={id} irPara={irParaMarca} />}
-        {chutando && <Preteste id={id} terminar={() => setChutando(false)} />}
+        {chutando && <TesteAbertura id={id} terminar={() => setChutando(false)} />}
 
         {/* as camadas */}
         <div ref={textoRef} className={`mt-10 space-y-7 ${chutando ? 'hidden' : ''}`}>
@@ -325,88 +651,61 @@ export function Topico({ id }: { id: string }) {
                   {c.rotulo}
                 </div>
                 <div data-marcavel={CAMADAS_MARCAVEIS.has(c.chave) ? c.chave : undefined}>{c.conteudo}</div>
+                {c.depois}
               </motion.section>
             ))}
           </AnimatePresence>
         </div>
 
-        {/* aprofundar ou fechar */}
-        <div className={`mt-6 ${chutando ? 'hidden' : ''}`}>
-          {!fim ? (
-            <div className="flex flex-col items-center">
-              <button className="botao-foco" onClick={aprofundarUma}>
-                {camadas[abertas].convite} ↓
-              </button>
-              {/* longe do botão principal e com confirmação: fácil de clicar sem querer */}
-              <div className="mt-12 text-xs text-[var(--tinta-suave)]">
-                {confirmarTudo ? (
-                  <span className="flex flex-wrap items-center justify-center gap-2">
-                    abrir as {camadas.length - abertas} camadas que faltam?
-                    <button className="botao-suave" onClick={() => (setAbertas(camadas.length), setConfirmarTudo(false))}>
-                      sim, abrir tudo
-                    </button>
-                    <button className="botao-suave" onClick={() => setConfirmarTudo(false)}>
-                      não
-                    </button>
-                  </span>
-                ) : (
-                  <button className="hover:underline" onClick={() => setConfirmarTudo(true)}>
-                    abrir tudo de uma vez
-                  </button>
-                )}
-              </div>
-            </div>
-          ) : (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-5 text-center shadow-[var(--sombra)]">
-              <div className="text-sm text-[var(--tinta-suave)]">Chegou ao fundo. Como ficou?</div>
-              <div className="mt-3 flex flex-wrap justify-center gap-2">
-                <button
-                  onClick={() => alternarEstudado(id)}
-                  className="rounded-full px-4 py-2 text-sm font-semibold transition-colors"
-                  style={estudados[id] ? { background: 'var(--menta)', color: '#fff' } : { background: 'var(--menta-claro)', color: 'var(--menta)' }}
-                >
-                  ✓ {estudados[id] ? 'entendi!' : 'entendi'}
-                </button>
-                <button
-                  onClick={() => alternarVoltar(id)}
-                  className="rounded-full px-4 py-2 text-sm font-semibold"
-                  style={voltar[id] ? { background: 'var(--alerta)', color: '#fff' } : { background: 'var(--alerta-claro)', color: 'var(--alerta)' }}
-                >
-                  ⚑ ainda confuso, volto depois
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </div>
-
-        {!chutando && <Slides id={id} />}
-        {!chutando && <Explicar id={id} cor={u.cor} />}
-
-        {tp.fontes.length > 0 && (
-          <div className="mt-8 text-xs text-[var(--tinta-suave)]">
-            Fonte: {tp.fontes.map((f) => `${f.arquivo}${f.paginas ? ` p. ${f.paginas}` : ''}`).join(' · ')}
-          </div>
+        {/* a próxima parte abre por aqui, logo abaixo do que você acabou de ler */}
+        {!fim && !chutando && (
+          <AbrirProxima
+            convite={camadas[abertas].convite || 'Continuar'}
+            rotulo={camadas[abertas].rotulo}
+            n={abertas + 1}
+            total={camadas.length}
+            cor={u.cor}
+            abrir={aprofundarUma}
+          />
         )}
 
-        {/* navegação na trilha */}
-        <nav className="mt-10 grid grid-cols-2 gap-3">
-          {anterior ? (
-            <button onClick={() => selecionar(anterior.id)} className="rounded-2xl px-4 py-3 text-left hover:bg-[var(--cartao)]/70">
-              <span className="block text-xs text-[var(--tinta-suave)]">← anterior</span>
-              <span className="block truncate text-sm font-medium text-[var(--tinta)]">{anterior.titulo}</span>
-            </button>
-          ) : (
-            <span />
-          )}
-          {proximo && (
-            <button onClick={() => selecionar(proximo.id)} className="rounded-2xl bg-[var(--cartao)] px-4 py-3 text-right shadow-[var(--sombra)] hover:-translate-y-0.5 transition-transform">
-              <span className="block text-xs text-[var(--tinta-suave)]">próximo na trilha →</span>
-              <span className="block truncate text-sm font-semibold text-[var(--tinta-forte)]">{proximo.titulo}</span>
-            </button>
-          )}
-        </nav>
+        {/* o fim: o teste de fechar e o "como ficou?" (o próximo tópico fica no → do rodapé) */}
+        {fim && !chutando && (
+          <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-6 rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-5 text-center shadow-[var(--sombra)]">
+            <FecharTopico id={id} />
+            <div className="mt-5 text-sm text-[var(--tinta-suave)]">Chegou ao fundo. Como ficou?</div>
+            <div className="mt-3 flex flex-wrap justify-center gap-2">
+              <button
+                onClick={() => alternarEstudado(id)}
+                className="rounded-full px-4 py-2 text-sm font-semibold transition-colors"
+                style={estudados[id] ? { background: 'var(--menta)', color: '#fff' } : { background: 'var(--menta-claro)', color: 'var(--menta)' }}
+              >
+                ✓ {estudados[id] ? 'entendi!' : 'entendi'}
+              </button>
+              <button
+                onClick={() => alternarVoltar(id)}
+                className="rounded-full px-4 py-2 text-sm font-semibold"
+                style={voltar[id] ? { background: 'var(--alerta)', color: '#fff' } : { background: 'var(--alerta-claro)', color: 'var(--alerta)' }}
+              >
+                ⚑ ainda confuso, volto depois
+              </button>
+            </div>
+          </motion.div>
+        )}
+
+        {!chutando && <MaisRevisar id={id} cor={u.cor} irParaLembrar={temCartoes(id) ? irParaLembrar : undefined} irParaMarca={irParaMarca} />}
       </main>
 
+      {larga && !chutando && (
+        <aside className="relative z-10" aria-label="ao lado do texto">
+          <div className="sticky top-24 max-h-[calc(100dvh-7rem)] space-y-4 overflow-y-auto pb-4 [scrollbar-width:thin]">
+            <SobreTopico tp={tp} cor={u.cor} lateral />
+          </div>
+        </aside>
+      )}
+      </div>
+
+      <RodapeTopico id={id} fim={fim && !chutando} anterior={anterior} proximo={proximo} />
       <DemoModal demo={demo} fechar={() => setDemo(null)} />
       <Anotacao id={id} />
       <Marcador topico={id} raiz={textoRef} />

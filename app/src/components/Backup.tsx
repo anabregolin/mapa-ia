@@ -19,11 +19,12 @@ function LinhaResumo({ r }: { r: Resumo }) {
       {plural(r.topicos, 'tópico aberto', 'tópicos abertos')} · {plural(r.notas, 'anotação', 'anotações')} · {plural(r.cartoes, 'cartão respondido', 'cartões respondidos')} ·{' '}
       {plural(r.postits, 'post-it', 'post-its')}
       {r.audios !== undefined && ` · ${plural(r.audios, 'gravação', 'gravações')}`}
+      {!!r.fotos && ` · ${plural(r.fotos, 'foto', 'fotos')}`}
     </span>
   )
 }
 
-/** Seção "Seu progresso" do painel Aa. */
+/** Conteúdo da seção "Cópia no computador" das configurações (backup). */
 export function AjustesBackup() {
   const [ultimo, setUltimo] = useState(ultimoBackup)
   const [erro, setErro] = useState<string | null>(null)
@@ -77,8 +78,7 @@ export function AjustesBackup() {
   }
 
   return (
-    <div className="space-y-3 border-t border-[var(--linha)] pt-4">
-      <div className="text-xs font-medium uppercase tracking-[0.12em] text-[var(--tinta-suave)]">Seu progresso</div>
+    <div className="space-y-3">
       <p className="text-sm text-[var(--tinta)]">
         Tudo fica guardado só neste navegador. Baixe um backup de vez em quando e guarde o arquivo fora dele (Drive, pendrive, e-mail para você).
       </p>
@@ -113,9 +113,9 @@ export function AjustesBackup() {
             Agora: <LinhaResumo r={resumoAtual()} />
           </p>
           <p className="mt-1 text-xs">O de agora não some: vira uma cópia automática, e dá para voltar nele aqui embaixo.</p>
-          {!!pendente.resumo.audios && (
+          {!!(pendente.resumo.audios || pendente.resumo.fotos) && (
             <p className="mt-1 text-xs">
-              As gravações do backup são <strong>somadas</strong> às que já estão aqui (nenhuma é apagada). Elas não entram na cópia automática, então desfazer depois não as tira.
+              As gravações e fotos do backup são <strong>somadas</strong> às que já estão aqui (nenhuma é apagada). Elas não entram na cópia automática, então desfazer depois não as tira.
             </p>
           )}
           <div className="mt-2 flex gap-2">
@@ -195,26 +195,30 @@ export function AjustesBackup() {
   )
 }
 
-/** Lembrete na trilha quando faz tempo sem backup (e já há algo a perder). */
+/**
+ * Aviso de backup: uma barra fina no alto da trilha, acima do cabeçalho (rola junto, não fica presa).
+ * Só aparece quando faz tempo sem backup e já há algo a perder; "×" esconde até recarregar a página.
+ */
 export function LembreteBackup() {
   const [fechado, setFechado] = useState(false)
   const [ultimo, setUltimo] = useState(ultimoBackup)
   const [agora] = useState(() => Date.now())
   if (fechado || !temProgresso() || (ultimo && agora - ultimo < DIAS_LEMBRETE * DIA)) return null
   return (
-    <div className="mt-6 flex flex-wrap items-center gap-3 rounded-2xl border border-[var(--linha)] bg-[var(--cartao)] px-4 py-3 text-sm text-[var(--tinta)]">
-      <span className="min-w-0 flex-1">
-        💾 {ultimo ? `Seu último backup foi ${quando(ultimo)}.` : 'Você ainda não baixou nenhum backup.'} Seu progresso e suas anotações só existem neste navegador.
-      </span>
-      <button
-        className="botao-foco"
-        onClick={() => exportar().then(() => setUltimo(ultimoBackup()))}
-      >
-        baixar backup
-      </button>
-      <button className="botao-suave" onClick={() => setFechado(true)}>
-        depois
-      </button>
+    <div role="status" className="border-b border-[var(--alerta)]/20 bg-[var(--alerta-claro)]/70 text-xs text-[var(--tinta)]" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
+      <div className="mx-auto flex w-full max-w-4xl items-center gap-2 px-4 py-1.5 sm:px-8">
+        <span aria-hidden>💾</span>
+        <span className="min-w-0 flex-1 truncate" title="Seu progresso e suas anotações só existem neste navegador.">
+          {ultimo ? `Último backup ${quando(ultimo)}.` : 'Sem backup ainda.'}
+          <span className="hidden sm:inline"> Seu progresso só existe neste navegador.</span>
+        </span>
+        <button className="shrink-0 font-medium text-[var(--alerta)] hover:underline" onClick={() => exportar().then(() => setUltimo(ultimoBackup()))}>
+          baixar backup
+        </button>
+        <button className="shrink-0 rounded-full px-1.5 text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]" onClick={() => setFechado(true)} aria-label="esconder o aviso de backup" title="esconder até recarregar">
+          ×
+        </button>
+      </div>
     </div>
   )
 }

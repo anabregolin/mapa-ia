@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { ATIVIDADES_PADRAO, PARADO, bipar, duracao, faltam, proxima, relogio, sortear, type Fase } from '../lib/pomodoro'
 import { useMapa } from '../store/useMapa'
+import { useFlutuante } from '../lib/flutuante'
 
 const NOME_FASE: Record<Fase, string> = { foco: 'foco', pausa: 'pausa', longa: 'pausa longa' }
 const COR_FASE: Record<Fase, string> = { foco: 'var(--coral)', pausa: 'var(--menta)', longa: 'var(--menta)' }
@@ -63,21 +64,58 @@ function Configurar() {
   )
 }
 
-/** Timer pomodoro no canto inferior esquerdo, em todas as telas. */
-export function Pomodoro({ telaMapa = false }: { telaMapa?: boolean }) {
+/** Relógio do pomodoro que só anda enquanto está rodando. */
+function useAgoraPomodoro(rodando: boolean) {
+  const [agora, setAgora] = useState(() => Date.now())
+  useEffect(() => {
+    if (!rodando) return
+    const t = setInterval(() => setAgora(Date.now()), 1000)
+    return () => clearInterval(t)
+  }, [rodando])
+  return [agora, setAgora] as const
+}
+
+/** O pomodoro comprimido dentro de uma barra (o rodapé fixo do tópico): mostra o tempo e abre a janelinha. */
+export function BotaoPomodoro() {
+  const e = useMapa((s) => s.pomodoro)
+  const p = useMapa((s) => s.pomodoroPref)
+  const aberto = useMapa((s) => s.pomodoroAberto)
+  const setAberto = useMapa((s) => s.setPomodoroAberto)
+  const [agora] = useAgoraPomodoro(e.rodando)
+  const resta = faltam(e, p, agora)
+  const emPausa = e.fase !== 'foco'
+  const naoComecou = !e.rodando && e.restante === null && e.fase === 'foco' && e.feitos === 0
+  return (
+    <button
+      className="botao-suave flex shrink-0 items-center gap-1.5"
+      onClick={() => setAberto(!aberto)}
+      aria-expanded={aberto}
+      title={aberto ? 'comprimir o pomodoro' : 'abrir o pomodoro'}
+      aria-label={`pomodoro${e.rodando ? `, ${NOME_FASE[e.fase]}, faltam ${relogio(resta)}` : ''}`}
+      style={aberto ? { background: 'var(--foco-claro)', color: 'var(--foco)' } : undefined}
+    >
+      <span aria-hidden>{emPausa ? '☕' : '🍅'}</span>
+      {naoComecou ? <span className="hidden sm:inline">pomodoro</span> : <span className="tabular-nums" style={{ color: e.rodando ? COR_FASE[e.fase] : undefined }}>{relogio(resta)}</span>}
+      {!e.rodando && !naoComecou && <span className="text-xs text-[var(--tinta-suave)]">⏸</span>}
+    </button>
+  )
+}
+
+/**
+ * Timer pomodoro flutuante, em todas as telas. Começa no canto de baixo à esquerda; arraste pelo botão ou pelo topo do cartão.
+ * `semBotao`: a tela tem o próprio botão (o rodapé fixo do tópico e da trilha); comprimido, ele some daqui em vez de flutuar.
+ */
+export function Pomodoro({ telaMapa = false, semBotao = false }: { telaMapa?: boolean; semBotao?: boolean }) {
   const e = useMapa((s) => s.pomodoro)
   const p = useMapa((s) => s.pomodoroPref)
   const setE = useMapa((s) => s.setPomodoro)
-  const [aberto, setAberto] = useState(false)
+  // fica aberto até você comprimir (e continua assim ao trocar de tela ou recarregar)
+  const aberto = useMapa((s) => s.pomodoroAberto)
+  const setAberto = useMapa((s) => s.setPomodoroAberto)
   const [ajustes, setAjustes] = useState(false)
-  const [agora, setAgora] = useState(() => Date.now())
-
-  // relógio: só anda enquanto está rodando
-  useEffect(() => {
-    if (!e.rodando) return
-    const t = setInterval(() => setAgora(Date.now()), 1000)
-    return () => clearInterval(t)
-  }, [e.rodando])
+  // no mapa, um pouco mais à direita para não cobrir os controles do zoom
+  const f = useFlutuante('posicao-pomodoro', { lado: 'esq', x: telaMapa ? 64 : 20, borda: 'baixo', y: telaMapa ? 16 : 20 })
+  const [agora, setAgora] = useAgoraPomodoro(e.rodando)
 
   const resta = faltam(e, p, agora)
 
@@ -87,9 +125,8 @@ export function Pomodoro({ telaMapa = false }: { telaMapa?: boolean }) {
     const seguinte = proxima(e, p, Date.now())
     setE(seguinte)
     if (p.som) bipar()
-    // eslint-disable-next-line react-hooks/set-state-in-effect -- abrir o cartão é a reação ao fim da fase
     setAberto(true)
-  }, [agora, e, p, setE])
+  }, [agora, e, p, setE, setAberto])
 
   // tempo no título da aba, para ver de outra aba
   useEffect(() => {
@@ -117,28 +154,34 @@ export function Pomodoro({ telaMapa = false }: { telaMapa?: boolean }) {
   const cicloAtual = (e.feitos % p.ciclos) + 1
 
   return (
-    <div className={`fixed z-[35] ${telaMapa ? 'bottom-4 left-16' : 'bottom-5 left-5'}`} style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}>
-      <AnimatePresence>
+    <div ref={f.ref} className="fixed z-[35]" style={f.estilo}>
+      <AnimatePresence initial={false}>
         {aberto && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.98 }}
-            className="absolute bottom-full left-0 mb-2 max-h-[75vh] w-[min(20rem,calc(100vw-2.5rem))] overflow-y-auto rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-4 shadow-[0_18px_40px_-16px_rgba(36,34,44,.35)]"
+            initial={{ opacity: 0, scale: 0.97 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="max-h-[70vh] w-[min(20rem,calc(100vw-1rem))] overflow-y-auto rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-4 shadow-[0_18px_40px_-16px_rgba(36,34,44,.35)]"
             role="dialog"
             aria-label="pomodoro"
           >
-            <div className="flex items-center justify-between">
+            <div {...f.alca} className="-mx-1 -mt-1 flex items-center justify-between rounded-2xl px-1 py-1" title="arraste para mudar de lugar">
               <span className="text-xs font-semibold uppercase tracking-[0.14em]" style={{ color: COR_FASE[e.fase] }}>
+                <span className="mr-1 text-[var(--tinta-suave)]" aria-hidden>
+                  ⠿
+                </span>
                 {NOME_FASE[e.fase]}
                 {e.fase === 'foco' && <span className="text-[var(--tinta-suave)]"> · {cicloAtual} de {p.ciclos}</span>}
               </span>
-              <button className="text-xs text-[var(--tinta-suave)] hover:underline" onClick={() => setAberto(false)}>
-                esconder
+              <button
+                className="-mr-1 flex items-center gap-1 rounded-full px-2 py-0.5 text-xs text-[var(--tinta-suave)] hover:bg-[var(--papel-2)] hover:text-[var(--tinta-forte)]"
+                onClick={() => (setAberto(false), setAjustes(false))}
+                title="comprimir: vira só um botão com o tempo"
+              >
+                <span aria-hidden>↙</span> comprimir
               </button>
             </div>
 
-            <div className="mt-1 text-5xl font-semibold tabular-nums text-[var(--tinta-forte)]">{relogio(resta)}</div>
+            <div className="mt-1 text-4xl font-semibold tabular-nums text-[var(--tinta-forte)]">{relogio(resta)}</div>
             <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--papel-2)]">
               <div className="h-full rounded-full transition-[width] duration-1000" style={{ width: `${progresso * 100}%`, background: COR_FASE[e.fase] }} />
             </div>
@@ -188,7 +231,10 @@ export function Pomodoro({ telaMapa = false }: { telaMapa?: boolean }) {
       </AnimatePresence>
 
       <button
-        onClick={() => setAberto(!aberto)}
+        hidden={aberto || semBotao}
+        {...f.alca}
+        title="abrir o pomodoro (arraste para mudar de lugar)"
+        onClick={() => setAberto(true)}
         aria-label={`pomodoro${e.rodando ? `, ${NOME_FASE[e.fase]}, faltam ${relogio(resta)}` : ''}`}
         aria-expanded={aberto}
         className="flex items-center gap-2 rounded-full border border-[var(--linha)] bg-[var(--cartao)] px-3.5 py-2.5 text-sm font-medium text-[var(--tinta-forte)] shadow-[0_10px_30px_-12px_rgba(36,34,44,.35)] transition-transform hover:-translate-y-0.5"

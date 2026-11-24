@@ -1,9 +1,10 @@
 // Técnica de Feynman: explicar o tópico para alguém que sabe menos, escrevendo ou gravando.
 // Depois, reler/reouvir com uma lista de conferência. Nada sai do computador.
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { palavrasDoTopico } from '../content/palavras'
 import { topicoPorId } from '../content/topicos'
-import { apagarGravacao, extensao, gravacoesDo, guardarGravacao, type Gravacao } from '../lib/gravacoes'
+import { apagarGravacao, extensao, gravacoesDo, type Gravacao } from '../lib/gravacoes'
+import { mmss, useGravar } from '../lib/gravar'
 import { useMapa } from '../store/useMapa'
 
 const CONFERIR = [
@@ -26,76 +27,20 @@ const normal = (s: string) =>
     .trim()
     .toLowerCase()
 
-const mmss = (s: number) => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, '0')}`
-
 function Gravador({ topico }: { topico: string }) {
   const [lista, setLista] = useState<Gravacao[]>([])
-  const [gravando, setGravando] = useState(false)
-  const [segundos, setSegundos] = useState(0)
-  const [erro, setErro] = useState('')
+  const [erroLista, setErroLista] = useState('')
   const [apagar, setApagar] = useState<string | null>(null)
-  const rec = useRef<MediaRecorder | null>(null)
-  const inicio = useRef(0)
-  const suporta = typeof MediaRecorder !== 'undefined' && !!navigator.mediaDevices?.getUserMedia
-
   const recarregar = () =>
     gravacoesDo(topico)
       .then(setLista)
-      .catch(() => setErro('Não consegui ler as gravações guardadas neste navegador.'))
+      .catch(() => setErroLista('Não consegui ler as gravações guardadas neste navegador.'))
+  const { gravando, segundos, erro: erroGravar, comecar, parar, suporta } = useGravar(topico, recarregar, LIMITE_S)
+  const erro = erroGravar || erroLista
   useEffect(() => {
     recarregar()
-    return () => rec.current?.stream.getTracks().forEach((t) => t.stop())
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [topico])
-
-  useEffect(() => {
-    if (!gravando) return
-    const t = setInterval(() => {
-      const s = (Date.now() - inicio.current) / 1000
-      setSegundos(s)
-      if (s >= LIMITE_S) rec.current?.stop()
-    }, 250)
-    return () => clearInterval(t)
-  }, [gravando])
-
-  const comecar = async () => {
-    setErro('')
-    let stream: MediaStream
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({ audio: true })
-    } catch (e) {
-      const nome = (e as DOMException).name
-      setErro(
-        nome === 'NotAllowedError'
-          ? 'O navegador não deixou usar o microfone. Libere no cadeado ao lado do endereço e tente de novo.'
-          : nome === 'NotFoundError'
-            ? 'Não achei nenhum microfone ligado.'
-            : 'Não consegui abrir o microfone.',
-      )
-      return
-    }
-    const r = new MediaRecorder(stream)
-    const pedacos: Blob[] = []
-    r.ondataavailable = (ev) => ev.data.size && pedacos.push(ev.data)
-    r.onstop = async () => {
-      stream.getTracks().forEach((t) => t.stop())
-      setGravando(false)
-      const duracao = (Date.now() - inicio.current) / 1000
-      if (duracao < 1 || !pedacos.length) return
-      const blob = new Blob(pedacos, { type: r.mimeType || 'audio/webm' })
-      try {
-        await guardarGravacao({ id: `g${Date.now().toString(36)}`, topico, em: Date.now(), duracao, blob })
-        recarregar()
-      } catch {
-        setErro('Não consegui guardar a gravação (o navegador pode estar sem espaço).')
-      }
-    }
-    rec.current = r
-    inicio.current = Date.now()
-    setSegundos(0)
-    r.start(1000)
-    setGravando(true)
-  }
 
   if (!suporta) return <p className="text-sm text-[var(--tinta-suave)]">Este navegador não grava áudio. Dá para explicar por escrito.</p>
 
@@ -103,7 +48,7 @@ function Gravador({ topico }: { topico: string }) {
     <div>
       <div className="flex flex-wrap items-center gap-3">
         {gravando ? (
-          <button className="flex items-center gap-2 rounded-full bg-[var(--coral)] px-4 py-2 text-sm font-semibold text-white" onClick={() => rec.current?.stop()}>
+          <button className="flex items-center gap-2 rounded-full bg-[var(--coral)] px-4 py-2 text-sm font-semibold text-white" onClick={parar}>
             <span className="h-2.5 w-2.5 animate-pulse rounded-sm bg-white" /> parar · {mmss(segundos)}
           </button>
         ) : (
@@ -124,7 +69,7 @@ function Gravador({ topico }: { topico: string }) {
       )}
       {lista.length > 0 && (
         <p className="mt-3 text-[11px] text-[var(--tinta-suave)]">
-          Os áudios ficam só neste navegador e entram no backup em JSON (painel Aa). Para guardar um solto, use “baixar”.
+          Áudios ficam só neste navegador e no backup em arquivo.
         </p>
       )}
     </div>
@@ -167,10 +112,12 @@ function Linha({ g, n, apagar, pedirApagar, apagou, topico }: { g: Gravacao; n: 
 }
 
 /** Seção "Explique para alguém que sabe menos", no fim do tópico. */
-export function Explicar({ id, cor }: { id: string; cor: string }) {
+export function Explicar({ id, cor, aberto: abertoFora, setAberto: setAbertoFora }: { id: string; cor: string; aberto?: boolean; setAberto?: (a: boolean) => void }) {
   const f = useMapa((s) => s.feynman[id])
   const salvar = useMapa((s) => s.salvarFeynman)
-  const [aberto, setAberto] = useState(!!f?.texto)
+  const [abertoDentro, setAbertoDentro] = useState(!!f?.texto)
+  const aberto = abertoFora ?? abertoDentro
+  const setAberto = setAbertoFora ?? setAbertoDentro
   const [modo, setModo] = useState<'texto' | 'audio'>('texto')
   const palavras = useMemo(() => palavrasDoTopico(id, 8), [id])
   const texto = f?.texto ?? ''
@@ -190,7 +137,7 @@ export function Explicar({ id, cor }: { id: string; cor: string }) {
   }
 
   return (
-    <section className="mt-8 rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] shadow-[var(--sombra)]" aria-label="explicar o tópico">
+    <section id="explicar-topico" className="mt-8 scroll-mt-24 rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] shadow-[var(--sombra)]" aria-label="explicar o tópico">
       <button className="flex w-full items-center gap-3 px-5 py-4 text-left sm:px-8" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>
         <span className="text-2xl">🗣</span>
         <span className="min-w-0 flex-1">

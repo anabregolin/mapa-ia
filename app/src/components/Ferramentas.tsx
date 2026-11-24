@@ -1,5 +1,5 @@
 // Ferramentas de foco dentro do tópico: anotar, revisitar, palavras-chave e cartões.
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { CARTOES, type Cartao, type Nota as NotaCartao } from '../content/cartoes'
 import { topicoPorId } from '../content/topicos'
@@ -9,10 +9,32 @@ import { useMapa } from '../store/useMapa'
 import { Tex } from './FormulaAnimada'
 import { Texto } from './Texto'
 import { ListaMarcas } from './Marcas'
+import { TesteRelembrar } from './Teste'
+import { lembrou as lembrouTeste, questoesPara } from '../lib/teste'
 
 /* ───────────── anotação rápida ───────────── */
 
-/** Botão flutuante que abre uma folha de anotação. Salva sozinho enquanto você digita. */
+/** Folha de anotação do tópico, aberta pelo botão do rodapé. Salva sozinha enquanto você digita. */
+const EVENTO_ANOTAR = 'mapa:anotar'
+export const abrirAnotacao = () => window.dispatchEvent(new Event(EVENTO_ANOTAR))
+
+/** Botão do rodapé fixo que abre a anotação; mostra se já há nota e quantos trechos você marcou. */
+export function BotaoAnotar({ id }: { id: string }) {
+  const nota = useMapa((s) => !!s.notas[id]?.texto)
+  const marcas = useMapa((s) => s.marcas.filter((m) => m.topico === id).length)
+  return (
+    <button
+      onClick={abrirAnotacao}
+      aria-label={nota ? 'abrir minha anotação' : 'anotar sobre este tópico'}
+      className="flex shrink-0 items-center gap-1.5 rounded-full bg-[var(--foco)] px-3.5 py-1.5 text-sm font-semibold text-white transition-transform hover:-translate-y-0.5"
+    >
+      📝 <span className="hidden sm:inline">{nota ? 'minha anotação' : 'anotar'}</span>
+      {marcas > 0 && <span className="rounded-full bg-white/25 px-1.5 text-xs">🖍 {marcas}</span>}
+      {nota && <span className="h-2 w-2 rounded-full bg-[var(--coral)]" />}
+    </button>
+  )
+}
+
 export function Anotacao({ id }: { id: string }) {
   const nota = useMapa((s) => s.notas[id])
   const salvarNota = useMapa((s) => s.salvarNota)
@@ -31,6 +53,13 @@ export function Anotacao({ id }: { id: string }) {
     return () => clearTimeout(t)
   }, [texto, nota, id, salvarNota])
 
+  // o botão do rodapé fixo abre a anotação por evento
+  useEffect(() => {
+    const abrir = () => setAberta(true)
+    window.addEventListener(EVENTO_ANOTAR, abrir)
+    return () => window.removeEventListener(EVENTO_ANOTAR, abrir)
+  }, [])
+
   useEffect(() => {
     if (!aberta) return
     campo.current?.focus()
@@ -46,18 +75,6 @@ export function Anotacao({ id }: { id: string }) {
 
   return (
     <>
-      <button
-        hidden={aberta}
-        onClick={() => setAberta(true)}
-        aria-label={nota ? 'abrir minha anotação' : 'anotar sobre este tópico'}
-        className="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-[var(--foco)] px-4 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_-10px_rgba(36,34,44,.5)] transition-transform hover:-translate-y-0.5"
-        style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
-      >
-        📝 <span>{nota ? 'minha anotação' : 'anotar'}</span>
-        {marcas.length > 0 && <span className="rounded-full bg-white/25 px-1.5 text-xs">🖍 {marcas.length}</span>}
-        {nota && <span className="h-2 w-2 rounded-full bg-[var(--coral)]" />}
-      </button>
-
       <AnimatePresence>
         {aberta && (
           <>
@@ -122,10 +139,26 @@ export function AvisoRevisita({ id, irParaCola }: { id: string; irParaCola: () =
   const intervalos = useMapa((s) => s.estudo.intervalos)
   const revisitar = useMapa((s) => s.revisitar)
   const [resposta, setResposta] = useState<'lembrou' | 'esqueceu' | null>(null)
+  const [testando, setTestando] = useState(false)
   // decide uma vez ao abrir; se responder, o aviso vira um agradecimento em vez de sumir de repente
   const [mostrar] = useState(() => venceu(r, intervalos, Date.now()))
   const [quanto] = useState(() => (r ? haQuanto(r, Date.now()) : ''))
+  const [temQuestoes] = useState(() => questoesPara(id, 0).some((q) => q.tipo !== 'aberta'))
   if (!mostrar) return null
+  const responder = (lembrou: boolean) => {
+    revisitar(id, lembrou)
+    setResposta(lembrou ? 'lembrou' : 'esqueceu')
+  }
+  if (testando)
+    return (
+      <TesteRelembrar
+        id={id}
+        terminar={(res) => {
+          setTestando(false)
+          if (res) responder(lembrouTeste(res))
+        }}
+      />
+    )
   return (
     <motion.div
       initial={{ opacity: 0, y: -8 }}
@@ -135,36 +168,32 @@ export function AvisoRevisita({ id, irParaCola }: { id: string; irParaCola: () =
       {resposta ? (
         <p className="text-[var(--tinta-forte)]">
           {resposta === 'lembrou'
-            ? `✓ Boa! A próxima volta é ${faltaQuanto(voltaEm(r!, intervalos), Date.now())}.`
-            : `Tudo bem, esquecer faz parte. Relê as camadas com calma; ele volta ${faltaQuanto(voltaEm(r!, intervalos), Date.now())}.`}
+            ? `✓ Boa! A próxima volta é ${faltaQuanto(voltaEm(useMapa.getState().revisitas[id] ?? r!, intervalos), Date.now())}.`
+            : `Tudo bem, esquecer faz parte. Relê as camadas com calma; ele volta ${faltaQuanto(voltaEm(useMapa.getState().revisitas[id] ?? r!, intervalos), Date.now())}.`}
         </p>
       ) : (
         <>
           <p className="text-[var(--tinta-forte)]">
-            <strong>Hora de relembrar.</strong> {quanto.replace('faz', 'Faz')} que você estudou isto. Tenta lembrar antes de ler, depois confere na cola.
+            <strong>Hora de relembrar.</strong> {quanto.replace('faz', 'Faz')} que você estudou isto.{' '}
+            {temQuestoes ? 'Responda 3 questões sem olhar: acertar 2 conta como lembrei.' : 'Tenta lembrar antes de ler, depois confere na cola.'}
           </p>
-          <div className="mt-2 flex flex-wrap gap-2">
+          <div className="mt-2 flex flex-wrap items-center gap-2">
+            {temQuestoes && (
+              <button onClick={() => setTestando(true)} className="botao-foco">
+                testar a memória
+              </button>
+            )}
             <button onClick={irParaCola} className="botao-suave">
               ver a cola ↓
             </button>
-            <button
-              onClick={() => {
-                revisitar(id, true)
-                setResposta('lembrou')
-              }}
-              className="rounded-full bg-[var(--menta-claro)] px-3 py-1 text-[13px] font-medium text-[var(--menta)]"
-            >
-              ✓ lembrei
-            </button>
-            <button
-              onClick={() => {
-                revisitar(id, false)
-                setResposta('esqueceu')
-              }}
-              className="rounded-full bg-[var(--alerta-claro)] px-3 py-1 text-[13px] font-medium text-[var(--alerta)]"
-            >
-              esqueci um pouco
-            </button>
+            <span className={`flex gap-2 ${temQuestoes ? 'text-xs' : ''}`}>
+              <button onClick={() => responder(true)} className="rounded-full bg-[var(--menta-claro)] px-3 py-1 text-[13px] font-medium text-[var(--menta)]">
+                ✓ lembrei
+              </button>
+              <button onClick={() => responder(false)} className="rounded-full bg-[var(--alerta-claro)] px-3 py-1 text-[13px] font-medium text-[var(--alerta)]">
+                esqueci um pouco
+              </button>
+            </span>
           </div>
         </>
       )}
@@ -172,75 +201,24 @@ export function AvisoRevisita({ id, irParaCola }: { id: string; irParaCola: () =
   )
 }
 
-/* ───────────── palavras-chave flutuantes ───────────── */
+/* ───────────── palavras-chave ───────────── */
 
-// posições fixas (em % da altura da tela) para as palavras não pularem a cada render
-const ALTURAS = [16, 30, 44, 58, 72, 86, 23]
-
-/**
- * Palavras-chave do tópico flutuando devagar nas margens (telas largas)
- * ou numa faixa embaixo do título (telas estreitas). Dá para desligar.
- */
-export function PalavrasFlutuantes({ id, cor }: { id: string; cor: string }) {
-  const ligadas = useMapa((s) => s.palavrasFlutuantes)
+/** As palavras-chave do tópico (na ficha, ou na coluna ao lado do texto em tela larga). */
+export function PalavrasChave({ id, cor }: { id: string; cor: string }) {
   const palavras = useMemo(() => palavrasDoTopico(id), [id])
-  const calmo = useMapa((s) => s.leitura.calmo)
-  const parado = useReducedMotion() || calmo
-  if (!ligadas || !palavras.length) return null
-
-  const balao = (p: string, i: number, extra = '') => (
-    <motion.span
-      key={p}
-      initial={{ opacity: 0, scale: 0.9 }}
-      animate={parado ? { opacity: 1, scale: 1 } : { opacity: 1, scale: 1, y: [0, -7, 0, 5, 0], x: [0, 3, 0, -3, 0] }}
-      transition={
-        parado
-          ? { duration: 0.3 }
-          : { opacity: { duration: 0.6, delay: 0.1 * i }, scale: { duration: 0.6, delay: 0.1 * i }, y: { duration: 7 + (i % 3) * 1.7, repeat: Infinity, ease: 'easeInOut' }, x: { duration: 9 + (i % 4), repeat: Infinity, ease: 'easeInOut' } }
-      }
-      className={`inline-block whitespace-nowrap rounded-full px-3 py-1 text-[13px] font-medium ${extra}`}
-      style={{ background: `color-mix(in srgb, ${cor} 13%, var(--cartao))`, color: 'var(--tinta-forte)', border: `1px solid color-mix(in srgb, ${cor} 28%, transparent)` }}
-    >
-      {p}
-    </motion.span>
-  )
-
+  if (!palavras.length) return null
   return (
-    <>
-      {/* faixa sob o título (telas até ~1180px) */}
-      <div className="mt-4 flex flex-wrap gap-2 xl:hidden" aria-label="palavras-chave">
-        {palavras.map((p, i) => balao(p, i))}
-      </div>
-      {/* margens (telas largas): metade de cada lado, fora da coluna de leitura */}
-      <div aria-hidden className="pointer-events-none fixed inset-y-0 left-0 right-0 z-0 hidden xl:block">
-        {palavras.map((p, i) => {
-          const esquerda = i % 2 === 0
-          return (
-            <div
-              key={p}
-              className="absolute"
-              style={{
-                top: `${ALTURAS[i % ALTURAS.length]}%`,
-                ...(esquerda ? { right: `calc(50% + var(--leitura-largura, 42rem) / 2 + ${24 + (i % 3) * 22}px)` } : { left: `calc(50% + var(--leitura-largura, 42rem) / 2 + ${24 + (i % 3) * 22}px)` }),
-              }}
-            >
-              {balao(p, i, 'shadow-[var(--sombra)]')}
-            </div>
-          )
-        })}
-      </div>
-    </>
-  )
-}
-
-/** Botão do cabeçalho para ligar/desligar as palavras flutuantes. */
-export function AlternarPalavras() {
-  const ligadas = useMapa((s) => s.palavrasFlutuantes)
-  const alternar = useMapa((s) => s.alternarPalavras)
-  return (
-    <button onClick={alternar} aria-pressed={ligadas} title={ligadas ? 'esconder palavras-chave' : 'mostrar palavras-chave'} className={`botao-suave ${ligadas ? '' : 'opacity-60'}`}>
-      ✦ <span className="hidden sm:inline">palavras</span>
-    </button>
+    <div className="flex flex-wrap gap-1.5">
+      {palavras.map((p) => (
+        <span
+          key={p}
+          className="rounded-full px-2.5 py-0.5 text-[13px] font-medium text-[var(--tinta-forte)]"
+          style={{ background: `color-mix(in srgb, ${cor} 13%, var(--cartao))`, border: `1px solid color-mix(in srgb, ${cor} 28%, transparent)` }}
+        >
+          {p}
+        </span>
+      ))}
+    </div>
   )
 }
 
@@ -256,9 +234,11 @@ const BOTOES: { nota: NotaCartao; rotulo: string; estilo: React.CSSProperties }[
 export function CartoesDoTopico({ id, lista }: { id: string; lista?: Cartao[] }) {
   const cartoes = useMemo(() => lista ?? CARTOES.filter((c) => c.topico === id), [id, lista])
   const responderCartao = useMapa((s) => s.responderCartao)
+  const darFeedback = useMapa((s) => s.darFeedbackCartao)
   const [i, setI] = useState(0)
   const [virado, setVirado] = useState(false)
   const [lembrou, setLembrou] = useState(0)
+  const [escrito, setEscrito] = useState('')
   if (!cartoes.length) return null
   const c = cartoes[i]
 
@@ -302,22 +282,44 @@ export function CartoesDoTopico({ id, lista }: { id: string; lista?: Cartao[] })
             <Texto>{c.pergunta}</Texto>
           </p>
           {virado ? (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2 border-t border-[var(--linha)] pt-3 text-[15px] leading-relaxed text-[var(--tinta)]">
-              {c.latex && (
-                <div className="overflow-x-auto text-lg">
-                  <Tex latex={c.latex} display />
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={`mt-3 grid gap-3 border-t border-[var(--linha)] pt-3 ${escrito.trim() ? 'sm:grid-cols-2' : ''}`}>
+              {escrito.trim() && (
+                <div className="rounded-xl bg-[var(--papel-2)] px-3 py-2.5">
+                  <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)]">você escreveu</div>
+                  <p className="fonte-leitura mt-1 whitespace-pre-line text-[15px] leading-relaxed text-[var(--tinta)]">{escrito}</p>
                 </div>
               )}
-              {c.resposta.split('\n\n').map((par, k) => (
-                <p key={k}>
-                  <Texto>{par}</Texto>
-                </p>
-              ))}
+              <div className="space-y-2 text-[15px] leading-relaxed text-[var(--tinta)]">
+                {escrito.trim() && <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)]">resposta</div>}
+                {c.latex && (
+                  <div className="overflow-x-auto text-lg">
+                    <Tex latex={c.latex} display />
+                  </div>
+                )}
+                {c.resposta.split('\n\n').map((par, k) => (
+                  <p key={k}>
+                    <Texto>{par}</Texto>
+                  </p>
+                ))}
+              </div>
             </motion.div>
           ) : (
-            <button onClick={() => setVirado(true)} className="mt-3 w-full rounded-xl bg-[var(--papel-2)] py-2.5 text-sm text-[var(--tinta)] hover:bg-[var(--linha)]">
-              virar o cartão
-            </button>
+            <div className="mt-3">
+              <textarea
+                value={escrito}
+                onChange={(e) => setEscrito(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) setVirado(true)
+                }}
+                rows={3}
+                aria-label="sua resposta"
+                placeholder="Escreva a resposta do seu jeito, sem olhar (opcional)."
+                className="fonte-leitura w-full resize-y rounded-xl border border-[var(--linha)] bg-[var(--cartao)] px-3 py-2.5 text-[15px] leading-relaxed text-[var(--tinta-forte)] outline-none focus:border-[var(--foco)]"
+              />
+              <button onClick={() => setVirado(true)} className="mt-2 w-full rounded-xl bg-[var(--papel-2)] py-2.5 text-sm text-[var(--tinta)] hover:bg-[var(--linha)]">
+                {escrito.trim() ? 'comparar com a resposta' : 'virar o cartão'} <span className="hidden text-xs text-[var(--tinta-suave)] sm:inline">(Ctrl+Enter)</span>
+              </button>
+            </div>
           )}
         </motion.div>
       </AnimatePresence>
@@ -330,7 +332,13 @@ export function CartoesDoTopico({ id, lista }: { id: string; lista?: Cartao[] })
               className="rounded-xl py-2 text-sm font-medium hover:brightness-95"
               onClick={() => {
                 responderCartao(c.id, b.nota, Date.now())
+                // o que você escreveu fica guardado como na revisão (mantém o que você marcou lá)
+                if (escrito.trim()) {
+                  const ant = useMapa.getState().feedbackCartoes[c.id]
+                  darFeedback(c.id, { escrito: escrito.trim(), faltou: ant?.faltou ?? [], dividir: ant?.dividir ?? false, confuso: ant?.confuso ?? false, comentario: ant?.comentario ?? '' })
+                }
                 if (b.nota === 'acertei') setLembrou((n) => n + 1)
+                setEscrito('')
                 setVirado(false)
                 setI((n) => n + 1)
               }}

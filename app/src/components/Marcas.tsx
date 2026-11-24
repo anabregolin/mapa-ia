@@ -1,10 +1,12 @@
 // Marca-texto dentro do tópico: selecionar → escolher a cor (o objetivo) → anotar sobre o trecho.
 import { AnimatePresence, motion } from 'framer-motion'
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import { createPortal } from 'react-dom'
 import { topicoPorId } from '../content/topicos'
-import { TINTA, indiceDe, limpo, localizar, mapear, rangeDe, recortar, temPintura, type CorMarca, type IdCor, type Marca } from '../lib/marcas'
+import { dependentesDe, parecidosDe, prereqsDe } from '../lib/grafo'
+import { TINTA, indiceDe, limpo, localizar, mapear, normalTag, rangeDe, recortar, temPintura, tipoTag, type CorMarca, type IdCor, type Marca } from '../lib/marcas'
 import { useMapa } from '../store/useMapa'
+import { Dica } from './Dica'
 
 /** camadas de texto corrido que dá para marcar */
 export const CAMADAS_MARCAVEIS = new Set(['resumo', 'intuicao', 'definicao', 'detalhe', 'cuidado'])
@@ -16,9 +18,11 @@ const objetivoDe = (cores: CorMarca[], id: IdCor) => cores.find((c) => c.id === 
 export function Etiqueta({ cor }: { cor: IdCor }) {
   const cores = useMapa((s) => s.coresMarca)
   return (
-    <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: TINTA[cor].fundo, color: TINTA[cor].forte }}>
-      🖍 {objetivoDe(cores, cor)}
-    </span>
+    <Dica texto={`Marca-texto ${TINTA[cor].nome}. O que cada cor quer dizer muda em ⚙ Configurações › Marca-texto.`} className="cursor-help">
+      <span className="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-medium" style={{ background: TINTA[cor].fundo, color: TINTA[cor].forte }}>
+        🖍 {objetivoDe(cores, cor)}
+      </span>
+    </Dica>
   )
 }
 
@@ -40,7 +44,7 @@ export function Contexto({ m, className = '' }: { m: Pick<Marca, 'texto' | 'ante
 }
 
 /** campo de anotação de uma marca, salva sozinho */
-function NotaDaMarca({ m, foco = false }: { m: Marca; foco?: boolean }) {
+export function NotaDaMarca({ m, foco = false }: { m: Marca; foco?: boolean }) {
   const atualizar = useMapa((s) => s.atualizarMarca)
   const [texto, setTexto] = useState(m.nota)
   const campo = useRef<HTMLTextAreaElement>(null)
@@ -54,10 +58,18 @@ function NotaDaMarca({ m, foco = false }: { m: Marca; foco?: boolean }) {
     const t = setTimeout(() => atualizar(m.id, { nota: texto }), 400)
     return () => clearTimeout(t)
   }, [texto, m.nota, m.id, atualizar])
+  // vazio, fica só um link: uma caixa aberta em cada marca pesava a lista
+  const [aberto, setAberto] = useState(false)
+  if (!foco && !aberto && !texto)
+    return (
+      <button className="mt-1.5 text-xs text-[var(--tinta-suave)] hover:text-[var(--foco)] hover:underline" onClick={() => setAberto(true)}>
+        ✎ escrever por que marcou
+      </button>
+    )
   return (
     <textarea
       ref={campo}
-      autoFocus={foco}
+      autoFocus={foco || aberto}
       value={texto}
       onChange={(e) => setTexto(e.target.value)}
       onBlur={() => texto !== m.nota && atualizar(m.id, { nota: texto })}
@@ -65,6 +77,140 @@ function NotaDaMarca({ m, foco = false }: { m: Marca; foco?: boolean }) {
       placeholder="Por que marcou? Escreva mais sobre este trecho…"
       className="fonte-leitura mt-2 w-full resize-y rounded-xl border border-[var(--linha)] bg-[var(--papel)] px-3 py-2 text-[0.95em] text-[var(--tinta-forte)] outline-none focus:border-[var(--foco)]"
     />
+  )
+}
+
+/* ───────────── tags ───────────── */
+
+/** nome de uma tag para mostrar: "P2" para aba:p2, o título para t:u5.gini, o próprio texto se for livre */
+export function useRotuloTag() {
+  const abas = useMapa((s) => s.abas)
+  return (t: string) => {
+    const tipo = tipoTag(t)
+    if (tipo === 'aba') return abas.find((a) => a.id === t.slice(4))?.nome ?? t.slice(4)
+    if (tipo === 'topico') return topicoPorId.get(t.slice(2))?.titulo ?? t.slice(2)
+    return t
+  }
+}
+
+const ICONE_TAG = { livre: '#', aba: '▤', topico: '↔' } as const
+const DICA_TAG = {
+  livre: 'Tag livre: um texto seu. Maiúsculas e acentos não contam.',
+  aba: 'Liga o trecho a uma prova ou recorte da trilha.',
+  topico: 'Liga o trecho a outro tópico. Toque no nome para abrir.',
+} as const
+
+/** uma tag; tópico relacionado vira link para ele */
+export function ChipTag({ tag, remover, filtrar }: { tag: string; remover?: () => void; filtrar?: () => void }) {
+  const rotulo = useRotuloTag()
+  const selecionar = useMapa((s) => s.selecionar)
+  const tipo = tipoTag(tag)
+  const acao = filtrar ?? (tipo === 'topico' ? () => selecionar(tag.slice(2)) : undefined)
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full border border-[var(--linha)] bg-[var(--papel)] px-2 py-0.5 text-[11px] text-[var(--tinta)]">
+      <Dica texto={DICA_TAG[tipo]} className="cursor-help text-[var(--tinta-suave)]">
+        <span aria-hidden>{ICONE_TAG[tipo]}</span>
+      </Dica>
+      {acao ? (
+        <button className="hover:underline" onClick={acao} title={tipo === 'topico' && !filtrar ? 'abrir o tópico' : undefined}>
+          {rotulo(tag)}
+        </button>
+      ) : (
+        rotulo(tag)
+      )}
+      {remover && (
+        <button className="ml-0.5 text-[var(--tinta-suave)] hover:text-[var(--alerta)]" onClick={remover} aria-label={`tirar a tag ${rotulo(tag)}`}>
+          ×
+        </button>
+      )}
+    </span>
+  )
+}
+
+/**
+ * Tags de uma marca: texto livre, trilhas (abas) e tópicos relacionados.
+ * Sugere primeiro as tags que você já usa, depois as trilhas e os tópicos ligados a este.
+ */
+export function TagsDaMarca({ m }: { m: Marca }) {
+  const atualizar = useMapa((s) => s.atualizarMarca)
+  const todas = useMapa((s) => s.marcas)
+  const abas = useMapa((s) => s.abas)
+  const rotulo = useRotuloTag()
+  const [digitando, setDigitando] = useState<string | null>(null)
+  const tags = m.tags ?? []
+
+  const sugestoes = (() => {
+    if (digitando === null) return []
+    // livres mais usadas primeiro
+    const uso = new Map<string, number>()
+    for (const x of todas) for (const t of x.tags ?? []) if (tipoTag(t) === 'livre') uso.set(t, (uso.get(t) ?? 0) + 1)
+    const livres = [...uso].sort((a, b) => b[1] - a[1]).map(([t]) => t)
+    const daAba = abas.filter((a) => a.topicos.includes(m.topico)).map((a) => `aba:${a.id}`)
+    const outrasAbas = abas.filter((a) => !a.topicos.includes(m.topico)).map((a) => `aba:${a.id}`)
+    const ligados = [...(prereqsDe.get(m.topico) ?? []), ...(dependentesDe.get(m.topico) ?? []), ...parecidosDe(m.topico).map((c) => (c.de === m.topico ? c.para : c.de))].map((id) => `t:${id}`)
+    const q = normalTag(digitando)
+    const ja = new Set(tags.map(normalTag))
+    const todasSug = [...new Set([...livres, ...daAba, ...ligados, ...outrasAbas])]
+    return todasSug.filter((t) => !ja.has(normalTag(t)) && (!q || normalTag(rotulo(t)).includes(q))).slice(0, 8)
+  })()
+
+  const por = (t: string) => {
+    const limpo = t.trim().slice(0, 40)
+    if (!limpo || tags.some((x) => normalTag(x) === normalTag(limpo))) return
+    atualizar(m.id, { tags: [...tags, limpo] })
+  }
+  const tirar = (t: string) => atualizar(m.id, { tags: tags.filter((x) => x !== t) })
+
+  return (
+    <div className="mt-2">
+      <div className="flex flex-wrap items-center gap-1">
+        {tags.map((t) => (
+          <ChipTag key={t} tag={t} remover={() => tirar(t)} />
+        ))}
+        {digitando === null ? (
+          <button className="rounded-full px-2 py-0.5 text-[11px] text-[var(--foco)] hover:bg-[var(--foco-claro)]" onClick={() => setDigitando('')}>
+            + tag, trilha ou tópico
+          </button>
+        ) : (
+          <input
+            autoFocus
+            value={digitando}
+            maxLength={40}
+            onChange={(e) => setDigitando(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault()
+                // se o texto é igual ao nome de uma sugestão, usa a sugestão (P2 vira a aba P2)
+                const igual = sugestoes.find((t) => normalTag(rotulo(t)) === normalTag(digitando))
+                por(igual ?? digitando)
+                setDigitando('')
+              }
+              if (e.key === 'Escape') {
+                e.stopPropagation()
+                setDigitando(null)
+              }
+            }}
+            onBlur={() => setTimeout(() => setDigitando(null), 150)}
+            placeholder="escreva ou escolha…"
+            className="min-w-0 flex-1 rounded-full border border-[var(--linha)] bg-[var(--papel)] px-2.5 py-0.5 text-[12px] text-[var(--tinta-forte)] outline-none focus:border-[var(--foco)]"
+          />
+        )}
+      </div>
+      {sugestoes.length > 0 && (
+        <div className="mt-1.5 flex flex-wrap gap-1">
+          {sugestoes.map((t) => (
+            <button
+              key={t}
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => por(t)}
+              className="rounded-full bg-[var(--papel-2)] px-2 py-0.5 text-[11px] text-[var(--tinta)] hover:bg-[var(--foco-claro)] hover:text-[var(--foco)]"
+            >
+              <span className="text-[var(--tinta-suave)]">{ICONE_TAG[tipoTag(t)]}</span> {rotulo(t)}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   )
 }
 
@@ -282,6 +428,7 @@ export function Marcador({ topico, raiz }: { topico: string; raiz: RefObject<HTM
                     </button>
                   </div>
                   <NotaDaMarca key={marca.id} m={marca} foco />
+                  <TagsDaMarca m={marca} />
                   <div className="mt-2 text-[11px] text-[var(--tinta-suave)]">trocar a cor:</div>
                   <div className="mt-1">
                     <EscolherCor atual={marca.cor} escolher={(cor) => atualizar(marca.id, { cor })} />
@@ -321,7 +468,18 @@ export function Marcador({ topico, raiz }: { topico: string; raiz: RefObject<HTM
 }
 
 /** Lista de marcas com contexto e anotação (no tópico, na folha de anotação e no quadro). */
-export function ListaMarcas({ marcas, irPara, mostrarTopico = false }: { marcas: Marca[]; irPara?: (m: Marca) => void; mostrarTopico?: boolean }) {
+export function ListaMarcas({
+  marcas,
+  irPara,
+  mostrarTopico = false,
+  acoes,
+}: {
+  marcas: Marca[]
+  irPara?: (m: Marca) => void
+  mostrarTopico?: boolean
+  /** botões extras no pé de cada marca (arquivar, apagar…) */
+  acoes?: (m: Marca) => ReactNode
+}) {
   const selecionar = useMapa((s) => s.selecionar)
   return (
     <ul className="space-y-3">
@@ -347,6 +505,12 @@ export function ListaMarcas({ marcas, irPara, mostrarTopico = false }: { marcas:
             </div>
             <Contexto m={m} className="mt-1.5" />
             <NotaDaMarca m={m} />
+            <div className="flex flex-wrap items-end justify-end gap-x-3">
+              <div className="min-w-[13rem] flex-1">
+                <TagsDaMarca m={m} />
+              </div>
+              {acoes && <div className="mt-2 flex flex-wrap justify-end gap-1">{acoes(m)}</div>}
+            </div>
           </li>
         )
       })}
@@ -358,19 +522,14 @@ export function ListaMarcas({ marcas, irPara, mostrarTopico = false }: { marcas:
 export function MarcasDoTopico({ id, irPara }: { id: string; irPara: (m: Marca) => void }) {
   const marcas = useMapa((s) => s.marcas)
   const minhas = marcas.filter((m) => m.topico === id).sort((a, b) => a.em - b.em)
-  const [aberto, setAberto] = useState(true)
+  // recolhido: os trechos já aparecem pintados no texto; a lista é para quando você quer revê-los juntos
+  const [aberto, setAberto] = useState(false)
   const [cores, setCores] = useState(false)
-  const nenhumaAinda = marcas.length === 0
 
-  if (!minhas.length)
-    return nenhumaAinda ? (
-      <p className="mt-8 text-sm text-[var(--tinta-suave)]" data-nao-marcar>
-        🖍 Dica: selecione qualquer trecho do texto para marcar com uma cor e escrever sobre ele.
-      </p>
-    ) : null
+  if (!minhas.length) return null
 
   return (
-    <section className="mt-8 rounded-3xl border border-[var(--linha)] bg-[var(--papel-2)] px-5 py-4" data-nao-marcar aria-label="suas marcas neste tópico">
+    <section id="marcas-do-topico" className="mt-12 scroll-mt-24 rounded-3xl border border-[var(--linha)] bg-[var(--papel-2)] px-5 py-4" data-nao-marcar aria-label="suas marcas neste tópico">
       <div className="flex flex-wrap items-center gap-2">
         <button className="text-sm font-semibold text-[var(--tinta-forte)]" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>
           {aberto ? '▾' : '▸'} 🖍 Você marcou {minhas.length} {minhas.length === 1 ? 'trecho' : 'trechos'} aqui

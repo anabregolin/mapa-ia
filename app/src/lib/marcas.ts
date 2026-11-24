@@ -25,7 +25,24 @@ export interface Marca {
   /** o que você escreveu sobre o trecho */
   nota: string
   em: number
+  /**
+   * etiquetas além da cor: texto livre ("revisar sábado"), uma trilha/aba ("aba:p2")
+   * ou outro tópico relacionado ("t:u5.gini"). Marcas antigas não têm o campo.
+   */
+  tags?: string[]
+  /** sai da lista de anotações (o grifo continua no texto); dá para desarquivar */
+  arquivada?: boolean
 }
+
+export type TipoTag = 'livre' | 'aba' | 'topico'
+export const tipoTag = (t: string): TipoTag => (t.startsWith('aba:') ? 'aba' : t.startsWith('t:') ? 'topico' : 'livre')
+/** compara tags livres sem ligar para maiúsculas e acentos */
+export const normalTag = (t: string) =>
+  t
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .trim()
 
 export const TINTA: Record<IdCor, { fundo: string; forte: string; nome: string }> = {
   amarelo: { fundo: '#fde68a', forte: '#b45309', nome: 'amarelo' },
@@ -59,15 +76,41 @@ function nosDeTexto(raiz: Element): Text[] {
 
 export interface Mapa {
   texto: string
-  nos: { no: Text; ini: number }[]
+  /** ini = onde o nó começa no texto; tam = quantos caracteres ele conta (sem os hifens invisíveis) */
+  nos: { no: Text; ini: number; tam: number }[]
+}
+
+// A hifenização (lib/hifenizar) põe hifens invisíveis (U+00AD) dentro das palavras. Eles não contam:
+// o texto da camada é o mesmo com ou sem eles, e as marcas antigas continuam achando o trecho.
+const HIFEN = '\u00AD'
+
+/** offset no nó (contando hifens) → posição sem hifens */
+const semHifens = (no: Text, off: number) => {
+  let n = 0
+  for (let i = 0; i < off && i < no.data.length; i++) if (no.data[i] !== HIFEN) n++
+  return n
+}
+
+/** posição sem hifens → offset no nó (contando hifens) */
+const comHifens = (no: Text, i: number) => {
+  if (!no.data.includes(HIFEN)) return i
+  let n = 0
+  for (let k = 0; k < no.data.length; k++) {
+    if (no.data[k] === HIFEN) continue
+    if (n === i) return k
+    n++
+  }
+  return no.data.length
 }
 
 export function mapear(raiz: Element): Mapa {
   let texto = ''
   const nos = nosDeTexto(raiz).map((no) => {
     const ini = texto.length
-    texto += no.data
-    return { no, ini }
+    // espaço que não quebra (o da seta grudada) conta como espaço comum: mesmo tamanho, marcas antigas continuam achando o trecho
+    const limpo = no.data.replace(/\u00a0/g, ' ').replaceAll(HIFEN, '')
+    texto += limpo
+    return { no, ini, tam: limpo.length }
   })
   return { texto, nos }
 }
@@ -76,11 +119,11 @@ export function mapear(raiz: Element): Mapa {
 export function indiceDe(m: Mapa, no: Node, off: number): number {
   const ponto = document.createRange()
   ponto.setStart(no, off)
-  for (const { no: t, ini } of m.nos) {
-    if (t === no) return ini + off
+  for (const { no: t, ini, tam } of m.nos) {
+    if (t === no) return ini + semHifens(t, off)
     // o fim deste nó já passou do ponto? então o ponto está antes ou dentro dele
     const c = ponto.comparePoint(t, t.length)
-    if (c === 0) return ini + t.length
+    if (c === 0) return ini + tam
     if (c > 0) return ini
   }
   return m.texto.length
@@ -89,9 +132,9 @@ export function indiceDe(m: Mapa, no: Node, off: number): number {
 /** índice no texto → Range no DOM */
 export function rangeDe(m: Mapa, a: number, b: number): Range | null {
   const achar = (i: number, fim: boolean) => {
-    for (const { no, ini } of m.nos) {
-      const f = ini + no.length
-      if (i < f || (fim && i === f)) return { no, off: i - ini }
+    for (const { no, ini, tam } of m.nos) {
+      const f = ini + tam
+      if (i < f || (fim && i === f)) return { no, off: comHifens(no, i - ini) }
     }
     return null
   }

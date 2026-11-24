@@ -4,16 +4,16 @@ import { useEffect, useState } from 'react'
 import { topicoPorId } from '../content/topicos'
 import { useMapa } from '../store/useMapa'
 
-type Indice = Record<string, number>
+export type Indice = Record<string, number>
 /** No site publicado não há slides (ficam fora do git); a dica de "npm run slides" só faz sentido no computador. */
 const LOCAL = ['localhost', '127.0.0.1', '[::1]'].includes(location.hostname)
 let cache: Promise<Indice | null> | null = null
-const lerIndice = () =>
+export const lerIndice = () =>
   (cache ??= fetch(`${import.meta.env.BASE_URL}slides/indice.json`)
     .then((r) => (r.ok ? (r.json() as Promise<Indice>) : null))
     .catch(() => null))
 
-const img = (arquivo: string, n: number) => `${import.meta.env.BASE_URL}slides/${arquivo}/${n}.jpg`
+export const img = (arquivo: string, n: number) => `${import.meta.env.BASE_URL}slides/${arquivo}/${n}.jpg`
 
 /** "50-54" → [50, 54]; "45" → [45, 45] */
 const faixa = (p?: string): [number, number] | null => {
@@ -39,22 +39,87 @@ function Pagina({ arquivo, n, fixada, alternar }: { arquivo: string; n: number; 
   )
 }
 
-export function Slides({ id }: { id: string }) {
+/** índice dos slides gerados + fontes do tópico que têm pasta + páginas que você fixou */
+function useSlidesDoTopico(id: string) {
   const tp = topicoPorId.get(id)!
   const fixadas = useMapa((s) => s.slidesFixados[id]) ?? []
-  const alternar = useMapa((s) => s.alternarSlide)
   const [indice, setIndice] = useState<Indice | null | undefined>(undefined)
-  const [aberto, setAberto] = useState(false)
-  const [atual, setAtual] = useState<{ arquivo: string; n: number } | null>(null)
-
   useEffect(() => {
     lerIndice().then(setIndice)
   }, [])
-
   // cada fonte do tópico → pasta de slides renderizada (o nome da fonte é prefixo do arquivo)
   const fontes = tp.fontes
     .map((f) => ({ ...f, pasta: indice ? Object.keys(indice).find((k) => k.startsWith(f.arquivo)) : undefined }))
     .filter((f): f is typeof f & { pasta: string } => !!f.pasta)
+  return { indice, fontes, fixadas }
+}
+
+/** imagem do slide em tela cheia; clicar ou Esc fecha */
+export function Ampliado({ arquivo, n, fechar }: { arquivo: string; n: number; fechar: () => void }) {
+  useEffect(() => {
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && fechar()
+    window.addEventListener('keydown', esc)
+    return () => window.removeEventListener('keydown', esc)
+  }, [fechar])
+  return (
+    <div data-ampliado className="fixed inset-0 z-[60] grid place-items-center bg-black/70 p-4" onClick={fechar} role="dialog" aria-label={`slide ${n} de ${arquivo}`}>
+      <img src={img(arquivo, n)} alt={`slide ${n} de ${arquivo}`} className="max-h-full max-w-full rounded-xl bg-white object-contain shadow-2xl" />
+      <span className="absolute bottom-3 rounded-full bg-black/60 px-3 py-1 text-xs text-white">
+        {arquivo} · p. {n} · clique para fechar
+      </span>
+    </div>
+  )
+}
+
+/**
+ * "Como aparece no slide": dentro da explicação, as páginas que você fixou ou, sem nenhuma fixada,
+ * as páginas da aula onde o tópico está. Só aparece se houver página conhecida (não chuta a aula inteira).
+ */
+export function SlidesNoTexto({ id }: { id: string }) {
+  const { indice, fontes, fixadas } = useSlidesDoTopico(id)
+  const [grande, setGrande] = useState<{ arquivo: string; n: number } | null>(null)
+  if (!indice) return null
+  const paginas: { arquivo: string; n: number }[] = fixadas.length
+    ? fixadas.map((k) => ({ arquivo: k.split('#')[0], n: Number(k.split('#')[1]) }))
+    : fontes.flatMap((f) => {
+        const r = faixa(f.paginas)
+        if (!r) return []
+        return Array.from({ length: Math.min(r[1], indice[f.pasta]) - r[0] + 1 }, (_, i) => ({ arquivo: f.pasta, n: r[0] + i }))
+      })
+  if (!paginas.length) return null
+  const mostrar = paginas.slice(0, 6)
+  return (
+    <div className="mt-6">
+      <div className="rotulo-formula mb-2 flex items-baseline gap-2">
+        📄 Como aparece no slide
+        <span className="font-normal normal-case tracking-normal">{fixadas.length ? 'as páginas que você fixou' : 'páginas da aula sobre isto'}</span>
+      </div>
+      <div className="-mx-1 flex snap-x gap-3 overflow-x-auto px-1 pb-2">
+        {mostrar.map((p) => (
+          <button
+            key={`${p.arquivo}#${p.n}`}
+            onClick={() => setGrande(p)}
+            className="shrink-0 snap-start overflow-hidden rounded-xl border border-[var(--linha)] bg-white text-left"
+            title="ampliar"
+          >
+            <img src={img(p.arquivo, p.n)} alt={`slide ${p.n} de ${p.arquivo}`} loading="lazy" className="block h-36 w-auto max-w-none sm:h-44" />
+            <span className="block bg-[var(--cartao)] px-2 py-1 text-[10px] text-[var(--tinta-suave)]">p. {p.n}</span>
+          </button>
+        ))}
+      </div>
+      {paginas.length > mostrar.length && <p className="text-xs text-[var(--tinta-suave)]">+{paginas.length - mostrar.length} páginas em “Slides da aula”, no fim do tópico.</p>}
+      {grande && <Ampliado {...grande} fechar={() => setGrande(null)} />}
+    </div>
+  )
+}
+
+export function Slides({ id, aberto: abertoFora, setAberto: setAbertoFora }: { id: string; aberto?: boolean; setAberto?: (a: boolean) => void }) {
+  const { indice, fontes, fixadas } = useSlidesDoTopico(id)
+  const alternar = useMapa((s) => s.alternarSlide)
+  const [abertoDentro, setAbertoDentro] = useState(false)
+  const aberto = abertoFora ?? abertoDentro
+  const setAberto = setAbertoFora ?? setAbertoDentro
+  const [atual, setAtual] = useState<{ arquivo: string; n: number } | null>(null)
 
   if (indice === undefined || (!fontes.length && !fixadas.length)) return null
   if (indice === null)
@@ -75,7 +140,7 @@ export function Slides({ id }: { id: string }) {
   })
 
   return (
-    <section className="mt-8 rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] shadow-[var(--sombra)]" aria-label="slides da aula">
+    <section id="slides-da-aula" className="mt-8 scroll-mt-24 rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] shadow-[var(--sombra)]" aria-label="slides da aula">
       <button className="flex w-full items-center gap-3 px-5 py-4 text-left sm:px-8" onClick={() => setAberto(!aberto)} aria-expanded={aberto}>
         <span className="text-2xl">📄</span>
         <span className="min-w-0 flex-1">

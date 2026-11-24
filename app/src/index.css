@@ -122,16 +122,45 @@ body { background: var(--papel); color: var(--tinta); }
   font-family: var(--leitura-fonte, inherit); font-size: var(--leitura-tamanho, 1.125rem);
   line-height: var(--leitura-linha, 1.85); letter-spacing: .005em;
 }
+/* texto justificado: cada linha começa e termina na mesma margem. A hifenização (pt-BR, do <html lang>)
+   quebra palavras longas para não abrir buracos entre as palavras. Fica em @layer base para que um
+   text-center / text-left no próprio elemento continue valendo. Campos de digitação ficam de fora. */
+@layer base {
+  .fonte-leitura:not(input, textarea) { text-align: justify; hyphens: auto; -webkit-hyphens: auto; hyphenate-limit-chars: 7 3 3; }
+}
 /* parágrafos curtos com respiro entre eles */
 .texto-arejado > * + * { margin-top: var(--leitura-respiro, 1em); }
 .lista-leitura { margin-top: .4em; padding-left: .2em; }
 .lista-leitura li { position: relative; padding-left: 1.4em; }
-.lista-leitura li + li { margin-top: .45em; }
+.lista-leitura li + li { margin-top: calc(var(--leitura-respiro, 1em) * .45); }
 .lista-leitura li::before {
   content: ''; position: absolute; left: .3em; top: calc(var(--leitura-linha, 1.85) * .5em - .2em);
   width: .4em; height: .4em; border-radius: 999px; background: var(--foco); opacity: .55;
 }
+/* comparação ("Programação tradicional: … / Aprendizado de máquina: …"): um item por lado, cada um com sua cor */
+.lista-comparacao { display: grid; gap: calc(var(--leitura-respiro, 1em) * .5); margin: .2em 0; }
+.lista-comparacao li { padding: .55em .85em .6em; border-radius: .9rem; border-left: 4px solid var(--cor-item);
+  background: color-mix(in srgb, var(--cor-item) 7%, transparent); }
+.rotulo-comparacao { display: inline-block; margin-bottom: .2em; padding: .05em .6em; border-radius: 999px; font-size: .82em; font-weight: 600;
+  color: color-mix(in srgb, var(--cor-item) 80%, var(--tinta-forte)); background: color-mix(in srgb, var(--cor-item) 16%, transparent); }
+.parte-comparacao { display: block; }
+/* as linhas da comparação são fórmulas curtas ("dados + regras → saída"): esticadas, abririam buracos */
+.lista-comparacao li { text-align: start; hyphens: manual; }
+.parte-comparacao + .parte-comparacao { margin-top: .15em; }
 .coluna-leitura { max-width: var(--leitura-largura, 42rem); }
+/* fórmula no meio do texto nunca parte em duas linhas (o "→" solto no começo da linha vinha daí) */
+.fonte-leitura .katex { white-space: nowrap; }
+/* fórmula com conta ganha linha própria, centralizada; se não couber, rola de lado */
+.formula-bloco { display: block; margin: .6em 0; padding: .35em .75em; overflow-x: auto; overflow-y: hidden; text-align: center;
+  border-radius: .75rem; background: var(--papel-2); color: var(--tinta-forte); }
+.formula-bloco .katex-display { margin: 0; }
+/* símbolo pequeno: fica na frase, mas com ar em volta */
+.formula-respiro { display: inline-block; margin: .15em .3em; padding: 0 .35em; border-radius: .4rem; background: var(--papel-2); line-height: 1.5; }
+/* setas em coluna: um passo por linha, com ↓ entre eles */
+.cadeia-setas { margin: .5em 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; align-items: flex-start; }
+.cadeia-setas li { padding: .3em .8em; border-radius: .6rem; background: var(--cartao); border: 1px solid var(--linha); }
+.cadeia-setas li + li { margin-top: 1.6em; position: relative; }
+.cadeia-setas li + li::before { content: '↓'; position: absolute; left: 1em; top: -1.55em; color: var(--foco); font-weight: 600; }
 /* modo calmo: tudo que se mexe fica quieto */
 :root[data-calmo='sim'] *, :root[data-calmo='sim'] *::before, :root[data-calmo='sim'] *::after {
   animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important;

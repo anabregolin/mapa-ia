@@ -271,8 +271,15 @@ export const EXERCICIOS: Exercicio[] = [
     ],
     resposta: 'V, V, F, F, V, V, V, F, V, F',
   }),
-  e('l4-q6-7', 'Lista U4', 'Q6–Q7 discursivas: Naive Bayes em texto; bayesiano × Naive Bayes', ['u4.apr-bayesiano', 'u4.naive'], 'resolver', {
+  e('l4-q6-7', 'Lista U4', 'Q6–Q7 discursivas: Naive Bayes em texto; bayesiano × Naive Bayes', ['u4.apr-bayesiano', 'u4.naive'], 'aberto', {
     dica: 'Q6: vantagens = rápido, pouco dado, muitos atributos; limitações = independência irreal e frequência zero. Q7: Naive Bayes é um caso do aprendizado bayesiano com a hipótese extra de independência condicional.',
+    passos: [
+      { texto: '**Q6 vantagens:** treino é só contar frequências (rápido), precisa de pouco dado, aguenta milhares de atributos (uma palavra por atributo) e classifica bem porque só importa qual classe tem o maior produto.' },
+      { texto: '**Q6 limitações:** supõe palavras independentes dada a classe (falso: "não" + "gostei"), perde a ordem, exagera as probabilidades, e palavra nunca vista numa classe zera a classe → Laplace.' },
+      { texto: '**Q7:** aprendizado bayesiano é a abordagem geral (os dados atualizam a probabilidade de cada hipótese por Bayes); Naive Bayes é um classificador que escolhe a classe de maior posteriori.' },
+      { texto: '**Q7, hipótese extra:** atributos condicionalmente independentes dada a classe, então $P(x_1,\\dots,x_m \\mid c)$ vira $\\prod_i P(x_i \\mid c)$.' },
+    ],
+    resposta: 'Resposta-modelo minha (não é gabarito oficial). Treine no teste do tópico: ele tem a versão completa com checklist.',
   }),
   e('l4-q8', 'Lista U4', 'Q8 afirmações sobre Naive Bayes', ['u4.naive'], 'conferido', {
     passos: [
@@ -405,8 +412,15 @@ export const EXERCICIOS: Exercicio[] = [
   e('l5-q18', 'Lista U5', 'Q18 validação piora enquanto o treino melhora', ['u5.redes-neurais', 'u5.fitting'], 'conferido', {
     resposta: '(C) I e III: é overfitting; usar parada antecipada pela validação (early stopping).',
   }),
-  e('l5-q20', 'Lista U5', 'Q20 fluxo de aprendizagem de uma rede neural', ['u5.redes-neurais', 'u5.gradiente'], 'resolver', {
+  e('l5-q20', 'Lista U5', 'Q20 fluxo de aprendizagem de uma rede neural', ['u5.redes-neurais', 'u5.gradiente'], 'aberto', {
     dica: 'Quatro etapas, nessa ordem: forward pass → loss → backpropagation → gradiente descendente.',
+    passos: [
+      { texto: '**Forward pass:** a entrada atravessa as camadas (soma ponderada + ativação) e gera a previsão.' },
+      { texto: '**Loss:** compara a previsão com o valor real e vira um número de erro.' },
+      { texto: '**Backpropagation:** regra da cadeia, da saída para a entrada: gradiente da loss em relação a cada peso.' },
+      { texto: '**Gradiente descendente:** $w \\leftarrow w - \\eta\\,\\partial L/\\partial w$; repete por épocas até a loss cair ou a validação parar de melhorar.' },
+    ],
+    resposta: 'Resposta-modelo minha (não é gabarito oficial).',
   }),
   e('a24-gini', 'aula-24', 'Gini da divisão (6,6) → (5,2) e (1,4)', ['u5.gini'], 'conferido', {
     dica: 'Está resolvido passo a passo na fórmula "Gini da divisão".',
@@ -447,8 +461,16 @@ export const EXERCICIOS: Exercicio[] = [
     ],
     resposta: 'Divisão B (Gini 0,3624 contra 0,3844 de A)',
   }),
-  e('p2-discursivas', 'P2', 'Q2, Q3, Q4, Q7 discursivas (bias, dados, KNN, backprop)', ['u5.bias', 'u5.qualidade', 'u5.knn', 'u5.redes-neurais'], 'resolver', {
+  e('p2-discursivas', 'P2', 'Q2, Q3, Q4, Q7 discursivas (bias, dados, KNN, backprop)', ['u5.bias', 'u5.qualidade', 'u5.knn', 'u5.redes-neurais'], 'aberto', {
     dica: 'Q3 é múltipla escolha: (e). As outras estão cobertas nas explicações de bias indutivo, KNN e redes neurais.',
+    passos: [
+      { texto: '**Q2 bias indutivo:** suposições que o algoritmo usa para escolher uma hipótese entre as que explicam o treino. KNN: vizinhos próximos têm a mesma classe; Naive Bayes: independência; árvore: prefere árvores pequenas. No mesmo dataset, vence quem tem a suposição que combina com os dados.' },
+      { texto: '**Q3:** (e) problemas de qualidade comprometem o aprendizado, então pré-processar antes do treino.' },
+      { texto: '**Q4 KNN:** caro para prever (lazy), sensível à escala (normalizar), a atributos irrelevantes e à dimensionalidade. k pequeno → ruído/overfitting; k grande → classe majoritária/underfitting; escolher k por validação.' },
+      { texto: '**Q7 backprop:** depois do forward pass e da loss, calcula o gradiente do erro para cada peso, da saída para a entrada (regra da cadeia); o gradiente descendente atualiza os pesos. Usado no treino supervisionado de redes multicamadas.' },
+      { texto: '**Q8 (2 pontos):** sobre o seu trabalho final. Prepare antes: modelo, dataset, hiperparâmetro, números de treino/teste e o que mudaria.' },
+    ],
+    resposta: 'Respostas-modelo minhas (só a Q3 tem gabarito). As versões completas, com checklist, estão nos testes dos tópicos.',
   }),
   e('e3', 'E3', 'Kaggle: KNN / árvore / Naive Bayes, 70/30, acurácia + matriz', ['u5.knn', 'u5.arvore', 'u4.naive', 'u5.treino-teste'], 'trabalho', { resposta: 'entrega em 10/11/2026' }),
 ]

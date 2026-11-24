@@ -7,6 +7,9 @@ import { conferir, diasAte, paraHoje, pontosFracos, situacao, type SituacaoCalcu
 import { useMapa } from '../store/useMapa'
 import { Tex } from './FormulaAnimada'
 import { Texto } from './Texto'
+import { BotaoCalculadora } from './Calculadora'
+import { TrocaModo } from './Desenvolvimento'
+import { temConteudo } from '../lib/desenvolvimento'
 
 const ROTULO_SITUACAO: Record<SituacaoCalculo, { texto: string; cor: string; fundo: string }> = {
   novo: { texto: 'novo', cor: 'var(--tinta-suave)', fundo: 'var(--papel-2)' },
@@ -33,6 +36,7 @@ export function useTreinosHoje() {
 /** Linha de um treino: usada na tela de treino e na camada "Praticar" do tópico. */
 export function LinhaTreino({ c, compacta = false }: { c: Calculo; compacta?: boolean }) {
   const p = useMapa((s) => s.calculos[c.id])
+  const rascunho = useMapa((s) => temConteudo(s.desenvolvimentos[c.id]) && !s.desenvolvimentos[c.id].conferido)
   const agora = Date.now()
   const s = situacao(p, agora)
   const ultima = p?.tentativas[p.tentativas.length - 1]
@@ -48,6 +52,7 @@ export function LinhaTreino({ c, compacta = false }: { c: Calculo; compacta?: bo
         <span className="block text-xs text-[var(--tinta-suave)]">
           {c.fonte}
           {ultima && ` · última: ${ultima.acertos}/${ultima.total}`}
+          {rascunho && <span className="text-[var(--foco)]"> · ✍ desenvolvimento em andamento</span>}
         </span>
         {!compacta && fracos.length > 0 && <span className="mt-0.5 block text-xs text-[#c2410c]">você costuma errar: {fracos.join(', ')}</span>}
       </span>
@@ -84,7 +89,7 @@ export function TelaTreino() {
       </nav>
       <h1 className="text-3xl font-semibold text-[var(--tinta-forte)]">Treino de cálculo</h1>
       <p className="mt-2 text-[var(--tinta-suave)]">
-        Cada passo pede um número e confere na hora. Errou algum? O treino volta amanhã, com outros números. Acertou tudo? Ele volta cada vez mais espaçado (1, 3, 7, 14, 30 dias).
+        Dá para resolver passo a passo (cada passo confere na hora) ou escrever seu próprio desenvolvimento e conferir só as respostas no fim. Errou algum? O treino volta amanhã, com outros números. Acertou tudo? Ele volta cada vez mais espaçado (1, 3, 7, 14, 30 dias).
       </p>
       <p className="mt-3 text-sm text-[var(--tinta)]">
         <strong className="text-[var(--tinta-forte)]">{feitos}</strong> de {CALCULOS.length} já feitos pelo menos uma vez
@@ -328,6 +333,7 @@ export function ResolverCalculo({ id }: { id: string }) {
         <a href="#/treino" className="botao-suave">
           ← treinos
         </a>
+        <BotaoCalculadora />
         <div className="ml-auto flex gap-1" aria-label={`${respostas.length} de ${inst.passos.length} passos`}>
           {inst.passos.map((_, i) => (
             <span
@@ -350,6 +356,8 @@ export function ResolverCalculo({ id }: { id: string }) {
           </a>
         ))}
       </div>
+
+      <TrocaModo id={id} livre={false} />
 
       <div className="mt-6 whitespace-pre-line rounded-3xl bg-[var(--foco-claro)] p-5 font-medium leading-relaxed text-[var(--tinta-forte)]">
         <Texto>{inst.enunciado}</Texto>

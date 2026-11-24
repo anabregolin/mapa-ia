@@ -18,7 +18,7 @@ export interface PerguntaPre {
 }
 
 /** embaralha sempre do mesmo jeito para o mesmo tópico (assim a resposta não muda se recarregar) */
-function embaralhar<T>(itens: T[], semente: string): T[] {
+export function embaralhar<T>(itens: T[], semente: string): T[] {
   let h = 2166136261
   for (const c of semente) h = Math.imul(h ^ c.charCodeAt(0), 16777619)
   const r = [...itens]

@@ -1,50 +1,104 @@
 // Abas da trilha (Geral, P1, P2, E1…): barra, edição e o atalho dentro do tópico.
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { GERAL, type Aba } from '../lib/abas'
 import { MODULOS, unidade } from '../lib/trilha'
 import { useMapa } from '../store/useMapa'
 
-/** Barra de abas no topo da trilha. */
-export function BarraAbas({ editar }: { editar: (id: string) => void }) {
+/**
+ * Escolher a prova ou recorte da trilha (Geral, P1, P2, E1… e as suas): um botão pequeno que abre a lista para cima,
+ * porque mora no rodapé fixo. Criar e editar aba ficam no fim da lista.
+ */
+/** abaixo: no cabeçalho a lista abre para baixo; no rodapé, para cima */
+export function SeletorAba({ editar, abaixo = false }: { editar: (id: string) => void; abaixo?: boolean }) {
   const abas = useMapa((s) => s.abas)
   const atual = useMapa((s) => s.abaAtual)
   const setAtual = useMapa((s) => s.setAbaAtual)
   const criar = useMapa((s) => s.criarAba)
   const estudados = useMapa((s) => s.estudados)
+  const [aberto, setAberto] = useState(false)
+  const ref = useRef<HTMLDivElement>(null)
 
-  const botao = (id: string, nome: string, titulo: string, feitos?: number, total?: number) => (
+  useEffect(() => {
+    if (!aberto) return
+    const fora = (e: PointerEvent) => !ref.current?.contains(e.target as Node) && setAberto(false)
+    const esc = (e: KeyboardEvent) => e.key === 'Escape' && setAberto(false)
+    document.addEventListener('pointerdown', fora)
+    document.addEventListener('keydown', esc)
+    return () => {
+      document.removeEventListener('pointerdown', fora)
+      document.removeEventListener('keydown', esc)
+    }
+  }, [aberto])
+
+  const daAba = abas.find((a) => a.id === atual)
+  const contagem = (a: Aba) => `${a.topicos.filter((t) => estudados[t]).length}/${a.topicos.length}`
+  const escolher = (id: string) => {
+    setAtual(id)
+    setAberto(false)
+  }
+  const item = (id: string, nome: string, descricao: string, conta?: string) => (
     <button
       key={id}
-      role="tab"
+      role="option"
       aria-selected={atual === id}
-      title={titulo}
-      onClick={() => setAtual(id)}
-      className={`shrink-0 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-        atual === id ? 'bg-[var(--tinta-forte)] text-[var(--papel)]' : 'bg-[var(--cartao)] text-[var(--tinta)] hover:bg-[var(--papel-2)]'
+      onClick={() => escolher(id)}
+      className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm ${
+        atual === id ? 'bg-[var(--foco)] text-white' : 'text-[var(--tinta)] hover:bg-[var(--papel-2)]'
       }`}
     >
-      {nome}
-      {total !== undefined && total > 0 && (
-        <span className={`ml-1.5 text-xs ${atual === id ? 'opacity-70' : 'text-[var(--tinta-suave)]'}`}>
-          {feitos}/{total}
-        </span>
-      )}
+      <span className="shrink-0 font-medium">{nome}</span>
+      <span className={`min-w-0 flex-1 truncate text-xs ${atual === id ? 'text-white/75' : 'text-[var(--tinta-suave)]'}`}>{descricao}</span>
+      {conta && <span className={`shrink-0 text-xs tabular-nums ${atual === id ? 'text-white/75' : 'text-[var(--tinta-suave)]'}`}>{conta}</span>}
     </button>
   )
 
   return (
-    <div className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0">
-      <div role="tablist" aria-label="recortes da trilha" className="flex items-center gap-1.5 pb-1">
-        {botao(GERAL, 'Geral', 'a trilha inteira')}
-        {abas.map((a) => botao(a.id, a.nome, a.descricao || a.nome, a.topicos.filter((t) => estudados[t]).length, a.topicos.length))}
-        <button
-          onClick={() => editar(criar('Nova aba'))}
-          className="shrink-0 rounded-full border border-dashed border-[var(--linha)] px-3 py-1.5 text-sm text-[var(--tinta-suave)] hover:border-[var(--foco)] hover:text-[var(--foco)]"
-          title="criar uma aba sua (outra prova, um trabalho, um resumo…)"
-        >
-          ＋ aba
-        </button>
-      </div>
+    <div ref={ref} className="relative shrink-0">
+      <button
+        className="botao-suave flex items-center gap-1.5"
+        onClick={() => setAberto(!aberto)}
+        aria-haspopup="listbox"
+        aria-expanded={aberto}
+        title="escolher a prova ou recorte da trilha"
+      >
+        <span className="max-w-[6rem] truncate font-medium text-[var(--tinta-forte)] sm:max-w-[10rem]">{daAba ? daAba.nome : 'Geral'}</span>
+        {daAba && daAba.topicos.length > 0 && <span className="text-xs tabular-nums text-[var(--tinta-suave)]">{contagem(daAba)}</span>}
+        <span className="text-xs text-[var(--tinta-suave)]" aria-hidden>
+          {aberto === abaixo ? '▴' : '▾'}
+        </span>
+      </button>
+      {aberto && (
+        <div className={`absolute left-0 z-30 w-72 ${abaixo ? 'top-full mt-2' : 'bottom-full mb-2'} max-w-[calc(100vw-2rem)] rounded-2xl border border-[var(--linha)] bg-[var(--cartao)] p-1.5 shadow-[var(--sombra)]`}>
+          <div className="px-2.5 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)]">provas e recortes</div>
+          <div role="listbox" aria-label="provas e recortes da trilha" className="max-h-[50vh] overflow-y-auto">
+            {item(GERAL, 'Geral', 'a trilha inteira')}
+            {abas.map((a) => item(a.id, a.nome, a.descricao, a.topicos.length ? contagem(a) : undefined))}
+          </div>
+          <div className="mt-1 flex items-center gap-1 border-t border-[var(--linha)] pt-1.5 text-sm">
+            {daAba && (
+              <button
+                className="rounded-lg px-2.5 py-1 text-[var(--foco)] hover:bg-[var(--papel-2)]"
+                onClick={() => {
+                  editar(daAba.id)
+                  setAberto(false)
+                }}
+              >
+                ✎ editar {daAba.nome}
+              </button>
+            )}
+            <button
+              className="ml-auto rounded-lg px-2.5 py-1 text-[var(--tinta-suave)] hover:bg-[var(--papel-2)] hover:text-[var(--foco)]"
+              title="criar uma aba sua (outra prova, um trabalho, um resumo…)"
+              onClick={() => {
+                editar(criar('Nova aba'))
+                setAberto(false)
+              }}
+            >
+              ＋ nova aba
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -59,9 +113,15 @@ export function EditarAba({ aba, fechar }: { aba: Aba; fechar: () => void }) {
   const [apagar, setApagar] = useState(false)
   const [restaurarPergunta, setRestaurarPergunta] = useState(false)
   const dentro = new Set(aba.topicos)
+  const caixa = useRef<HTMLElement>(null)
+  // abre pelo rodapé, com a página rolada lá para baixo: trazer o editor para a vista
+  // (chaves de propósito: em navegadores novos scrollIntoView devolve uma Promise, e o efeito não pode devolver nada)
+  useEffect(() => {
+    caixa.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }, [])
 
   return (
-    <section className="mt-4 rounded-3xl border-2 border-[var(--foco)] bg-[var(--cartao)] p-5 shadow-[var(--sombra)]" aria-label={`editar aba ${aba.nome}`}>
+    <section ref={caixa} className="mt-4 scroll-mt-20 rounded-3xl border-2 border-[var(--foco)] bg-[var(--cartao)] p-5 shadow-[var(--sombra)]" aria-label={`editar aba ${aba.nome}`}>
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold text-[var(--tinta-forte)]">✎ Editar aba</span>
         <button className="botao-foco ml-auto" onClick={fechar}>

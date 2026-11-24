@@ -60,11 +60,17 @@ export interface Cartao {
   variaveis?: Variavel[]
 }
 
+/** "O que é X?", sem repetir quando o título do tópico já é uma pergunta ("O que é aprendizado de máquina", "Por que probabilidade?"). */
+function perguntaConceito(titulo: string) {
+  if (/^(o que|por que|como|qual|quais|quando|para que)\b/i.test(titulo) || titulo.trim().endsWith('?')) return titulo.trim().endsWith('?') ? titulo.trim() : `${titulo.trim()}?`
+  return `O que é ${titulo}?`
+}
+
 export const CARTOES: Cartao[] = [
   ...Object.entries(EXPLICACOES).flatMap(([id, c]) => {
     const tp = topicoPorId.get(id)!
     const base = { topico: id, unidade: tp.unidade, etapa: tp.etapa }
-    const cartoes: Cartao[] = [{ ...base, id: `c:${id}`, tipo: 'conceito', pergunta: `O que é ${tp.titulo}?`, resposta: `${c.definicao}\n\n${c.intuicao}` }]
+    const cartoes: Cartao[] = [{ ...base, id: `c:${id}`, tipo: 'conceito', pergunta: perguntaConceito(tp.titulo), resposta: `${c.definicao}\n\n${c.intuicao}` }]
     const l1 = lacuna(c.definicao)
     if (l1) cartoes.push({ ...base, id: `l:${id}`, tipo: 'lacuna', pergunta: `Complete (${tp.titulo}): ${l1.pergunta}`, resposta: `**${l1.termo}**\n\n${l1.frase}` })
     const l2 = lacuna(c.detalhe)
