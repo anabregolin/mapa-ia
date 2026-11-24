@@ -1,4 +1,6 @@
-import { useLayoutEffect, useRef, useState } from 'react'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useLayoutEffect, useRef, useState, type ReactNode } from 'react'
+import { useSurgir } from '../lib/movimento'
 import { calcular, formatar, useCalculadora } from '../lib/calculadora'
 import { useFlutuante } from '../lib/flutuante'
 
@@ -7,16 +9,44 @@ type Tecla = { k: string; rotulo?: string; tipo?: 'num' | 'op' | 'fn' | 'acao' |
 const T = (k: string, tipo: Tecla['tipo'], rotulo?: string, titulo?: string): Tecla => ({ k, tipo, rotulo, titulo })
 
 const TECLAS: Tecla[] = [
-  T('sin', 'fn'), T('cos', 'fn'), T('tan', 'fn'), T('π', 'fn'), T('e', 'fn', undefined, 'número de Euler (2,718…)'),
-  T('ln', 'fn'), T('log', 'fn', undefined, 'log na base 10'), T('log₂', 'fn'), T('x²', 'fn'), T('xʸ', 'fn', undefined, 'potência (^)'),
-  T('√', 'fn'), T('(', 'fn'), T(')', 'fn'), T('1/x', 'fn', undefined, '1 dividido pela conta'), T('!', 'fn', 'n!', 'fatorial'),
-  T('7', 'num'), T('8', 'num'), T('9', 'num'), T('÷', 'op'), T('⌫', 'acao', undefined, 'apagar'),
-  T('4', 'num'), T('5', 'num'), T('6', 'num'), T('×', 'op'), T('C', 'acao', undefined, 'limpar'),
-  T('1', 'num'), T('2', 'num'), T('3', 'num'), T('−', 'op'), T('Ans', 'fn', undefined, 'resultado anterior'),
-  T('0', 'num'), T(',', 'num'), T('%', 'op'), T('+', 'op'), T('=', 'igual'),
+  T('sin', 'fn'),
+  T('cos', 'fn'),
+  T('tan', 'fn'),
+  T('π', 'fn'),
+  T('e', 'fn', undefined, 'número de Euler (2,718…)'),
+  T('ln', 'fn'),
+  T('log', 'fn', undefined, 'log na base 10'),
+  T('log₂', 'fn'),
+  T('x²', 'fn'),
+  T('xʸ', 'fn', undefined, 'potência (^)'),
+  T('√', 'fn'),
+  T('(', 'fn'),
+  T(')', 'fn'),
+  T('1/x', 'fn', undefined, '1 dividido pela conta'),
+  T('!', 'fn', 'n!', 'fatorial'),
+  T('7', 'num'),
+  T('8', 'num'),
+  T('9', 'num'),
+  T('÷', 'op'),
+  T('⌫', 'acao', undefined, 'apagar'),
+  T('4', 'num'),
+  T('5', 'num'),
+  T('6', 'num'),
+  T('×', 'op'),
+  T('C', 'acao', undefined, 'limpar'),
+  T('1', 'num'),
+  T('2', 'num'),
+  T('3', 'num'),
+  T('−', 'op'),
+  T('Ans', 'fn', undefined, 'resultado anterior'),
+  T('0', 'num'),
+  T(',', 'num'),
+  T('%', 'op'),
+  T('+', 'op'),
+  T('=', 'igual'),
 ]
 
-const INSERE: Record<string, string> = { sin: 'sin(', cos: 'cos(', tan: 'tan(', ln: 'ln(', log: 'log(', 'log₂': 'log₂(', '√': '√(', 'x²': '^2', 'xʸ': '^', '!': '!' }
+const INSERE: Record<string, string> = { sin: 'sin(', cos: 'cos(', tan: 'tan(', ln: 'ln(', log: 'log(', 'log₂': 'log₂(', '√': '√(', 'x²': '^2', xʸ: '^', '!': '!' }
 
 /** Botão que abre (ou fecha) a calculadora flutuante. */
 export function BotaoCalculadora() {
@@ -55,7 +85,15 @@ export function Calculadora({ semBotao = false }: { semBotao?: boolean }) {
     cursor.current = null
   }, [c.expr])
 
-  if (!c.aberta) return null
+  const surgir = useSurgir('baixo')
+  // a mesma AnimatePresence na raiz em todos os casos: assim abrir, comprimir e fechar têm transição
+  const envolver = (x: ReactNode) => (
+    <AnimatePresence mode="wait" initial={false}>
+      {x}
+    </AnimatePresence>
+  )
+
+  if (!c.aberta) return envolver(null)
 
   // prévia ao vivo do resultado (ou do que falta)
   let previa = ''
@@ -108,10 +146,10 @@ export function Calculadora({ semBotao = false }: { semBotao?: boolean }) {
   }
 
   if (c.comprimida) {
-    if (semBotao) return null
+    if (semBotao) return envolver(null)
     const ultimo = c.hist[c.hist.length - 1]
-    return (
-      <div ref={f.ref} className="fixed z-[35]" style={f.estilo}>
+    return envolver(
+      <motion.div key="botao" {...surgir} ref={f.ref} className="fixed z-[35]" style={f.estilo}>
         <button
           {...f.alca}
           onClick={() => c.setComprimida(false)}
@@ -121,12 +159,14 @@ export function Calculadora({ semBotao = false }: { semBotao?: boolean }) {
         >
           🧮 {ultimo ? <span className="max-w-[8rem] truncate tabular-nums">{ultimo.res}</span> : <span className="hidden sm:inline">calculadora</span>}
         </button>
-      </div>
+      </motion.div>,
     )
   }
 
-  return (
-    <div
+  return envolver(
+    <motion.div
+      key="calculadora"
+      {...surgir}
       ref={f.ref}
       className="fixed z-[35] w-[min(17.5rem,calc(100vw-1rem))] rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-3 shadow-[0_18px_40px_-16px_rgba(36,34,44,.35)]"
       style={f.estilo}
@@ -146,10 +186,20 @@ export function Calculadora({ semBotao = false }: { semBotao?: boolean }) {
         >
           {c.graus ? 'graus' : 'rad'}
         </button>
-        <button className="grid h-7 w-7 place-items-center rounded-full text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]" onClick={() => c.setComprimida(true)} title="comprimir" aria-label="comprimir">
+        <button
+          className="grid h-7 w-7 place-items-center rounded-full text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]"
+          onClick={() => c.setComprimida(true)}
+          title="comprimir"
+          aria-label="comprimir"
+        >
           –
         </button>
-        <button className="grid h-7 w-7 place-items-center rounded-full text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]" onClick={c.fechar} title="fechar" aria-label="fechar a calculadora">
+        <button
+          className="grid h-7 w-7 place-items-center rounded-full text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]"
+          onClick={c.fechar}
+          title="fechar"
+          aria-label="fechar a calculadora"
+        >
           ×
         </button>
       </div>
@@ -181,7 +231,13 @@ export function Calculadora({ semBotao = false }: { semBotao?: boolean }) {
         className="mt-1 w-full rounded-xl bg-[var(--papel)] px-3 py-2 text-right text-xl tabular-nums text-[var(--tinta-forte)] outline-none focus:ring-2 focus:ring-[var(--foco)]"
       />
       <div className="h-5 truncate px-1 text-right text-xs" aria-live="polite">
-        {erroAgora && insistiuEm !== c.expr && /fim|fechar/.test(erroAgora) ? <span className="text-[var(--tinta-suave)]">…</span> : erroAgora ? <span className="text-[#c2410c]">{erroAgora}</span> : previa && <span className="text-[var(--tinta-suave)]">= {previa}</span>}
+        {erroAgora && insistiuEm !== c.expr && /fim|fechar/.test(erroAgora) ? (
+          <span className="text-[var(--tinta-suave)]">…</span>
+        ) : erroAgora ? (
+          <span className="text-[#c2410c]">{erroAgora}</span>
+        ) : (
+          previa && <span className="text-[var(--tinta-suave)]">= {previa}</span>
+        )}
       </div>
 
       <div className="mt-1 grid grid-cols-5 gap-1">
@@ -215,6 +271,6 @@ export function Calculadora({ semBotao = false }: { semBotao?: boolean }) {
           </button>
         )}
       </div>
-    </div>
+    </motion.div>,
   )
 }

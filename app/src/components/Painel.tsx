@@ -1,5 +1,5 @@
 // Painéis laterais de Revisão e de Anotações: um resumo com um cartão para cada tipo, que leva à página cheia.
-// Também guarda as peças que o painel de Configurações usa (PainelLateral, Secao) e as seções
+// Também guarda as peças dos painéis (PainelLateral, Secao) e as seções
 // "pontos fracos" e "seu progresso", que aparecem na página de revisão.
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useState, type ReactNode } from 'react'
@@ -85,7 +85,7 @@ export function PainelLateral({
               <button className="botao-suave shrink-0 whitespace-nowrap !py-2.5" onClick={fechar} aria-label="fechar o painel" title="fechar (Esc)">
                 → fechar
               </button>
-              {rodape && <div className="min-w-0 flex-1">{rodape}</div>}
+              {rodape && <div className="ml-auto min-w-0">{rodape}</div>}
             </div>
           </motion.aside>
         </>
@@ -124,7 +124,8 @@ const ListaResumo = ({ children }: { children: ReactNode }) => (
 )
 
 const BotaoPagina = ({ href, children }: { href: string; children: ReactNode }) => (
-  <a href={href} className="botao-foco flex w-full items-center justify-center gap-2">
+  // do tamanho do texto, à direita do "fechar": a ação principal do painel, sem ocupar a barra toda
+  <a href={href} className="botao-foco inline-flex items-center gap-1.5 whitespace-nowrap !px-4 !py-2.5 text-sm">
     {children}
   </a>
 )

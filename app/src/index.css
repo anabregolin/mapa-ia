@@ -84,6 +84,9 @@ html, body, #root { height: 100%; margin: 0; }
 .react-flow__controls button:hover { background: var(--color-slate-800); }
 
 * { scrollbar-color: var(--color-slate-700) transparent; scrollbar-width: thin; }
+/* rola sem mostrar a barra (fora das camadas, para vencer a regra acima) */
+.sem-barra { scrollbar-width: none; }
+.sem-barra::-webkit-scrollbar { display: none; }
 .katex-display { margin: 0.25em 0; }
 
 /* termos das fórmulas: acendem no hover e somem enquanto a fórmula é montada */
@@ -131,9 +134,9 @@ body { background: var(--papel); color: var(--tinta); }
 /* parágrafos curtos com respiro entre eles */
 .texto-arejado > * + * { margin-top: var(--leitura-respiro, 1em); }
 .lista-leitura { margin-top: .4em; padding-left: .2em; }
-.lista-leitura li { position: relative; padding-left: 1.4em; }
-.lista-leitura li + li { margin-top: calc(var(--leitura-respiro, 1em) * .45); }
-.lista-leitura li::before {
+.lista-leitura > li { position: relative; padding-left: 1.4em; }
+.lista-leitura > li + li { margin-top: calc(var(--leitura-respiro, 1em) * .45); }
+.lista-leitura > li::before {
   content: ''; position: absolute; left: .3em; top: calc(var(--leitura-linha, 1.85) * .5em - .2em);
   width: .4em; height: .4em; border-radius: 999px; background: var(--foco); opacity: .55;
 }
@@ -157,10 +160,22 @@ body { background: var(--papel); color: var(--tinta); }
 /* símbolo pequeno: fica na frase, mas com ar em volta */
 .formula-respiro { display: inline-block; margin: .15em .3em; padding: 0 .35em; border-radius: .4rem; background: var(--papel-2); line-height: 1.5; }
 /* setas em coluna: um passo por linha, com ↓ entre eles */
-.cadeia-setas { margin: .5em 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; align-items: flex-start; }
-.cadeia-setas li { padding: .3em .8em; border-radius: .6rem; background: var(--cartao); border: 1px solid var(--linha); }
+.cadeia-setas { margin: .5em 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; align-items: stretch; width: fit-content; max-width: 100%; }
+/* todos os passos com a largura do maior, e a ↓ sempre no meio, no mesmo x */
+.cadeia-setas li { padding: .3em .8em; border-radius: .6rem; background: var(--cartao); border: 1px solid var(--linha); text-align: center; }
 .cadeia-setas li + li { margin-top: 1.6em; position: relative; }
-.cadeia-setas li + li::before { content: '↓'; position: absolute; left: 1em; top: -1.55em; color: var(--foco); font-weight: 600; }
+.cadeia-setas li + li::before { content: '↓'; position: absolute; left: 50%; transform: translateX(-50%); top: -1.55em; color: var(--foco); font-weight: 600; }
+/* o lado só move a coluna inteira dentro do texto */
+[data-setas-lado='centro'] .cadeia-setas { margin-inline: auto; }
+[data-setas-lado='direita'] .cadeia-setas { margin-left: auto; }
+/* lista de exemplos com cadeias: todas as colunas com a mesma largura, setas no mesmo x */
+.lista-cadeias { width: fit-content; max-width: 100%; }
+.lista-cadeias .cadeia-setas { width: auto; margin-inline: 0 !important; }
+[data-setas-lado='centro'] .lista-cadeias { margin-inline: auto; }
+[data-setas-lado='direita'] .lista-cadeias { margin-left: auto; }
+/* troca de aba: o conteúdo novo entra suave (também quando um painel escondido volta a aparecer) */
+@keyframes aparecer { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.aparecer { animation: aparecer .22s cubic-bezier(.4, 0, .2, 1) both; }
 /* modo calmo: tudo que se mexe fica quieto */
 :root[data-calmo='sim'] *, :root[data-calmo='sim'] *::before, :root[data-calmo='sim'] *::after {
   animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important;

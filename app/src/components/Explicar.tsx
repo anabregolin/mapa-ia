@@ -6,6 +6,7 @@ import { topicoPorId } from '../content/topicos'
 import { apagarGravacao, extensao, gravacoesDo, type Gravacao } from '../lib/gravacoes'
 import { mmss, useGravar } from '../lib/gravar'
 import { useMapa } from '../store/useMapa'
+import { Expande } from './Abrir'
 
 const CONFERIR = [
   'Usei palavras simples (e expliquei cada termo técnico que apareceu)',
@@ -111,7 +112,7 @@ function Linha({ g, n, apagar, pedirApagar, apagou, topico }: { g: Gravacao; n: 
   )
 }
 
-/** Seção "Explique para alguém que sabe menos", no fim do tópico. */
+/** Seção "Explique para alguém que sabe menos", em Revisão › Explicar para alguém. */
 export function Explicar({ id, cor, aberto: abertoFora, setAberto: setAbertoFora }: { id: string; cor: string; aberto?: boolean; setAberto?: (a: boolean) => void }) {
   const f = useMapa((s) => s.feynman[id])
   const salvar = useMapa((s) => s.salvarFeynman)
@@ -147,10 +148,10 @@ export function Explicar({ id, cor, aberto: abertoFora, setAberto: setAbertoFora
         <span className={`text-[var(--tinta-suave)] transition-transform ${aberto ? 'rotate-90' : ''}`}>▸</span>
       </button>
 
-      {aberto && (
+      <Expande aberto={aberto}>
         <div className="border-t border-[var(--linha)] px-5 pb-6 pt-4 sm:px-8">
           <p className="fonte-leitura text-[var(--tinta)]">
-            Imagine uma colega do primeiro semestre que nunca ouviu falar de <strong>{tp.titulo}</strong>. Feche o texto acima e explique para ela: o que é, para que serve e um exemplo.
+            Imagine uma colega do primeiro semestre que nunca ouviu falar de <strong>{tp.titulo}</strong>. Sem olhar o texto do tópico, explique para ela: o que é, para que serve e um exemplo.
           </p>
 
           <div role="tablist" className="mt-4 inline-flex rounded-full bg-[var(--papel-2)] p-1 text-sm">
@@ -244,7 +245,7 @@ export function Explicar({ id, cor, aberto: abertoFora, setAberto: setAbertoFora
             </label>
           </div>
         </div>
-      )}
+      </Expande>
     </section>
   )
 }

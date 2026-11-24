@@ -3,6 +3,8 @@
 // Vai num portal com posição fixa: assim não é cortada por cartões com overflow escondido.
 import { useEffect, useId, useRef, useState, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { AnimatePresence, motion } from 'framer-motion'
+import { useCalmo } from '../lib/movimento'
 import { formatarEstimativa, partesEstimativa, type Estimativa } from '../lib/estimativa'
 
 const MEIA_LARGURA = 124 // metade da largura máxima (15rem) + folga, para não sair da tela
@@ -23,6 +25,7 @@ export function Dica({
   const id = useId()
   const [pos, setPos] = useState<{ x: number; y: number; acima: boolean } | null>(null)
   const porToque = useRef(false)
+  const calmo = useCalmo()
 
   const mostrar = () => {
     const r = ref.current?.getBoundingClientRect()
@@ -70,18 +73,26 @@ export function Dica({
       onBlur={esconder}
     >
       {children}
-      {pos &&
-        createPortal(
-          <span
-            role="tooltip"
-            id={id}
-            className="pointer-events-none fixed z-[70] w-max max-w-[15rem] rounded-xl border border-[var(--linha)] bg-[var(--cartao)] px-3 py-2 text-left text-xs font-normal leading-snug text-[var(--tinta)] shadow-[0_8px_24px_-8px_rgba(36,34,44,.25)]"
-            style={{ left: pos.x, top: pos.y, transform: `translate(-50%, ${pos.acima ? '-100%' : '0'})` }}
-          >
-            {texto}
-          </span>,
-          document.body,
-        )}
+      {createPortal(
+        <AnimatePresence>
+          {pos && (
+            <motion.span
+              key="dica"
+              role="tooltip"
+              id={id}
+              initial={{ opacity: 0, scale: calmo ? 1 : 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: calmo ? 0 : 0.14 }}
+              className="pointer-events-none fixed z-[70] w-max max-w-[15rem] rounded-xl border border-[var(--linha)] bg-[var(--cartao)] px-3 py-2 text-left text-xs font-normal leading-snug text-[var(--tinta)] shadow-[0_8px_24px_-8px_rgba(36,34,44,.25)]"
+              style={{ left: pos.x, top: pos.y, x: '-50%', y: pos.acima ? '-100%' : '0%', transformOrigin: pos.acima ? 'bottom center' : 'top center' }}
+            >
+              {texto}
+            </motion.span>
+          )}
+        </AnimatePresence>,
+        document.body,
+      )}
     </span>
   )
 }
@@ -116,5 +127,7 @@ export function DicaLista({ titulo, itens, extra, nota }: { titulo: string; iten
 
 /** A conta do tempo esperado de um tópico, em bullets. */
 export function DicaEstimativa({ e, extra }: { e: Estimativa; extra?: [string, string] }) {
-  return <DicaLista titulo={`Tempo esperado ${formatarEstimativa(e.min)}`} itens={partesEstimativa(e)} extra={extra} nota="Palpite, não medida. Arredondado de 5 em 5 (mínimo 5 min)." />
+  return (
+    <DicaLista titulo={`Tempo esperado ${formatarEstimativa(e.min)}`} itens={partesEstimativa(e)} extra={extra} nota="Palpite, não medida. Arredondado de 5 em 5 (mínimo 5 min)." />
+  )
 }

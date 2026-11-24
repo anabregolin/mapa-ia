@@ -6,6 +6,8 @@ export type Formato = 'arejado' | 'corrido'
 export type ModoFormula = 'no-texto' | 'respiro' | 'linha'
 /** no-texto = "A → B → C" na frase; vertical = sequências com duas ou mais setas viram uma coluna de passos */
 export type ModoSetas = 'no-texto' | 'vertical'
+/** com as setas em coluna: de que lado da coluna de texto os passos ficam */
+export type LadoSetas = 'esquerda' | 'centro' | 'direita'
 
 export interface PrefLeitura {
   /** tamanho da letra do texto, em px */
@@ -23,9 +25,21 @@ export interface PrefLeitura {
   calmo: boolean
   formulas: ModoFormula
   setas: ModoSetas
+  setasLado: LadoSetas
 }
 
-export const LEITURA_PADRAO: PrefLeitura = { tamanho: 18, entrelinha: 1.85, paragrafo: 1, largura: 42, fonte: 'lexend', formato: 'arejado', calmo: false, formulas: 'linha', setas: 'no-texto' }
+export const LEITURA_PADRAO: PrefLeitura = {
+  tamanho: 18,
+  entrelinha: 1.85,
+  paragrafo: 1,
+  largura: 42,
+  fonte: 'lexend',
+  formato: 'arejado',
+  calmo: false,
+  formulas: 'linha',
+  setas: 'no-texto',
+  setasLado: 'esquerda',
+}
 
 export const FONTES: Record<Fonte, { nome: string; familia: string; nota: string }> = {
   lexend: { nome: 'Lexend', familia: "'Lexend Variable', 'Lexend', ui-sans-serif, system-ui, sans-serif", nota: 'letras largas, feita para ler sem cansar' },
@@ -61,4 +75,5 @@ export function aplicarLeitura(p: PrefLeitura) {
   // antes acompanhava a entrelinha (1.85 × 0.55 ≈ 1em); agora é escolha própria
   r.setProperty('--leitura-respiro', `${p.paragrafo ?? 1}em`)
   document.documentElement.dataset.calmo = p.calmo ? 'sim' : 'nao'
+  document.documentElement.dataset.setasLado = p.setasLado ?? 'esquerda'
 }

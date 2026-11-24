@@ -30,6 +30,7 @@ import { useMapa } from '../store/useMapa'
 import { BotaoCalculadora } from './Calculadora'
 import { Tex } from './FormulaAnimada'
 import { Texto } from './Texto'
+import { Expande } from './Abrir'
 
 /** Troca entre resolver passo a passo (confere cada passo) e escrever o próprio desenvolvimento. */
 export function TrocaModo({ id, livre }: { id: string; livre: boolean }) {
@@ -571,7 +572,7 @@ function Resposta({
               <button type="button" className="text-sm text-[var(--foco)] hover:underline" onClick={() => setVer(!ver)} aria-expanded={ver}>
                 {ver ? '▾ esconder o esperado' : '▸ ver o esperado'}
               </button>
-              {ver && (
+              <Expande aberto={ver}>
                 <div className="mt-2 space-y-2">
                   <p className="text-sm text-[var(--tinta-forte)]">
                     Esperado: <strong className="tabular-nums">{esperado(passo)}</strong>
@@ -587,7 +588,7 @@ function Resposta({
                     </p>
                   )}
                 </div>
-              )}
+              </Expande>
             </div>
           )}
         </div>

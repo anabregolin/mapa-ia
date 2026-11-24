@@ -1,8 +1,8 @@
-// Qual painel lateral está aberto (Revisão, Anotações, Configurações ou Ajuda) e para onde as páginas cheias voltam.
+// Qual painel lateral está aberto (Revisão, Anotações ou Ajuda) e para onde as páginas cheias voltam.
 // Não é salvo: ao recarregar, nenhum painel abre sozinho.
 import { create } from 'zustand'
 
-export type PainelId = 'revisao' | 'notas' | 'config' | 'ajuda'
+export type PainelId = 'revisao' | 'notas' | 'ajuda'
 
 export const usePainel = create<{
   aberto: PainelId | null
@@ -17,8 +17,8 @@ export const usePainel = create<{
   fechar: () => set({ aberto: null }),
 }))
 
-/* As páginas de revisão e de anotações voltam para onde você estava (um tópico, a trilha...). */
-const CHEIAS = /^#\/?(revisao|anotacoes|quadro|caderno)(\/|$)/
+/* As páginas de revisão, anotações e configurações voltam para onde você estava (um tópico, a trilha...). */
+const CHEIAS = /^#\/?(revisao|anotacoes|quadro|caderno|configuracoes)(\/|$)/
 let volta = CHEIAS.test(location.hash) ? '#/' : location.hash || '#/'
 
 /** Chamado a cada troca de rota, com o endereço de onde se saiu. */
@@ -39,7 +39,7 @@ export const NOMES_REVISAO: Record<AbaRevisao | 'treino', { icone: string; nome:
   relembrar: { icone: '⏱', nome: 'Relembrar' },
   fracos: { icone: '🎯', nome: 'Pontos fracos' },
   explicar: { icone: '🗣', nome: 'Explicar para alguém' },
-  slides: { icone: '📌', nome: 'Slides fixados' },
+  slides: { icone: '🖼', nome: 'Slides da aula' },
   treino: { icone: '🧮', nome: 'Treino de cálculo' },
   progresso: { icone: '📊', nome: 'Seu progresso' },
 }

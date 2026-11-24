@@ -45,7 +45,16 @@ export function estimarTopico(id: string): Estimativa {
   if (pronto) return pronto
   const tp = topicoPorId.get(id)!
   const c = EXPLICACOES[id]
-  const n = c ? palavras(c.intuicao) + palavras(c.definicao) + palavras(c.detalhe) + palavras(c.cuidado) : palavras(tp.resumo)
+  const n = c
+    ? palavras(c.oQueE?.e) +
+      palavras(c.oQueE?.serve) +
+      palavras(c.oQueE?.onde.join(' ')) +
+      palavras(c.oQueE?.aviso) +
+      palavras(c.intuicao) +
+      palavras(c.definicao) +
+      palavras(c.detalhe) +
+      palavras(c.cuidado)
+    : palavras(tp.resumo)
   const partes = {
     leitura: (n / PALAVRAS_POR_MIN) * (PESO_NIVEL[tp.nivel] ?? 1),
     slides: paginasDeSlide(id) * MIN_SLIDE,

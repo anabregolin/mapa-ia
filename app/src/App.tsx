@@ -3,6 +3,8 @@ import '@xyflow/react/dist/style.css'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { TelaCaderno } from './components/Caderno'
+import { TelaConfiguracoes } from './components/Configuracoes'
+import { SECOES_CONFIG, type SecaoConfig } from './lib/configuracoes'
 import { Mapa } from './components/Mapa'
 import { Pomodoro } from './components/Pomodoro'
 import { Paineis } from './components/Ajustes'
@@ -13,12 +15,13 @@ import { TelaQuadro } from './components/Quadro'
 import { ResolverCalculo, TelaTreino, treinoExiste } from './components/Treino'
 import { DesenvolvimentoLivre } from './components/Desenvolvimento'
 import { Calculadora } from './components/Calculadora'
+import { RodapeGeral } from './components/RodapeGeral'
 import { topicoPorId } from './content/topicos'
 import { useMapa } from './store/useMapa'
 import { aplicarLeitura } from './lib/leitura'
 import { ABAS_REVISAO, lembrarDeOnde, usePainel, type AbaRevisao } from './lib/paineis'
 
-type Rota = { tela: 'trilha' } | { tela: 'topico'; id: string } | { tela: 'mapa' } | { tela: 'treino' } | { tela: 'quadro' } | { tela: 'calculo'; id: string; livre?: boolean } | { tela: 'caderno'; id?: string } | { tela: 'revisao'; aba: AbaRevisao } | { tela: 'anotacoes' }
+type Rota = { tela: 'trilha' } | { tela: 'topico'; id: string } | { tela: 'mapa' } | { tela: 'treino' } | { tela: 'quadro' } | { tela: 'calculo'; id: string; livre?: boolean } | { tela: 'caderno'; id?: string } | { tela: 'revisao'; aba: AbaRevisao; topico?: string } | { tela: 'anotacoes' } | { tela: 'config'; secao?: SecaoConfig }
 
 function lerRota(): Rota {
   const h = decodeURIComponent(location.hash.replace(/^#\/?/, ''))
@@ -27,8 +30,13 @@ function lerRota(): Rota {
   if (h === 'quadro') return { tela: 'quadro' }
   if (h === 'anotacoes') return { tela: 'anotacoes' }
   if (h === 'revisao' || h.startsWith('revisao/')) {
-    const aba = h.slice(8) as AbaRevisao
-    return { tela: 'revisao', aba: ABAS_REVISAO.includes(aba) ? aba : 'cartoes' }
+    // #/revisao/slides/u2.astar: a aba e, opcional, o assunto já escolhido nela
+    const [aba, topico] = h.slice(8).split('/') as [AbaRevisao, string?]
+    return { tela: 'revisao', aba: ABAS_REVISAO.includes(aba) ? aba : 'cartoes', topico: topico && topicoPorId.has(topico) ? topico : undefined }
+  }
+  if (h === 'configuracoes' || h.startsWith('configuracoes/')) {
+    const secao = SECOES_CONFIG.find((s) => s.id === h.slice(14))?.id
+    return { tela: 'config', secao }
   }
   if (h === 'caderno') return { tela: 'caderno' }
   if (h.startsWith('caderno/')) return { tela: 'caderno', id: h.slice(8) }
@@ -65,7 +73,7 @@ function useRota() {
 
 function TelaMapa() {
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 bg-[var(--papel)]">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-x-0 top-0 bg-[var(--papel)]" style={{ bottom: 'var(--rodape-fixo, 0px)' }}>
       <ReactFlowProvider>
         <Mapa />
       </ReactFlowProvider>
@@ -99,14 +107,17 @@ export default function App() {
         {rota.tela === 'treino' && <TelaTreino key="treino" />}
         {rota.tela === 'quadro' && <TelaQuadro key="anotacoes" aba="quadro" />}
         {rota.tela === 'anotacoes' && <TelaQuadro key="anotacoes" aba="tudo" />}
-        {rota.tela === 'revisao' && <TelaRevisao key="revisao" aba={rota.aba} />}
+        {rota.tela === 'revisao' && <TelaRevisao key="revisao" aba={rota.aba} topico={rota.topico} />}
         {rota.tela === 'calculo' && (rota.livre ? <DesenvolvimentoLivre key={`${rota.id}-livre`} id={rota.id} /> : <ResolverCalculo key={rota.id} id={rota.id} />)}
         {rota.tela === 'caderno' && <TelaCaderno key="caderno" paginaId={rota.id} />}
+        {rota.tela === 'config' && <TelaConfiguracoes key="config" secao={rota.secao} />}
       </AnimatePresence>
+      {/* todas as páginas têm rodapé: trilha e tópico o próprio, as outras este */}
+      {rota.tela !== 'trilha' && rota.tela !== 'topico' && <RodapeGeral />}
       <Paineis />
-      {/* trilha e tópico têm rodapé com os botões do pomodoro e da calculadora */}
-      <Pomodoro telaMapa={rota.tela === 'mapa'} semBotao={rota.tela === 'topico' || rota.tela === 'trilha'} />
-      <Calculadora semBotao={rota.tela === 'topico' || rota.tela === 'trilha'} />
+      {/* o rodapé tem os botões do pomodoro e da calculadora: comprimidos, eles somem para lá */}
+      <Pomodoro telaMapa={rota.tela === 'mapa'} semBotao />
+      <Calculadora semBotao />
     </>
   )
 }

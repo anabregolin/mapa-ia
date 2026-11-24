@@ -85,6 +85,15 @@ export interface Formula {
 
 /** Explicação em camadas, da mais simples para a mais técnica. Aceita $latex$ no meio do texto. */
 export interface Camadas {
+  /** abertura, antes de tudo: o que é, pra que serve e onde é usado, em poucas palavras */
+  oQueE?: {
+    e: string
+    serve: string
+    /** um exemplo por item: aparece em tópicos */
+    onde: string[]
+    /** aviso abaixo dos exemplos (ex.: conteúdo que não foi dado em aula) */
+    aviso?: string
+  }
   intuicao: string
   definicao: string
   detalhe: string

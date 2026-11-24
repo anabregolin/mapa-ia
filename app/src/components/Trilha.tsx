@@ -13,7 +13,7 @@ import { BotaoPomodoro } from './Pomodoro'
 import { BotaoCalculadora } from './Calculadora'
 import { RodapeFixo } from './RodapeFixo'
 import { Dica, DicaEstimativa, DicaLista } from './Dica'
-import { percentVisto } from '../lib/camadas'
+import { contarCamadas, percentVisto } from '../lib/camadas'
 import { GERAL } from '../lib/abas'
 import { TesteDaAba } from './Teste'
 import { chaveTeste } from '../lib/teste'
@@ -135,10 +135,9 @@ function LinhaTopico({ tp, ultimo, acima, cor }: { tp: Topico; ultimo: boolean; 
   const faltaFora = faltam.some((p) => !acima.includes(p))
   const ms = useMapa((s) => s.tempo[tp.id]?.ms ?? 0)
   const teste = useMapa((s) => s.testes[`t:${tp.id}:fechamento`])
-  const visto = percentVisto(
-    tp.id,
-    useMapa((s) => s.profundidade[tp.id]),
-  )
+  const prof = useMapa((s) => s.profundidade[tp.id])
+  const visto = percentVisto(tp.id, prof)
+  const nCamadas = contarCamadas(tp.id)
   const estimativa = estimarTopico(tp.id)
   const passou = teste && teste.acertos / Math.max(1, teste.total) >= 0.7
 
@@ -153,14 +152,28 @@ function LinhaTopico({ tp, ultimo, acima, cor }: { tp: Topico; ultimo: boolean; 
         key="base"
         destaque
         texto={faltam.length === 1 ? 'falta 1 base' : `faltam ${faltam.length} bases`}
-        dica={`Ele usa ${faltam.map((p) => topicoPorId.get(p)!.titulo).join(', ')}, que você ainda não marcou como entendido. Dá para seguir, mas ${faltam.length === 1 ? 'ele ajuda' : 'eles ajudam'} a entender este.`}
+        dica={
+          <DicaLista
+            titulo={faltam.length === 1 ? 'Falta 1 base' : `Faltam ${faltam.length} bases`}
+            itens={faltam.map((p) => [topicoPorId.get(p)!.titulo, ''] as [string, string])}
+            nota={`Ainda não marcados como entendidos. Dá para seguir, mas ${faltam.length === 1 ? 'ele ajuda' : 'eles ajudam'} a entender este.`}
+          />
+        }
+        leitura={`Ele usa ${faltam.map((p) => topicoPorId.get(p)!.titulo).join(', ')}, que você ainda não marcou como entendido.`}
       />
     ),
     status !== 'entendi' && visto > 0 && (
       <Medida
         key="visto"
         texto={visto >= 100 ? 'tudo lido' : `${visto}% lido`}
-        dica={`Você já abriu ${visto}% das camadas deste tópico (conta a camada mais funda que abriu). A bolinha à esquerda enche junto.`}
+        dica={
+          <DicaLista
+            titulo={visto >= 100 ? 'Tudo lido' : `${visto}% lido`}
+            itens={[['partes abertas', `${Math.min(nCamadas, (prof ?? 0) + 1)} de ${nCamadas}`]]}
+            nota="Conta a parte mais funda que você abriu. A bolinha à esquerda enche junto."
+          />
+        }
+        leitura={`Você já abriu ${visto}% das partes deste tópico.`}
       />
     ),
     // tempo: tópico nunca aberto mostra o esperado; a partir do momento em que você abre, só o que você levou
@@ -171,7 +184,14 @@ function LinhaTopico({ tp, ultimo, acima, cor }: { tp: Topico; ultimo: boolean; 
         <Medida
           key="tempo"
           texto={formatarTempo(ms)}
-          dica={`Você estudou ${formatarTempo(ms)} neste tópico (o esperado era ${formatarEstimativa(estimativa.min)}). Só conta com a aba visível e você mexendo.`}
+          dica={
+            <DicaLista
+              titulo={`Você estudou ${formatarTempo(ms)}`}
+              itens={[['tempo esperado', formatarEstimativa(estimativa.min)]]}
+              nota="Só conta com a aba visível e você mexendo."
+            />
+          }
+          leitura={`Você estudou ${formatarTempo(ms)} neste tópico; o esperado era ${formatarEstimativa(estimativa.min)}.`}
         />
       )
     ),

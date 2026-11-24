@@ -6,7 +6,9 @@ import type { UnidadeId } from '../content/tipos'
 import { useMapa, type FeedbackCartao } from '../store/useMapa'
 import { todasGravacoes, type Gravacao } from '../lib/gravacoes'
 import { Tex } from './FormulaAnimada'
-import { Ampliado, img, lerIndice, type Indice } from './Slides'
+import { Ampliado, img, lerIndice, Slides, type Indice } from './Slides'
+import { Explicar } from './Explicar'
+import { EscolherAssunto } from './EscolherAssunto'
 import { Texto } from './Texto'
 import { ABAS_REVISAO, NOMES_REVISAO, voltarDasPaginas, type AbaRevisao } from '../lib/paineis'
 import { ListaRelembrar, useAgora } from './Relembrar'
@@ -61,7 +63,7 @@ const ATIVIDADES = ABAS_REVISAO.filter((a) => a !== 'progresso')
 const plural = (n: number, um: string, varios: string) => `${n} ${n === 1 ? um : varios}`
 
 /** Página cheia de revisão: cada jeito de revisar numa aba. A sessão de cartões continua montada ao trocar de aba. */
-export function TelaRevisao({ aba }: { aba: AbaRevisao }) {
+export function TelaRevisao({ aba, topico }: { aba: AbaRevisao; topico?: string }) {
   const abrir = (topico: string) => useMapa.getState().selecionar(topico)
   const irPara = (a: AbaRevisao) => location.replace(`#/revisao/${a}`)
   const contagens = useContagens()
@@ -173,7 +175,7 @@ export function TelaRevisao({ aba }: { aba: AbaRevisao }) {
         </aside>
 
         <main className="mt-10 min-w-0 max-w-3xl lg:mt-0">
-          <header className="mb-8">
+          <header key={`titulo-${aba}`} className="aparecer mb-8">
             {aba === 'progresso' && (
               <button className="mb-3 text-sm text-[var(--tinta-suave)] hover:text-[var(--tinta)]" onClick={() => irPara('cartoes')}>
                 ← voltar às atividades
@@ -187,14 +189,19 @@ export function TelaRevisao({ aba }: { aba: AbaRevisao }) {
             </h2>
           </header>
 
-          <div hidden={aba !== 'cartoes'}>
+          {/* a sessão de cartões só se esconde (não perde o lugar); o resto troca com a aba. As duas entram com .aparecer */}
+          <div hidden={aba !== 'cartoes'} className="aparecer">
             <Sessao ativa={aba === 'cartoes'} abrir={abrir} />
           </div>
-          {aba === 'relembrar' && <ListaRelembrar abrir={abrir} grande />}
-          {aba === 'fracos' && <PontosFracos abrir={abrir} />}
-          {aba === 'explicar' && <RevisarExplicacoes abrir={abrir} />}
-          {aba === 'slides' && <RevisarSlides abrir={abrir} />}
-          {aba === 'progresso' && <Progresso abrir={abrir} />}
+          {aba !== 'cartoes' && (
+            <div key={`conteudo-${aba}`} className="aparecer">
+              {aba === 'relembrar' && <ListaRelembrar abrir={abrir} grande />}
+              {aba === 'fracos' && <PontosFracos abrir={abrir} />}
+              {aba === 'explicar' && <RevisarExplicacoes abrir={abrir} topico={topico} />}
+              {aba === 'slides' && <RevisarSlides abrir={abrir} topico={topico} />}
+              {aba === 'progresso' && <Progresso abrir={abrir} />}
+            </div>
+          )}
         </main>
       </div>
     </motion.div>
@@ -597,8 +604,14 @@ function OuvirGravacao({ g }: { g: Gravacao }) {
   )
 }
 
-/** o que você escreveu e gravou explicando cada tópico, e os entendidos que ainda não têm explicação */
-function RevisarExplicacoes({ abrir }: { abrir: (topico: string) => void }) {
+/** escolher outro assunto numa aba da revisão: fica no endereço (#/revisao/<aba>/<assunto>) e sobe até o editor */
+const escolherNaAba = (aba: AbaRevisao, topico?: string) => {
+  location.replace(`#/revisao/${aba}${topico ? `/${topico}` : ''}`)
+  if (topico) setTimeout(() => document.getElementById(`escolher-${aba}`)?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+}
+
+/** escrever ou gravar uma explicação de qualquer assunto, e o que você já explicou */
+function RevisarExplicacoes({ abrir, topico }: { abrir: (topico: string) => void; topico?: string }) {
   const feynman = useMapa((s) => s.feynman)
   const estudados = useMapa((s) => s.estudados)
   const [gravacoes, setGravacoes] = useState<Gravacao[]>([])
@@ -608,20 +621,50 @@ function RevisarExplicacoes({ abrir }: { abrir: (topico: string) => void }) {
       .then((gs) => setGravacoes(gs.filter((g) => topicoPorId.has(g.topico)).sort((a, b) => b.em - a.em)))
       .catch(() => setGravacoes([]))
   }, [])
+  const escolher = (id?: string) => escolherNaAba('explicar', id)
 
   const porTopico = new Map<string, Gravacao[]>()
   for (const g of gravacoes) porTopico.set(g.topico, [...(porTopico.get(g.topico) ?? []), g])
-  const ids = [...new Set([...Object.keys(feynman).filter((id) => feynman[id].texto.trim() || feynman[id].travei?.trim()), ...porTopico.keys()])]
-    .filter((id) => topicoPorId.has(id))
+  const explicados = [...new Set([...Object.keys(feynman).filter((id) => feynman[id].texto.trim() || feynman[id].travei?.trim()), ...porTopico.keys()])].filter((id) => topicoPorId.has(id))
+  // o assunto aberto no editor sai da lista: o texto dele já está lá em cima
+  const ids = explicados
+    .filter((id) => id !== topico)
     .filter((id) => so === 'todas' || feynman[id]?.travei?.trim())
     .sort((a, b) => Math.max(feynman[b]?.em ?? 0, porTopico.get(b)?.[0]?.em ?? 0) - Math.max(feynman[a]?.em ?? 0, porTopico.get(a)?.[0]?.em ?? 0))
-  const semExplicacao = Object.keys(estudados).filter((id) => topicoPorId.has(id) && !feynman[id]?.texto.trim() && !porTopico.has(id))
+  const semExplicacao = Object.keys(estudados).filter((id) => topicoPorId.has(id) && id !== topico && !feynman[id]?.texto.trim() && !porTopico.has(id))
   const comTravei = Object.values(feynman).filter((f) => f.travei?.trim()).length
+  const tp = topico ? topicoPorId.get(topico) : undefined
 
   return (
     <div>
+      <section id="escolher-explicar" className="scroll-mt-24 rounded-3xl bg-[var(--papel-2)] p-4 sm:p-6" aria-label="nova explicação">
+        <div className="flex items-end gap-3">
+          <EscolherAssunto
+            className="min-w-0 flex-1"
+            rotulo={tp ? 'Explicando' : '+ Nova explicação: de qual assunto?'}
+            valor={topico ?? null}
+            escolher={escolher}
+            marcar={(id) => (feynman[id]?.texto.trim() || porTopico.has(id) ? '✓' : undefined)}
+          />
+          {tp && (
+            <button className="botao-suave shrink-0" onClick={() => escolher()}>
+              fechar
+            </button>
+          )}
+        </div>
+        {tp && (
+          <>
+            <Explicar key={tp.id} id={tp.id} cor={unidadePorId.get(tp.unidade)!.cor} aberto setAberto={(a) => !a && escolher()} />
+            <button className="mt-3 text-sm text-[var(--foco)] hover:underline" onClick={() => abrir(tp.id)}>
+              reler o tópico →
+            </button>
+          </>
+        )}
+        {!tp && <p className="mt-2 text-xs text-[var(--tinta-suave)]">✓ marca os assuntos que você já explicou. Escolher um deles abre a explicação para continuar.</p>}
+      </section>
+
       {comTravei > 0 && (
-        <div className="mb-6 flex gap-2 text-sm">
+        <div className="mb-6 mt-10 flex gap-2 text-sm">
           {(['todas', 'travei'] as const).map((k) => (
             <button
               key={k}
@@ -633,24 +676,31 @@ function RevisarExplicacoes({ abrir }: { abrir: (topico: string) => void }) {
           ))}
         </div>
       )}
-      {!ids.length && (
-        <Vazio icone="🗣" titulo="Você ainda não explicou nenhum tópico">
-          Fica no fim de cada tópico, em “Mais jeitos de revisar”.
-        </Vazio>
+      {!explicados.length && (
+        <div className="mt-10">
+          <Vazio icone="🗣" titulo="Você ainda não explicou nenhum tópico">
+            Escolha um assunto acima e explique com as suas palavras, escrevendo ou gravando.
+          </Vazio>
+        </div>
       )}
-      <ul className="space-y-4">
+      <ul className={`space-y-4 ${comTravei > 0 ? '' : 'mt-10'}`}>
         {ids.map((id) => {
           const tp = topicoPorId.get(id)!
           const f = feynman[id]
           const gs = porTopico.get(id) ?? []
           return (
             <li key={id} className="rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-5 shadow-[var(--sombra)] sm:p-6">
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
                 <span style={{ color: unidadePorId.get(tp.unidade)!.cor }}>●</span>
-                <span className="text-lg font-semibold text-[var(--tinta-forte)]">{tp.titulo}</span>
-                <button className="ml-auto shrink-0 text-sm text-[var(--foco)] hover:underline" onClick={() => abrir(id)}>
-                  abrir →
-                </button>
+                <span className="min-w-0 flex-1 text-lg font-semibold text-[var(--tinta-forte)]">{tp.titulo}</span>
+                <span className="flex shrink-0 gap-3 text-sm">
+                  <button className="text-[var(--foco)] hover:underline" onClick={() => escolher(id)}>
+                    editar
+                  </button>
+                  <button className="text-[var(--tinta-suave)] hover:text-[var(--tinta)] hover:underline" onClick={() => abrir(id)}>
+                    tópico →
+                  </button>
+                </span>
               </div>
               {f?.texto.trim() && (
                 <p className="fonte-leitura mt-4 whitespace-pre-wrap leading-relaxed text-[var(--tinta)]">
@@ -670,12 +720,12 @@ function RevisarExplicacoes({ abrir }: { abrir: (topico: string) => void }) {
         })}
       </ul>
       {so === 'todas' && semExplicacao.length > 0 && (
-        <div className="mt-10 rounded-3xl bg-[var(--papel-2)] p-5 sm:p-6">
+        <div className="mt-10 rounded-3xl border border-[var(--linha)] p-5 sm:p-6">
           <p className="font-semibold text-[var(--tinta-forte)]">Entendidos, mas ainda sem explicação ({semExplicacao.length})</p>
-          <p className="mt-1 text-sm text-[var(--tinta-suave)]">Explicar é um bom teste de que você entendeu mesmo.</p>
+          <p className="mt-1 text-sm text-[var(--tinta-suave)]">Explicar é um bom teste de que você entendeu mesmo. Toque num para começar.</p>
           <div className="mt-4 flex flex-wrap gap-2">
             {semExplicacao.map((id) => (
-              <button key={id} onClick={() => abrir(id)} className="rounded-full bg-[var(--cartao)] px-3 py-1.5 text-sm text-[var(--tinta)] ring-1 ring-[var(--linha)] hover:ring-[var(--tinta-suave)]">
+              <button key={id} onClick={() => escolher(id)} className="rounded-full bg-[var(--cartao)] px-3 py-1.5 text-sm text-[var(--tinta)] ring-1 ring-[var(--linha)] hover:ring-[var(--tinta-suave)]">
                 {topicoPorId.get(id)!.titulo}
               </button>
             ))}
@@ -686,61 +736,105 @@ function RevisarExplicacoes({ abrir }: { abrir: (topico: string) => void }) {
   )
 }
 
-/* ───────────── slides fixados ───────────── */
+/* ───────────── slides da aula ───────────── */
 
-function RevisarSlides({ abrir }: { abrir: (topico: string) => void }) {
+/** ver e fixar as páginas da aula de qualquer assunto, e todas as que você já fixou */
+function RevisarSlides({ abrir, topico }: { abrir: (topico: string) => void; topico?: string }) {
   const fixados = useMapa((s) => s.slidesFixados)
   const alternar = useMapa((s) => s.alternarSlide)
   const [indice, setIndice] = useState<Indice | null | undefined>(undefined)
   const [grande, setGrande] = useState<{ arquivo: string; n: number } | null>(null)
+  const [aberto, setAberto] = useState(true)
   useEffect(() => {
     lerIndice().then(setIndice)
   }, [])
-  const grupos = Object.entries(fixados).filter(([t, ps]) => ps.length && topicoPorId.has(t))
-
-  if (!grupos.length)
-    return (
-      <Vazio icone="📌" titulo="Nenhum slide fixado">
-        Dentro de um tópico, em “Mais jeitos de revisar” › slides da aula, toque no 📌 de uma página.
-      </Vazio>
-    )
-  if (indice === null)
-    return (
-      <Vazio icone="🖼" titulo="As imagens dos slides não estão aqui">
-        Você tem slides fixados, mas as imagens não estão neste computador (elas não vão para o site publicado). No seu computador, rode “npm run slides” uma vez.
-      </Vazio>
-    )
+  const escolher = (id?: string) => escolherNaAba('slides', id)
+  const comPins = Object.entries(fixados).filter(([t, ps]) => ps.length && topicoPorId.has(t))
+  // o assunto escolhido já mostra as fixadas dele lá em cima
+  const grupos = comPins.filter(([t]) => t !== topico)
 
   return (
-    <div className="space-y-12">
-      {grupos.map(([t, ps]) => (
-        <section key={t}>
-          <button className="text-lg font-semibold text-[var(--tinta-forte)] hover:underline" onClick={() => abrir(t)}>
-            <span style={{ color: unidadePorId.get(topicoPorId.get(t)!.unidade)!.cor }}>●</span> {topicoPorId.get(t)!.titulo} →
-          </button>
-          <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
-            {ps.map((k) => {
-              const [arquivo, n] = k.split('#')
-              return (
-                <figure key={k} className="relative m-0">
-                  <button onClick={() => setGrande({ arquivo, n: Number(n) })} className="block w-full overflow-hidden rounded-2xl border border-[var(--linha)] bg-white shadow-[var(--sombra)] transition-transform hover:-translate-y-0.5" title="ampliar">
-                    <img src={img(arquivo, Number(n))} alt={`slide ${n} de ${arquivo}`} loading="lazy" className="block aspect-[4/3] w-full object-contain" />
-                  </button>
-                  <figcaption className="mt-2 flex items-center gap-2 text-xs text-[var(--tinta-suave)]">
-                    <span className="truncate">
-                      {arquivo} · p. {n}
-                    </span>
-                    <button className="ml-auto shrink-0 rounded-full px-2 py-0.5 hover:bg-[var(--alerta-claro)] hover:text-[var(--alerta)]" onClick={() => alternar(t, k)} title="desafixar" aria-label={`desafixar página ${n}`}>
-                      desafixar
-                    </button>
-                  </figcaption>
-                </figure>
-              )
-            })}
-          </div>
-        </section>
-      ))}
-      {grande && <Ampliado arquivo={grande.arquivo} n={grande.n} fechar={() => setGrande(null)} />}
+    <div>
+      <section id="escolher-slides" className="scroll-mt-24 rounded-3xl bg-[var(--papel-2)] p-4 sm:p-6" aria-label="slides de um assunto">
+        <div className="flex items-end gap-3">
+          <EscolherAssunto
+            className="min-w-0 flex-1"
+            rotulo="Ver os slides de um assunto"
+            valor={topico ?? null}
+            escolher={escolher}
+            marcar={(id) => (fixados[id]?.length ? `📌 ${fixados[id].length}` : undefined)}
+          />
+          {topico && (
+            <button className="botao-suave shrink-0" onClick={() => escolher()}>
+              fechar
+            </button>
+          )}
+        </div>
+        {topico ? (
+          <>
+            <Slides
+              key={topico}
+              id={topico}
+              aberto={aberto}
+              setAberto={setAberto}
+              vazio={<p className="mt-4 text-sm text-[var(--tinta-suave)]">Este assunto ainda não tem aula ligada a ele, nem página fixada.</p>}
+            />
+            <button className="mt-3 text-sm text-[var(--foco)] hover:underline" onClick={() => abrir(topico)}>
+              reler o tópico →
+            </button>
+          </>
+        ) : (
+          <p className="mt-2 text-xs text-[var(--tinta-suave)]">Abra uma aula do assunto e toque no 📌 das páginas que valem. Elas aparecem aqui embaixo e dentro do texto do tópico.</p>
+        )}
+      </section>
+
+      {!comPins.length && (
+        <div className="mt-10">
+          <Vazio icone="📌" titulo="Nenhum slide fixado">
+            Escolha um assunto acima, abra a aula e toque no 📌 de uma página.
+          </Vazio>
+        </div>
+      )}
+      {grupos.length > 0 && indice === null && (
+        <div className="mt-10">
+          <Vazio icone="🖼" titulo="As imagens dos slides não estão aqui">
+            Você tem slides fixados, mas as imagens não estão neste computador (elas não vão para o site publicado). No seu computador, rode “npm run slides” uma vez.
+          </Vazio>
+        </div>
+      )}
+      {grupos.length > 0 && indice !== null && (
+        <div className="mt-12 space-y-12">
+          <h3 className="rotulo-formula">{topico ? 'Fixados nos outros assuntos' : 'Fixados por você'}</h3>
+          {grupos.map(([t, ps]) => (
+            <section key={t}>
+              <button className="text-lg font-semibold text-[var(--tinta-forte)] hover:underline" onClick={() => escolher(t)}>
+                <span style={{ color: unidadePorId.get(topicoPorId.get(t)!.unidade)!.cor }}>●</span> {topicoPorId.get(t)!.titulo}
+              </button>
+              <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-3">
+                {ps.map((k) => {
+                  const [arquivo, n] = k.split('#')
+                  return (
+                    <figure key={k} className="relative m-0">
+                      <button onClick={() => setGrande({ arquivo, n: Number(n) })} className="block w-full overflow-hidden rounded-2xl border border-[var(--linha)] bg-white shadow-[var(--sombra)] transition-transform hover:-translate-y-0.5" title="ampliar">
+                        <img src={img(arquivo, Number(n))} alt={`slide ${n} de ${arquivo}`} loading="lazy" className="block aspect-[4/3] w-full object-contain" />
+                      </button>
+                      <figcaption className="mt-2 flex items-center gap-2 text-xs text-[var(--tinta-suave)]">
+                        <span className="truncate">
+                          {arquivo} · p. {n}
+                        </span>
+                        <button className="ml-auto shrink-0 rounded-full px-2 py-0.5 hover:bg-[var(--alerta-claro)] hover:text-[var(--alerta)]" onClick={() => alternar(t, k)} title="desafixar" aria-label={`desafixar página ${n}`}>
+                          desafixar
+                        </button>
+                      </figcaption>
+                    </figure>
+                  )
+                })}
+              </div>
+            </section>
+          ))}
+        </div>
+      )}
+      <AnimatePresence>{grande && <Ampliado key="ampliado" arquivo={grande.arquivo} n={grande.n} fechar={() => setGrande(null)} />}</AnimatePresence>
     </div>
   )
 }

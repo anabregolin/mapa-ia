@@ -7,6 +7,7 @@ import { EM_PALAVRAS } from '../content/emPalavras'
 import { aulasPara } from '../content/matematica'
 import { TERMOS, type Parte } from '../content/termos'
 import type { Calculadora, Formula } from '../content/tipos'
+import { Expande } from './Abrir'
 
 export function Tex({ latex, display = false }: { latex: string; display?: boolean }) {
   const html = useMemo(() => katex.renderToString(latex, { throwOnError: false, displayMode: display }), [latex, display])
@@ -150,7 +151,7 @@ function MostraConta({ formula }: { formula: Formula }) {
       <button className="botao-suave" aria-expanded={aberto} onClick={() => setAberto((a) => !a)}>
         🧮 {aberto ? 'fechar a matemática básica' : 'me mostra a conta'}
       </button>
-      {aberto && (
+      <Expande aberto={aberto}>
         <div className="mt-3 rounded-2xl border border-[var(--linha)] bg-[var(--cartao)] p-4">
           <p className="text-sm text-[var(--tinta-suave)]">O que cada símbolo desta fórmula quer dizer. Escolha um:</p>
           <div className="mt-2 flex flex-wrap gap-1.5" role="tablist">
@@ -181,7 +182,7 @@ function MostraConta({ formula }: { formula: Formula }) {
             </div>
           </div>
         </div>
-      )}
+      </Expande>
     </div>
   )
 }

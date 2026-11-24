@@ -1,8 +1,12 @@
-// Slides da aula dentro do tópico. As imagens são geradas na sua máquina por scripts/slides.mjs
-// e ficam fora do git (public/slides/). Você escolhe e fixa as páginas que importam para cada tópico.
-import { useEffect, useState } from 'react'
+// Slides da aula: prévia dentro do texto do tópico e a galeria completa em Revisão › Slides da aula.
+// As imagens são geradas na sua máquina por scripts/slides.mjs e ficam fora do git (public/slides/).
+// Você escolhe e fixa as páginas que importam para cada tópico.
+import { useEffect, useState, type ReactNode } from 'react'
 import { topicoPorId } from '../content/topicos'
 import { useMapa } from '../store/useMapa'
+import { AnimatePresence, motion } from 'framer-motion'
+import { Expande, Fundo } from './Abrir'
+import { useSurgir } from '../lib/movimento'
 
 export type Indice = Record<string, number>
 /** No site publicado não há slides (ficam fora do git); a dica de "npm run slides" só faz sentido no computador. */
@@ -61,13 +65,14 @@ export function Ampliado({ arquivo, n, fechar }: { arquivo: string; n: number; f
     window.addEventListener('keydown', esc)
     return () => window.removeEventListener('keydown', esc)
   }, [fechar])
+  const surgir = useSurgir()
   return (
-    <div data-ampliado className="fixed inset-0 z-[60] grid place-items-center bg-black/70 p-4" onClick={fechar} role="dialog" aria-label={`slide ${n} de ${arquivo}`}>
-      <img src={img(arquivo, n)} alt={`slide ${n} de ${arquivo}`} className="max-h-full max-w-full rounded-xl bg-white object-contain shadow-2xl" />
+    <Fundo data-ampliado className="fixed inset-0 z-[60] grid place-items-center bg-black/70 p-4" onClick={fechar} role="dialog" aria-label={`slide ${n} de ${arquivo}`}>
+      <motion.img {...surgir} src={img(arquivo, n)} alt={`slide ${n} de ${arquivo}`} className="max-h-full max-w-full rounded-xl bg-white object-contain shadow-2xl" />
       <span className="absolute bottom-3 rounded-full bg-black/60 px-3 py-1 text-xs text-white">
         {arquivo} · p. {n} · clique para fechar
       </span>
-    </div>
+    </Fundo>
   )
 }
 
@@ -107,13 +112,32 @@ export function SlidesNoTexto({ id }: { id: string }) {
           </button>
         ))}
       </div>
-      {paginas.length > mostrar.length && <p className="text-xs text-[var(--tinta-suave)]">+{paginas.length - mostrar.length} páginas em “Slides da aula”, no fim do tópico.</p>}
-      {grande && <Ampliado {...grande} fechar={() => setGrande(null)} />}
+      {paginas.length > mostrar.length && (
+        <p className="text-xs text-[var(--tinta-suave)]">
+          +{paginas.length - mostrar.length} páginas em{' '}
+          <a className="font-medium text-[var(--foco)] hover:underline" href={`#/revisao/slides/${id}`}>
+            Revisão › Slides da aula
+          </a>
+          .
+        </p>
+      )}
+      <AnimatePresence>{grande && <Ampliado key="ampliado" {...grande} fechar={() => setGrande(null)} />}</AnimatePresence>
     </div>
   )
 }
 
-export function Slides({ id, aberto: abertoFora, setAberto: setAbertoFora }: { id: string; aberto?: boolean; setAberto?: (a: boolean) => void }) {
+export function Slides({
+  id,
+  aberto: abertoFora,
+  setAberto: setAbertoFora,
+  vazio = null,
+}: {
+  id: string
+  aberto?: boolean
+  setAberto?: (a: boolean) => void
+  /** o que mostrar quando o assunto não tem aula ligada nem página fixada */
+  vazio?: ReactNode
+}) {
   const { indice, fontes, fixadas } = useSlidesDoTopico(id)
   const alternar = useMapa((s) => s.alternarSlide)
   const [abertoDentro, setAbertoDentro] = useState(false)
@@ -121,7 +145,8 @@ export function Slides({ id, aberto: abertoFora, setAberto: setAbertoFora }: { i
   const setAberto = setAbertoFora ?? setAbertoDentro
   const [atual, setAtual] = useState<{ arquivo: string; n: number } | null>(null)
 
-  if (indice === undefined || (!fontes.length && !fixadas.length)) return null
+  if (indice === undefined) return null
+  if (indice && !fontes.length && !fixadas.length) return <>{vazio}</>
   if (indice === null)
     return LOCAL ? (
       <p className="mt-6 text-xs text-[var(--tinta-suave)]">
@@ -161,7 +186,7 @@ export function Slides({ id, aberto: abertoFora, setAberto: setAbertoFora }: { i
         </div>
       )}
 
-      {aberto && (
+      <Expande aberto={aberto}>
         <div className="border-t border-[var(--linha)] px-5 pb-6 pt-4 sm:px-8">
           <div className="flex flex-wrap gap-2 text-sm">
             {fontes.map((f) => {
@@ -204,7 +229,7 @@ export function Slides({ id, aberto: abertoFora, setAberto: setAbertoFora }: { i
             </div>
           )}
         </div>
-      )}
+      </Expande>
     </section>
   )
 }

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { armazenamentoPersistente, exportar, lerArquivo, lerCopias, restaurarCopia, resumoAtual, resumoCopia, temProgresso, ultimoBackup, type Copia, type Resumo } from '../lib/backup'
+import { Expande } from './Abrir'
 
 const DIA = 86_400_000
 const DIAS_LEMBRETE = 7
@@ -133,7 +134,7 @@ export function AjustesBackup() {
         <button className="text-sm text-[var(--foco)] hover:underline" onClick={() => setVerCopias(!verCopias)} aria-expanded={verCopias}>
           {verCopias ? '▾' : '▸'} cópias automáticas neste navegador ({copias.length})
         </button>
-        {verCopias && (
+        <Expande aberto={verCopias}>
           <div className="mt-2 space-y-2">
             <p className="text-xs text-[var(--tinta-suave)]">
               Uma por dia (as últimas 7) e uma antes de cada restauração. Servem para desfazer um engano, mas somem junto se você limpar os dados do site, e não guardam as gravações de
@@ -181,7 +182,7 @@ export function AjustesBackup() {
               })}
             </ul>
           </div>
-        )}
+        </Expande>
       </div>
 
       {persistente !== null && (

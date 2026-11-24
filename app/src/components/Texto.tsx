@@ -23,6 +23,16 @@ const grudarSetas = (s: string) => s.replace(/ (→|⇒|↔)/g, '\u00a0$1')
 /** Texto corrido com $latex$ inline e **negrito**. `formulas` muda só o texto de estudo (ver TextoLeitura). */
 export function Texto({ children, formulas = 'no-texto' }: { children: string; formulas?: ModoFormula }) {
   const partes = children.split(/(\$[^$]+\$|\*\*[^*]+\*\*)/g)
+  if (formulas === 'linha')
+    partes.forEach((p, i) => {
+      if (!(p.startsWith('$') && p.endsWith('$') && p.length > 2 && formulaGrande(p.slice(1, -1)))) return
+      // a fórmula vai para uma linha própria: "Fila de prioridade por" vira "Fila de prioridade por:"…
+      const ant = partes[i - 1]
+      if (ant && /[\p{L}\p{N}]\s*$/u.test(ant)) partes[i - 1] = ant.replace(/\s*$/, ':')
+      // …e o que vem depois começa uma frase nova: ", onde g é…" vira "Onde g é…"
+      const dep = partes[i + 1]
+      if (dep && /^[,;]?\s*\p{Ll}/u.test(dep)) partes[i + 1] = dep.replace(/^[,;]?\s*(\p{Ll})/u, (_, l: string) => l.toUpperCase())
+    })
   return (
     <>
       {partes.map((p, i) => {
@@ -46,7 +56,12 @@ export function Texto({ children, formulas = 'no-texto' }: { children: string; f
             )
           return <Tex key={i} latex={latex} />
         }
-        if (p.startsWith('**') && p.endsWith('**')) return <strong key={i} className="font-semibold text-[var(--tinta-forte)]">{grudarSetas(p.slice(2, -2))}</strong>
+        if (p.startsWith('**') && p.endsWith('**'))
+          return (
+            <strong key={i} className="font-semibold text-[var(--tinta-forte)]">
+              {grudarSetas(p.slice(2, -2))}
+            </strong>
+          )
         return <Fragment key={i}>{grudarSetas(p)}</Fragment>
       })}
     </>
@@ -141,10 +156,7 @@ function Paragrafo({ texto, formulas, vertical }: { texto: string; formulas: Mod
   )
 }
 
-type Bloco =
-  | { tipo: 'p'; texto: string }
-  | { tipo: 'lista'; intro: string; itens: string[] }
-  | { tipo: 'comparacao'; itens: { rotulo: string; partes: string[] }[] }
+type Bloco = { tipo: 'p'; texto: string } | { tipo: 'lista'; intro: string; itens: string[] } | { tipo: 'comparacao'; itens: { rotulo: string; partes: string[] }[] }
 
 /**
  * "Rótulo: conteúdo." com rótulo curto (até 3 palavras). Só conta como item de comparação se
@@ -225,6 +237,9 @@ export function arejar(texto: string): Bloco[] {
 const CORES_COMPARACAO = ['var(--foco)', 'var(--coral)', 'var(--menta)', 'var(--alerta)']
 
 /** Texto de estudo: respeita as preferências de leitura (arejado/corrido, fórmulas, setas). */
+/** item de lista: termina em ";" e o último em "." */
+export const pontuarItem = (s: string, ultimo: boolean) => s.replace(/[\s.;,:]+$/, '') + (ultimo ? '.' : ';')
+
 export function TextoLeitura({ children, className = '' }: { children: string; className?: string }) {
   const { formato, formulas, setas } = useMapa((s) => s.leitura)
   const blocos = useMemo(() => (formato === 'arejado' ? arejar(children) : [{ tipo: 'p' as const, texto: children }]), [children, formato])
@@ -255,7 +270,7 @@ export function TextoLeitura({ children, className = '' }: { children: string; c
             <ul className="lista-leitura">
               {b.itens.map((it, k) => (
                 <li key={k}>
-                  <Texto formulas={formulas}>{it}</Texto>
+                  <Texto formulas={formulas}>{pontuarItem(it, k === b.itens.length - 1)}</Texto>
                 </li>
               ))}
             </ul>

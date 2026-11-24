@@ -7,10 +7,11 @@ import { dependentesDe, parecidosDe, prereqsDe } from '../lib/grafo'
 import { TINTA, indiceDe, limpo, localizar, mapear, normalTag, rangeDe, recortar, temPintura, tipoTag, type CorMarca, type IdCor, type Marca } from '../lib/marcas'
 import { useMapa } from '../store/useMapa'
 import { Dica } from './Dica'
+import { Expande } from './Abrir'
 
 /** camadas de texto corrido que dá para marcar */
-export const CAMADAS_MARCAVEIS = new Set(['resumo', 'intuicao', 'definicao', 'detalhe', 'cuidado'])
-export const NOME_CAMADA: Record<string, string> = { resumo: 'cola', intuicao: 'pensa assim', definicao: 'com o nome certo', detalhe: 'mergulho', cuidado: 'pegadinha' }
+export const CAMADAS_MARCAVEIS = new Set(['oque', 'resumo', 'intuicao', 'definicao', 'detalhe', 'cuidado'])
+export const NOME_CAMADA: Record<string, string> = { oque: 'o que é', resumo: 'cola', intuicao: 'pensa assim', definicao: 'com o nome certo', detalhe: 'mergulho', cuidado: 'pegadinha' }
 
 const objetivoDe = (cores: CorMarca[], id: IdCor) => cores.find((c) => c.id === id)?.objetivo || TINTA[id].nome
 
@@ -538,16 +539,16 @@ export function MarcasDoTopico({ id, irPara }: { id: string; irPara: (m: Marca) 
           ✎ objetivos das cores
         </button>
       </div>
-      {cores && (
+      <Expande aberto={cores}>
         <div className="mt-3 rounded-2xl bg-[var(--cartao)] p-3">
           <EditarCores />
         </div>
-      )}
-      {aberto && (
+      </Expande>
+      <Expande aberto={aberto}>
         <div className="mt-3">
           <ListaMarcas marcas={minhas} irPara={irPara} />
         </div>
-      )}
+      </Expande>
     </section>
   )
 }

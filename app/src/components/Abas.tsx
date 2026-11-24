@@ -1,5 +1,7 @@
 // Abas da trilha (Geral, P1, P2, E1…): barra, edição e o atalho dentro do tópico.
+import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
+import { useSurgir } from '../lib/movimento'
 import { GERAL, type Aba } from '../lib/abas'
 import { MODULOS, unidade } from '../lib/trilha'
 import { useMapa } from '../store/useMapa'
@@ -16,6 +18,7 @@ export function SeletorAba({ editar, abaixo = false }: { editar: (id: string) =>
   const criar = useMapa((s) => s.criarAba)
   const estudados = useMapa((s) => s.estudados)
   const [aberto, setAberto] = useState(false)
+  const surgir = useSurgir(abaixo ? 'cima' : 'baixo')
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
@@ -67,38 +70,44 @@ export function SeletorAba({ editar, abaixo = false }: { editar: (id: string) =>
           {aberto === abaixo ? '▴' : '▾'}
         </span>
       </button>
-      {aberto && (
-        <div className={`absolute left-0 z-30 w-72 ${abaixo ? 'top-full mt-2' : 'bottom-full mb-2'} max-w-[calc(100vw-2rem)] rounded-2xl border border-[var(--linha)] bg-[var(--cartao)] p-1.5 shadow-[var(--sombra)]`}>
-          <div className="px-2.5 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)]">provas e recortes</div>
-          <div role="listbox" aria-label="provas e recortes da trilha" className="max-h-[50vh] overflow-y-auto">
-            {item(GERAL, 'Geral', 'a trilha inteira')}
-            {abas.map((a) => item(a.id, a.nome, a.descricao, a.topicos.length ? contagem(a) : undefined))}
-          </div>
-          <div className="mt-1 flex items-center gap-1 border-t border-[var(--linha)] pt-1.5 text-sm">
-            {daAba && (
+      <AnimatePresence>
+        {aberto && (
+          <motion.div
+            {...surgir}
+            style={{ transformOrigin: abaixo ? 'top left' : 'bottom left' }}
+            className={`absolute left-0 z-30 w-72 ${abaixo ? 'top-full mt-2' : 'bottom-full mb-2'} max-w-[calc(100vw-2rem)] rounded-2xl border border-[var(--linha)] bg-[var(--cartao)] p-1.5 shadow-[var(--sombra)]`}
+          >
+            <div className="px-2.5 pb-1 pt-0.5 text-[11px] font-semibold uppercase tracking-[0.12em] text-[var(--tinta-suave)]">provas e recortes</div>
+            <div role="listbox" aria-label="provas e recortes da trilha" className="max-h-[50vh] overflow-y-auto">
+              {item(GERAL, 'Geral', 'a trilha inteira')}
+              {abas.map((a) => item(a.id, a.nome, a.descricao, a.topicos.length ? contagem(a) : undefined))}
+            </div>
+            <div className="mt-1 flex items-center gap-1 border-t border-[var(--linha)] pt-1.5 text-sm">
+              {daAba && (
+                <button
+                  className="rounded-lg px-2.5 py-1 text-[var(--foco)] hover:bg-[var(--papel-2)]"
+                  onClick={() => {
+                    editar(daAba.id)
+                    setAberto(false)
+                  }}
+                >
+                  ✎ editar {daAba.nome}
+                </button>
+              )}
               <button
-                className="rounded-lg px-2.5 py-1 text-[var(--foco)] hover:bg-[var(--papel-2)]"
+                className="ml-auto rounded-lg px-2.5 py-1 text-[var(--tinta-suave)] hover:bg-[var(--papel-2)] hover:text-[var(--foco)]"
+                title="criar uma aba sua (outra prova, um trabalho, um resumo…)"
                 onClick={() => {
-                  editar(daAba.id)
+                  editar(criar('Nova aba'))
                   setAberto(false)
                 }}
               >
-                ✎ editar {daAba.nome}
+                ＋ nova aba
               </button>
-            )}
-            <button
-              className="ml-auto rounded-lg px-2.5 py-1 text-[var(--tinta-suave)] hover:bg-[var(--papel-2)] hover:text-[var(--foco)]"
-              title="criar uma aba sua (outra prova, um trabalho, um resumo…)"
-              onClick={() => {
-                editar(criar('Nova aba'))
-                setAberto(false)
-              }}
-            >
-              ＋ nova aba
-            </button>
-          </div>
-        </div>
-      )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }
@@ -121,7 +130,11 @@ export function EditarAba({ aba, fechar }: { aba: Aba; fechar: () => void }) {
   }, [])
 
   return (
-    <section ref={caixa} className="mt-4 scroll-mt-20 rounded-3xl border-2 border-[var(--foco)] bg-[var(--cartao)] p-5 shadow-[var(--sombra)]" aria-label={`editar aba ${aba.nome}`}>
+    <section
+      ref={caixa}
+      className="mt-4 scroll-mt-20 rounded-3xl border-2 border-[var(--foco)] bg-[var(--cartao)] p-5 shadow-[var(--sombra)]"
+      aria-label={`editar aba ${aba.nome}`}
+    >
       <div className="flex items-center gap-2">
         <span className="text-sm font-semibold text-[var(--tinta-forte)]">✎ Editar aba</span>
         <button className="botao-foco ml-auto" onClick={fechar}>
@@ -230,6 +243,7 @@ export function AbasDoTopico({ id }: { id: string }) {
   const abas = useMapa((s) => s.abas)
   const alternar = useMapa((s) => s.alternarTopicoNaAba)
   const [aberto, setAberto] = useState(false)
+  const surgir = useSurgir('cima')
   const em = abas.filter((a) => a.topicos.includes(id))
   return (
     <span className="relative">
@@ -241,21 +255,27 @@ export function AbasDoTopico({ id }: { id: string }) {
       >
         📑 {em.length ? em.map((a) => a.nome).join(' · ') : 'sem aba'}
       </button>
-      {aberto && (
-        <span className="absolute left-0 top-full z-20 mt-1 flex w-56 flex-col gap-0.5 rounded-2xl border border-[var(--linha)] bg-[var(--cartao)] p-2 shadow-[var(--sombra)]">
-          <span className="px-1 pb-1 text-[11px] text-[var(--tinta-suave)]">Aparece nas abas:</span>
-          {abas.map((a) => (
-            <label key={a.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-1 py-1 text-sm text-[var(--tinta)] hover:bg-[var(--papel-2)]">
-              <input type="checkbox" checked={a.topicos.includes(id)} onChange={() => alternar(a.id, id)} className="h-4 w-4 accent-[var(--foco)]" />
-              <span className="font-medium">{a.nome}</span>
-              <span className="truncate text-[11px] text-[var(--tinta-suave)]">{a.descricao}</span>
-            </label>
-          ))}
-          <button className="mt-1 self-end text-xs text-[var(--foco)] hover:underline" onClick={() => setAberto(false)}>
-            fechar
-          </button>
-        </span>
-      )}
+      <AnimatePresence>
+        {aberto && (
+          <motion.span
+            {...surgir}
+            style={{ transformOrigin: 'top left' }}
+            className="absolute left-0 top-full z-20 mt-1 flex w-56 flex-col gap-0.5 rounded-2xl border border-[var(--linha)] bg-[var(--cartao)] p-2 shadow-[var(--sombra)]"
+          >
+            <span className="px-1 pb-1 text-[11px] text-[var(--tinta-suave)]">Aparece nas abas:</span>
+            {abas.map((a) => (
+              <label key={a.id} className="flex cursor-pointer items-center gap-2 rounded-lg px-1 py-1 text-sm text-[var(--tinta)] hover:bg-[var(--papel-2)]">
+                <input type="checkbox" checked={a.topicos.includes(id)} onChange={() => alternar(a.id, id)} className="h-4 w-4 accent-[var(--foco)]" />
+                <span className="font-medium">{a.nome}</span>
+                <span className="truncate text-[11px] text-[var(--tinta-suave)]">{a.descricao}</span>
+              </label>
+            ))}
+            <button className="mt-1 self-end text-xs text-[var(--foco)] hover:underline" onClick={() => setAberto(false)}>
+              fechar
+            </button>
+          </motion.span>
+        )}
+      </AnimatePresence>
     </span>
   )
 }

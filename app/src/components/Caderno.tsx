@@ -6,6 +6,7 @@ import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { CARTOES } from '../content/cartoes'
 import { palavrasDoTopico } from '../content/palavras'
 import { TOPICOS, topicoPorId, UNIDADES } from '../content/topicos'
+import { EscolherAssunto } from './EscolherAssunto'
 import { novoId, SEM_ASSUNTO, type Bloco, type PaginaCaderno, type TipoBloco } from '../lib/caderno'
 import { guardarFoto, lerFoto } from '../lib/fotos'
 import { lerGravacao, todasGravacoes, type Gravacao } from '../lib/gravacoes'
@@ -19,6 +20,8 @@ import { Contexto, NotaDaMarca, TagsDaMarca } from './Marcas'
 import { AbasAnotacoes } from './Quadro'
 import { Ampliado, img, lerIndice, type Indice } from './Slides'
 import { Texto } from './Texto'
+import { Expande, Fundo } from './Abrir'
+import { useSurgir } from '../lib/movimento'
 
 const TIPOS: { tipo: TipoBloco; icone: string; nome: string; dica: string }[] = [
   { tipo: 'titulo', icone: 'H', nome: 'título', dica: 'separa a página em partes' },
@@ -56,9 +59,14 @@ export function TelaCaderno({ paginaId }: { paginaId?: string }) {
     return () => clearTimeout(t)
   }, [apagada])
 
+  const [trazendo, setTrazendo] = useState(false)
   const nova = () => {
     const id = criar({ assunto: pagina?.assunto ?? '' })
     location.hash = `#/caderno/${id}`
+  }
+  const trazer = (topico: string) => {
+    setTrazendo(false)
+    location.hash = `#/caderno/${paginaDoTopico(topico)}`
   }
 
   return (
@@ -74,12 +82,24 @@ export function TelaCaderno({ paginaId }: { paginaId?: string }) {
             </a>
           )}
           <h1 className="mr-auto min-w-0 truncate text-base font-semibold text-[var(--tinta-forte)]">
-            📝<span className={pagina ? 'hidden sm:inline' : ''}> Anotações</span>
+            📝<span className="hidden sm:inline"> Anotações</span>
           </h1>
+          <button className="botao-suave shrink-0 whitespace-nowrap" onClick={() => setTrazendo(!trazendo)} aria-expanded={trazendo} aria-label="nova página a partir de um assunto">
+            + <span className={pagina ? 'hidden sm:inline' : ''}>assunto</span>
+            <span className={pagina ? 'sm:hidden' : 'hidden'}>📚</span>
+          </button>
           <button className="botao-foco shrink-0 whitespace-nowrap" onClick={nova} aria-label="nova página">
             + <span className={pagina ? 'hidden sm:inline' : ''}>página</span>
           </button>
         </div>
+        <Expande aberto={trazendo}>
+          <div className="mx-auto flex max-w-6xl items-end gap-2 px-4 pt-3 sm:px-6">
+            <EscolherAssunto className="min-w-0 flex-1 sm:max-w-md" rotulo="Página nova com o resumo do assunto" valor={null} escolher={trazer} />
+            <button className="botao-suave shrink-0" onClick={() => setTrazendo(false)}>
+              cancelar
+            </button>
+          </div>
+        </Expande>
         <div className="mx-auto max-w-6xl px-4 sm:px-6">
           <AbasAnotacoes atual="caderno" />
         </div>
@@ -106,7 +126,8 @@ export function TelaCaderno({ paginaId }: { paginaId?: string }) {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 16 }}
-            className="fixed bottom-6 left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full bg-[var(--tinta-forte)] px-4 py-2 text-sm text-[var(--papel)] shadow-lg"
+            style={{ bottom: 'calc(var(--rodape-fixo, env(safe-area-inset-bottom, 0px)) + 1.5rem)' }}
+            className="fixed left-1/2 z-40 flex -translate-x-1/2 items-center gap-3 rounded-full bg-[var(--tinta-forte)] px-4 py-2 text-sm text-[var(--papel)] shadow-lg"
           >
             Página apagada.
             <button
@@ -492,11 +513,12 @@ function TelaCheia({ src, legenda, fechar }: { src: string; legenda: string; fec
     window.addEventListener('keydown', esc)
     return () => window.removeEventListener('keydown', esc)
   }, [fechar])
+  const surgir = useSurgir()
   return (
-    <div className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4" onClick={fechar} role="dialog" aria-label={legenda}>
-      <img src={src} alt={legenda} className="max-h-full max-w-full rounded-xl object-contain shadow-2xl" />
+    <Fundo className="fixed inset-0 z-50 grid place-items-center bg-black/75 p-4" onClick={fechar} role="dialog" aria-label={legenda}>
+      <motion.img {...surgir} src={src} alt={legenda} className="max-h-full max-w-full rounded-xl object-contain shadow-2xl" />
       <span className="absolute bottom-3 rounded-full bg-black/60 px-3 py-1 text-xs text-white">{legenda} · clique para fechar</span>
-    </div>
+    </Fundo>
   )
 }
 
@@ -527,7 +549,7 @@ function BlocoFoto({ b, pagina }: { b: Bloco; pagina: string }) {
         <div className="h-40 animate-pulse rounded-xl bg-[var(--papel-2)]" />
       )}
       <Legenda b={b} pagina={pagina} />
-      {grande && url && <TelaCheia src={url} legenda={b.texto || 'foto'} fechar={() => setGrande(false)} />}
+      <AnimatePresence>{grande && url && <TelaCheia key="cheia" src={url} legenda={b.texto || 'foto'} fechar={() => setGrande(false)} />}</AnimatePresence>
     </figure>
   )
 }
@@ -569,7 +591,7 @@ function BlocoSlide({ b, pagina }: { b: Bloco; pagina: string }) {
         {arquivo} · p. {n}
       </figcaption>
       <Legenda b={b} pagina={pagina} />
-      {grande && <Ampliado arquivo={arquivo} n={Number(n)} fechar={() => setGrande(false)} />}
+      <AnimatePresence>{grande && <Ampliado key="ampliado" arquivo={arquivo} n={Number(n)} fechar={() => setGrande(false)} />}</AnimatePresence>
     </figure>
   )
 }
@@ -850,7 +872,7 @@ function Escolher({ tipo, topicos, escolher }: { tipo: TipoBloco; topicos: Set<s
     postit: 'Você ainda não tem post-its com texto. Eles nascem no Quadro de ideias.',
     marca: 'Você ainda não marcou nenhum trecho. Selecione um texto dentro de um tópico para marcar.',
     nota: 'Nenhum tópico tem anotação ainda. Escolha "tópico" ou escreva um texto direto aqui.',
-    explicacao: 'Você ainda não escreveu nenhuma explicação. Ela fica no fim de cada tópico, em "Mais jeitos de revisar".',
+    explicacao: 'Você ainda não escreveu nenhuma explicação. Ela fica em Revisão › Explicar para alguém.',
   }
 
   return (
@@ -1028,19 +1050,9 @@ function AdicionarSlide({ por, topicos }: { por: (b: Omit<Bloco, 'id'>) => void;
 
 /* ───────────── levar do tópico para o caderno ───────────── */
 
-/**
- * Põe o tópico na página aberta por último ou, se não houver, numa página nova com o nome dele.
- * Devolve a página usada.
- */
-export function levarTopicoAoCaderno(topico: string): PaginaCaderno {
-  const s = useMapa.getState()
+/** Página nova com o nome do assunto e o resumo dele como primeiro bloco. Devolve o id da página. */
+function paginaDoTopico(topico: string): string {
   const tp = topicoPorId.get(topico)!
-  const atual = s.caderno.find((p) => p.id === s.paginaAtual)
-  if (atual) {
-    if (!atual.blocos.some((b) => b.tipo === 'topico' && b.ref === topico)) s.adicionarBloco(atual.id, { tipo: 'topico', ref: topico })
-    return useMapa.getState().caderno.find((p) => p.id === atual.id)!
-  }
-  const id = s.criarPagina({ titulo: tp.titulo, assunto: unidade(tp.unidade).titulo, blocos: [{ id: novoId('b'), tipo: 'topico', ref: topico }] })
-  return useMapa.getState().caderno.find((p) => p.id === id)!
+  return useMapa.getState().criarPagina({ titulo: tp.titulo, assunto: unidade(tp.unidade).titulo, blocos: [{ id: novoId('b'), tipo: 'topico', ref: topico }] })
 }
 
