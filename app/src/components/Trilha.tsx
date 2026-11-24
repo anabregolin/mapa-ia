@@ -8,6 +8,7 @@ import { useMapa } from '../store/useMapa'
 import { useTreinosHoje } from './Treino'
 import { topicosQueVoltam } from '../lib/revisita'
 import { BotaoAjustes } from './Ajustes'
+import { LembreteBackup } from './Backup'
 import { BotaoRelembrar } from './Relembrar'
 
 export type Status = 'novo' | 'andamento' | 'entendi' | 'voltar'
@@ -197,6 +198,8 @@ export function Trilha() {
           />
         </div>
       </div>
+
+      <LembreteBackup />
 
       {/* continuar */}
       {proximo && (

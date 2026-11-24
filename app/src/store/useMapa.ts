@@ -6,6 +6,8 @@ import type { ProgressoExercicio } from '../content/tipos'
 import { agendar, type ProgressoCalculo, type TentativaCalculo } from '../lib/treino'
 import { INTERVALOS_PADRAO, MINUTOS_PADRAO, proximaRevisita, type Revisita } from '../lib/revisita'
 import { LEITURA_PADRAO, type PrefLeitura } from '../lib/leitura'
+import { CORES_PADRAO, type CorMarca, type Marca } from '../lib/marcas'
+import { PARADO, POMODORO_PADRAO, type EstadoPomodoro, type PrefPomodoro } from '../lib/pomodoro'
 
 export interface Nota {
   texto: string
@@ -73,6 +75,12 @@ interface EstadoMapa {
   estudo: PrefEstudo
   /** resultado do pré-teste de cada tópico (o chute antes de ler) */
   pretestes: Record<string, { acertos: number; total: number; em: number }>
+  /** trechos marcados com marca-texto */
+  marcas: Marca[]
+  /** o objetivo de cada cor do marca-texto */
+  coresMarca: CorMarca[]
+  pomodoroPref: PrefPomodoro
+  pomodoro: EstadoPomodoro
 
   /** abre um tópico (navega para #/t/<id>) ou volta para a trilha (null) */
   selecionar: (id: string | null) => void
@@ -100,6 +108,12 @@ interface EstadoMapa {
   setLeitura: (mudanca: Partial<PrefLeitura>) => void
   setEstudo: (mudanca: Partial<PrefEstudo>) => void
   registrarPreteste: (id: string, acertos: number, total: number) => void
+  adicionarMarca: (m: Omit<Marca, 'id' | 'em' | 'nota'>) => string
+  atualizarMarca: (id: string, mudanca: Partial<Pick<Marca, 'cor' | 'nota'>>) => void
+  removerMarca: (id: string) => void
+  setObjetivoCor: (id: CorMarca['id'], objetivo: string) => void
+  setPomodoroPref: (mudanca: Partial<PrefPomodoro>) => void
+  setPomodoro: (e: EstadoPomodoro) => void
 }
 
 const alternar = (r: Record<string, true>, id: string) => {
@@ -135,6 +149,10 @@ export const useMapa = create<EstadoMapa>()(
       leitura: LEITURA_PADRAO,
       estudo: ESTUDO_PADRAO,
       pretestes: {},
+      marcas: [],
+      coresMarca: CORES_PADRAO,
+      pomodoroPref: POMODORO_PADRAO,
+      pomodoro: PARADO,
 
       selecionar: (id) => {
         location.hash = id ? `#/t/${id}` : '#/'
@@ -191,6 +209,16 @@ export const useMapa = create<EstadoMapa>()(
       setLeitura: (mudanca) => set((s) => ({ leitura: { ...s.leitura, ...mudanca } })),
       setEstudo: (mudanca) => set((s) => ({ estudo: { ...s.estudo, ...mudanca } })),
       registrarPreteste: (id, acertos, total) => set((s) => ({ pretestes: { ...s.pretestes, [id]: { acertos, total, em: Date.now() } } })),
+      adicionarMarca: (m) => {
+        const id = `m${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`
+        set((s) => ({ marcas: [...s.marcas, { ...m, id, nota: '', em: Date.now() }] }))
+        return id
+      },
+      atualizarMarca: (id, mudanca) => set((s) => ({ marcas: s.marcas.map((m) => (m.id === id ? { ...m, ...mudanca } : m)) })),
+      removerMarca: (id) => set((s) => ({ marcas: s.marcas.filter((m) => m.id !== id) })),
+      setObjetivoCor: (id, objetivo) => set((s) => ({ coresMarca: s.coresMarca.map((c) => (c.id === id ? { ...c, objetivo } : c)) })),
+      setPomodoroPref: (mudanca) => set((s) => ({ pomodoroPref: { ...s.pomodoroPref, ...mudanca } })),
+      setPomodoro: (pomodoro) => set({ pomodoro }),
     }),
     {
       name: 'mapa-ia',
@@ -229,11 +257,15 @@ export const useMapa = create<EstadoMapa>()(
         leitura: s.leitura,
         estudo: s.estudo,
         pretestes: s.pretestes,
+        marcas: s.marcas,
+        coresMarca: s.coresMarca,
+        pomodoroPref: s.pomodoroPref,
+        pomodoro: s.pomodoro,
       }),
       // preferências novas que o navegador ainda não tem ganham o valor padrão
       merge: (salvo, atual) => {
         const s = salvo as Partial<EstadoMapa>
-        return { ...atual, ...s, leitura: { ...LEITURA_PADRAO, ...s.leitura }, estudo: { ...ESTUDO_PADRAO, ...s.estudo } }
+        return { ...atual, ...s, leitura: { ...LEITURA_PADRAO, ...s.leitura }, estudo: { ...ESTUDO_PADRAO, ...s.estudo }, pomodoroPref: { ...POMODORO_PADRAO, ...s.pomodoroPref }, pomodoro: { ...PARADO, ...s.pomodoro } }
       },
     },
   ),

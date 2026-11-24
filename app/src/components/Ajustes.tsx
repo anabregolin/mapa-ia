@@ -6,6 +6,7 @@ import { ENTRELINHAS, FONTES, LARGURAS, TAMANHOS, type Fonte } from '../lib/leit
 import { escreverIntervalos, lerIntervalos } from '../lib/revisita'
 import { useMapa } from '../store/useMapa'
 import { TextoLeitura } from './Texto'
+import { AjustesBackup } from './Backup'
 
 const EXEMPLO =
   'A busca gulosa olha só para a estimativa até o objetivo. Por isso é rápida, mas pode escolher um caminho mais caro. Ela tem três características: **é rápida**; **não garante o melhor caminho**; **pode ficar presa em laços**.'
@@ -117,6 +118,7 @@ export function PainelAjustes({ aberto, fechar }: { aberto: boolean; fechar: () 
               </div>
 
               <AjustesRelembrar />
+              <AjustesBackup />
             </div>
           </motion.aside>
         </>
@@ -174,7 +176,7 @@ export function BotaoAjustes() {
   const [aberto, setAberto] = useState(false)
   return (
     <>
-      <button className="botao-suave" onClick={() => setAberto(true)} title="como ver o texto e quando relembrar" aria-label="ajustes de leitura">
+      <button className="botao-suave" onClick={() => setAberto(true)} title="como ver o texto, quando relembrar e backup" aria-label="ajustes de leitura">
         Aa
       </button>
       <PainelAjustes aberto={aberto} fechar={() => setAberto(false)} />

@@ -3,6 +3,7 @@ import '@xyflow/react/dist/style.css'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 import { Mapa } from './components/Mapa'
+import { Pomodoro } from './components/Pomodoro'
 import { Revisao } from './components/Revisao'
 import { Topico } from './components/Topico'
 import { Trilha } from './components/Trilha'
@@ -80,6 +81,7 @@ export default function App() {
         {rota.tela === 'calculo' && <ResolverCalculo key={rota.id} id={rota.id} />}
       </AnimatePresence>
       <Revisao />
+      <Pomodoro telaMapa={rota.tela === 'mapa'} />
     </>
   )
 }

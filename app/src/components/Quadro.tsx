@@ -3,6 +3,8 @@ import { AnimatePresence, motion, useDragControls, useMotionValue } from 'framer
 import { useEffect, useRef, useState } from 'react'
 import { topicoPorId } from '../content/topicos'
 import { unidade } from '../lib/trilha'
+import { TINTA, type IdCor } from '../lib/marcas'
+import { ListaMarcas } from './Marcas'
 import { useMapa, type CorPostit, type Postit } from '../store/useMapa'
 
 const LARGURA = 1800
@@ -89,36 +91,83 @@ function Nota({ p, apagar, novo }: { p: Postit; apagar: (p: Postit) => void; nov
   )
 }
 
+type Filtro = 'tudo' | 'notas' | IdCor
+
+/** Anotações e marcas juntas, por tópico, com filtro pela tag (cor) da marca. */
 function Anotacoes() {
   const notas = useMapa((s) => s.notas)
+  const marcas = useMapa((s) => s.marcas)
+  const cores = useMapa((s) => s.coresMarca)
   const selecionar = useMapa((s) => s.selecionar)
-  const lista = Object.entries(notas)
-    .filter(([id]) => topicoPorId.has(id))
-    .sort((a, b) => b[1].em - a[1].em)
-  if (!lista.length)
+  const [filtro, setFiltro] = useState<Filtro>('tudo')
+
+  const ids = new Set([...Object.keys(notas), ...marcas.map((m) => m.topico)].filter((id) => topicoPorId.has(id)))
+  const grupos = [...ids]
+    .map((id) => {
+      const n = notas[id]?.texto.trim() ? notas[id] : undefined
+      const ms = marcas.filter((m) => m.topico === id && (filtro === 'tudo' || filtro === m.cor)).sort((a, b) => a.em - b.em)
+      const nota = filtro === 'tudo' || filtro === 'notas' ? n : undefined
+      const recente = Math.max(nota?.em ?? 0, ...ms.map((m) => m.em))
+      return { id, nota, ms, recente }
+    })
+    .filter((g) => g.nota || g.ms.length)
+    .sort((a, b) => b.recente - a.recente)
+
+  if (!ids.size)
     return (
       <p className="mt-8 rounded-3xl bg-[var(--cartao)] p-6 text-center text-[var(--tinta-suave)] shadow-[var(--sombra)]">
-        Nenhuma anotação ainda. Dentro de qualquer tópico, o botão 📝 no canto abre um espaço para escrever.
+        Nenhuma anotação ainda. Dentro de qualquer tópico, o botão 📝 no canto abre um espaço para escrever, e selecionar um trecho do texto deixa marcar com uma cor.
       </p>
     )
+
+  const chip = (f: Filtro, rotulo: string, n: number, estilo?: React.CSSProperties) => (
+    <button
+      key={f}
+      onClick={() => setFiltro(f)}
+      aria-pressed={filtro === f}
+      className={`rounded-full px-3 py-1 text-xs font-medium ${filtro === f ? 'ring-2 ring-[var(--tinta-forte)]' : 'opacity-80 hover:opacity-100'}`}
+      style={estilo ?? { background: 'var(--cartao)', color: 'var(--tinta-forte)' }}
+    >
+      {rotulo} ({n})
+    </button>
+  )
+
   return (
-    <ul className="mt-6 space-y-3">
-      {lista.map(([id, n]) => {
-        const tp = topicoPorId.get(id)!
-        return (
-          <li key={id}>
-            <button onClick={() => selecionar(id)} className="w-full rounded-2xl bg-[var(--cartao)] p-4 text-left shadow-[var(--sombra)] transition-transform hover:-translate-y-0.5">
-              <div className="flex items-center gap-2 text-xs text-[var(--tinta-suave)]">
+    <div className="mt-6">
+      <div className="flex flex-wrap gap-2" role="group" aria-label="filtrar">
+        {chip('tudo', 'tudo', Object.values(notas).filter((n) => n.texto.trim()).length + marcas.length)}
+        {chip('notas', '📝 só anotações', Object.values(notas).filter((n) => n.texto.trim()).length)}
+        {cores.map((c) => chip(c.id, `🖍 ${c.objetivo || TINTA[c.id].nome}`, marcas.filter((m) => m.cor === c.id).length, { background: TINTA[c.id].fundo, color: TINTA[c.id].forte }))}
+      </div>
+      {!grupos.length && <p className="mt-6 text-sm text-[var(--tinta-suave)]">Nada com esse filtro.</p>}
+      <ul className="mt-5 space-y-6">
+        {grupos.map(({ id, nota, ms }) => {
+          const tp = topicoPorId.get(id)!
+          return (
+            <li key={id}>
+              <button onClick={() => selecionar(id)} className="flex items-center gap-2 text-sm hover:underline">
                 <span style={{ color: unidade(tp.unidade).cor }}>●</span>
-                <span className="font-medium text-[var(--tinta-forte)]">{tp.titulo}</span>
-                <span className="ml-auto">{new Date(n.em).toLocaleDateString('pt-BR')}</span>
-              </div>
-              <p className="mt-1.5 line-clamp-4 whitespace-pre-wrap text-sm text-[var(--tinta)]">{n.texto}</p>
-            </button>
-          </li>
-        )
-      })}
-    </ul>
+                <span className="font-semibold text-[var(--tinta-forte)]">{tp.titulo}</span>
+                <span className="text-xs text-[var(--tinta-suave)]">abrir →</span>
+              </button>
+              {nota && (
+                <button onClick={() => selecionar(id)} className="mt-2 w-full rounded-2xl bg-[var(--cartao)] p-4 text-left shadow-[var(--sombra)] transition-transform hover:-translate-y-0.5">
+                  <div className="flex items-center gap-2 text-xs text-[var(--tinta-suave)]">
+                    📝 sua anotação<span className="ml-auto">{new Date(nota.em).toLocaleDateString('pt-BR')}</span>
+                  </div>
+                  <p className="mt-1.5 line-clamp-4 whitespace-pre-wrap text-sm text-[var(--tinta)]">{nota.texto}</p>
+                </button>
+              )}
+              {ms.length > 0 && (
+                <div className="mt-2">
+                  <ListaMarcas marcas={ms} />
+                </div>
+              )}
+            </li>
+          )
+        })}
+      </ul>
+    </div>
   )
 }
 
@@ -127,7 +176,7 @@ export function TelaQuadro() {
   const adicionar = useMapa((s) => s.adicionarPostit)
   const remover = useMapa((s) => s.removerPostit)
   const restaurar = useMapa((s) => s.restaurarPostit)
-  const nNotas = useMapa((s) => Object.keys(s.notas).length)
+  const nNotas = useMapa((s) => Object.values(s.notas).filter((n) => n.texto.trim()).length + s.marcas.length)
   const [aba, setAba] = useState<'quadro' | 'notas'>('quadro')
   const [apagado, setApagado] = useState<Postit | null>(null)
   const [novo, setNovo] = useState<string | null>(null)
@@ -167,7 +216,7 @@ export function TelaQuadro() {
                 onClick={() => setAba(a)}
                 className={`rounded-full px-3 py-1 ${aba === a ? 'bg-[var(--cartao)] font-medium text-[var(--tinta-forte)] shadow-[var(--sombra)]' : 'text-[var(--tinta-suave)]'}`}
               >
-                {a === 'quadro' ? `💭 post-its (${quadro.length})` : `📝 anotações (${nNotas})`}
+                {a === 'quadro' ? `💭 post-its (${quadro.length})` : `📝 anotações e marcas (${nNotas})`}
               </button>
             ))}
           </div>

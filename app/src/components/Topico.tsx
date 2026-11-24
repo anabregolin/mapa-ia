@@ -20,6 +20,8 @@ import { LinhaTreino } from './Treino'
 import { Anotacao, AvisoRevisita, PalavrasFlutuantes, temCartoes } from './Ferramentas'
 import { calculosDoTopico } from '../content/calculos'
 import { IconeStatus, useStatus } from './Trilha'
+import { CAMADAS_MARCAVEIS, Marcador, MarcasDoTopico, rolarAteMarca } from './Marcas'
+import type { Marca } from '../lib/marcas'
 
 interface Camada {
   chave: string
@@ -186,6 +188,7 @@ export function Topico({ id }: { id: string }) {
   // reabre até onde você já tinha chegado
   const [abertas, setAbertas] = useState(() => Math.min(camadas.length, (profundidade[id] ?? 0) + 1))
   const refs = useRef<(HTMLElement | null)[]>([])
+  const textoRef = useRef<HTMLDivElement>(null)
   // pré-teste só na primeira vez que o tópico abre (decidido na montagem, antes de aprofundar() marcar a visita)
   const estudo = useMapa((s) => s.estudo)
   const pretestes = useMapa((s) => s.pretestes)
@@ -218,6 +221,14 @@ export function Topico({ id }: { id: string }) {
   const irParaCola = () => {
     setAbertas(camadas.length)
     setTimeout(() => refs.current[camadas.length - 1]?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
+  }
+
+  // "ver no texto": abre até a camada da marca e rola até o trecho
+  const irParaMarca = (m: Marca) => {
+    const i = camadas.findIndex((c) => c.chave === m.camada)
+    if (i < 0) return
+    setAbertas((n) => Math.max(n, i + 1))
+    setTimeout(() => rolarAteMarca(textoRef.current, m), 120)
   }
 
   return (
@@ -285,10 +296,11 @@ export function Topico({ id }: { id: string }) {
         )}
 
         {!chutando && <AvisoPausa key={id} irParaLembrar={irParaLembrar} />}
+        {!chutando && <MarcasDoTopico id={id} irPara={irParaMarca} />}
         {chutando && <Preteste id={id} terminar={() => setChutando(false)} />}
 
         {/* as camadas */}
-        <div className={`mt-10 space-y-7 ${chutando ? 'hidden' : ''}`}>
+        <div ref={textoRef} className={`mt-10 space-y-7 ${chutando ? 'hidden' : ''}`}>
           <AnimatePresence initial={false}>
             {camadas.slice(0, abertas).map((c, i) => (
               <motion.section
@@ -307,7 +319,7 @@ export function Topico({ id }: { id: string }) {
                   </span>
                   {c.rotulo}
                 </div>
-                {c.conteudo}
+                <div data-marcavel={CAMADAS_MARCAVEIS.has(c.chave) ? c.chave : undefined}>{c.conteudo}</div>
               </motion.section>
             ))}
           </AnimatePresence>
@@ -389,6 +401,7 @@ export function Topico({ id }: { id: string }) {
 
       <DemoModal demo={demo} fechar={() => setDemo(null)} />
       <Anotacao id={id} />
+      <Marcador topico={id} raiz={textoRef} />
     </motion.div>
   )
 }

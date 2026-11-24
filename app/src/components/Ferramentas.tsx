@@ -8,6 +8,7 @@ import { faltaQuanto, haQuanto, venceu, voltaEm } from '../lib/revisita'
 import { useMapa } from '../store/useMapa'
 import { Tex } from './FormulaAnimada'
 import { Texto } from './Texto'
+import { ListaMarcas } from './Marcas'
 
 /* ───────────── anotação rápida ───────────── */
 
@@ -16,6 +17,8 @@ export function Anotacao({ id }: { id: string }) {
   const nota = useMapa((s) => s.notas[id])
   const salvarNota = useMapa((s) => s.salvarNota)
   const adicionarPostit = useMapa((s) => s.adicionarPostit)
+  const todasMarcas = useMapa((s) => s.marcas)
+  const marcas = useMemo(() => todasMarcas.filter((m) => m.topico === id), [todasMarcas, id])
   const [aberta, setAberta] = useState(false)
   const [texto, setTexto] = useState(nota?.texto ?? '')
   const [levou, setLevou] = useState(false)
@@ -46,11 +49,12 @@ export function Anotacao({ id }: { id: string }) {
       <button
         hidden={aberta}
         onClick={() => setAberta(true)}
-        aria-label={nota ? 'abrir minha anotação' : 'anotar'}
-        className="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-[var(--cartao)] px-4 py-3 text-sm font-medium text-[var(--tinta-forte)] shadow-[0_10px_30px_-12px_rgba(36,34,44,.35)] transition-transform hover:-translate-y-0.5"
+        aria-label={nota ? 'abrir minha anotação' : 'anotar sobre este tópico'}
+        className="fixed bottom-5 right-5 z-30 flex items-center gap-2 rounded-full bg-[var(--foco)] px-4 py-3 text-sm font-semibold text-white shadow-[0_12px_30px_-10px_rgba(36,34,44,.5)] transition-transform hover:-translate-y-0.5"
         style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        📝 <span className="hidden sm:inline">{nota ? 'minha anotação' : 'anotar'}</span>
+        📝 <span>{nota ? 'minha anotação' : 'anotar'}</span>
+        {marcas.length > 0 && <span className="rounded-full bg-white/25 px-1.5 text-xs">🖍 {marcas.length}</span>}
         {nota && <span className="h-2 w-2 rounded-full bg-[var(--coral)]" />}
       </button>
 
@@ -65,7 +69,7 @@ export function Anotacao({ id }: { id: string }) {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', damping: 30, stiffness: 320 }}
-              className="fixed inset-x-0 bottom-0 z-50 mx-auto max-w-2xl rounded-t-3xl bg-[var(--cartao)] p-5 shadow-[0_-12px_40px_-16px_rgba(36,34,44,.3)]"
+              className="fixed inset-x-0 bottom-0 z-50 mx-auto max-h-[85dvh] max-w-2xl overflow-y-auto rounded-t-3xl bg-[var(--cartao)] p-5 shadow-[0_-12px_40px_-16px_rgba(36,34,44,.3)]"
               style={{ paddingBottom: 'calc(1.25rem + env(safe-area-inset-bottom, 0px))' }}
             >
               <div className="mb-2 flex items-center gap-2">
@@ -96,6 +100,12 @@ export function Anotacao({ id }: { id: string }) {
                   {levou ? '✓ está no quadro' : '💭 levar para o quadro'}
                 </button>
               </div>
+              {marcas.length > 0 && (
+                <div className="mt-5 border-t border-[var(--linha)] pt-4">
+                  <div className="mb-2 text-sm font-semibold text-[var(--tinta-forte)]">🖍 Trechos que você marcou aqui</div>
+                  <ListaMarcas marcas={marcas} />
+                </div>
+              )}
             </motion.div>
           </>
         )}

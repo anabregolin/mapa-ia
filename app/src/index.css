@@ -149,3 +149,10 @@ body { background: var(--papel); color: var(--tinta); }
 .botao-foco:active { transform: translateY(0); }
 :focus-visible { outline: 2px solid var(--foco); outline-offset: 2px; border-radius: 6px; }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
+
+/* marca-texto (CSS Custom Highlight API) */
+::highlight(marca-amarelo) { background-color: #fde68a; color: #1c1917; }
+::highlight(marca-rosa) { background-color: #fbcfe8; color: #1c1917; }
+::highlight(marca-verde) { background-color: #bbf7d0; color: #1c1917; }
+::highlight(marca-azul) { background-color: #bfdbfe; color: #1c1917; }
+::highlight(marca-lilas) { background-color: #ddd6fe; color: #1c1917; }
