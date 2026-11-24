@@ -9,7 +9,8 @@
     "lint": "oxlint",
     "preview": "vite preview",
     "checar": "node scripts/checar-conteudo.mjs",
-    "numeros": "node scripts/numeros-sem-fonte.mjs"
+    "numeros": "node scripts/numeros-sem-fonte.mjs",
+    "slides": "node scripts/slides.mjs"
   },
   "dependencies": {
     "@fontsource-variable/lexend": "^5.3.0",

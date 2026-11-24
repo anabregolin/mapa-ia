@@ -7,6 +7,7 @@ import { agendar, type ProgressoCalculo, type TentativaCalculo } from '../lib/tr
 import { INTERVALOS_PADRAO, MINUTOS_PADRAO, proximaRevisita, type Revisita } from '../lib/revisita'
 import { LEITURA_PADRAO, type PrefLeitura } from '../lib/leitura'
 import { CORES_PADRAO, type CorMarca, type Marca } from '../lib/marcas'
+import { ABAS_PADRAO, GERAL, novaAba, type Aba } from '../lib/abas'
 import { PARADO, POMODORO_PADRAO, type EstadoPomodoro, type PrefPomodoro } from '../lib/pomodoro'
 
 export interface Nota {
@@ -81,6 +82,13 @@ interface EstadoMapa {
   coresMarca: CorMarca[]
   pomodoroPref: PrefPomodoro
   pomodoro: EstadoPomodoro
+  /** abas da trilha por prova/exercício/trabalho (a "Geral" não entra aqui) */
+  abas: Aba[]
+  abaAtual: string
+  /** explicação Feynman de cada tópico: o texto e o que você conferiu ao reler/reouvir */
+  feynman: Record<string, Feynman>
+  /** páginas de slide fixadas em cada tópico: "arquivo#página" */
+  slidesFixados: Record<string, string[]>
 
   /** abre um tópico (navega para #/t/<id>) ou volta para a trilha (null) */
   selecionar: (id: string | null) => void
@@ -114,6 +122,23 @@ interface EstadoMapa {
   setObjetivoCor: (id: CorMarca['id'], objetivo: string) => void
   setPomodoroPref: (mudanca: Partial<PrefPomodoro>) => void
   setPomodoro: (e: EstadoPomodoro) => void
+  setAbaAtual: (id: string) => void
+  criarAba: (nome: string) => string
+  editarAba: (id: string, mudanca: Partial<Pick<Aba, 'nome' | 'descricao'>>) => void
+  removerAba: (id: string) => void
+  alternarTopicoNaAba: (aba: string, topico: string) => void
+  restaurarAbasPadrao: () => void
+  salvarFeynman: (id: string, mudanca: Partial<Feynman>) => void
+  alternarSlide: (topico: string, pagina: string) => void
+}
+
+export interface Feynman {
+  texto: string
+  /** itens da lista de conferência marcados */
+  conferido: Record<string, true>
+  /** onde travou ao explicar: é o que falta estudar */
+  travei?: string
+  em: number
 }
 
 const alternar = (r: Record<string, true>, id: string) => {
@@ -153,6 +178,10 @@ export const useMapa = create<EstadoMapa>()(
       coresMarca: CORES_PADRAO,
       pomodoroPref: POMODORO_PADRAO,
       pomodoro: PARADO,
+      abas: ABAS_PADRAO,
+      abaAtual: GERAL,
+      feynman: {},
+      slidesFixados: {},
 
       selecionar: (id) => {
         location.hash = id ? `#/t/${id}` : '#/'
@@ -219,6 +248,31 @@ export const useMapa = create<EstadoMapa>()(
       setObjetivoCor: (id, objetivo) => set((s) => ({ coresMarca: s.coresMarca.map((c) => (c.id === id ? { ...c, objetivo } : c)) })),
       setPomodoroPref: (mudanca) => set((s) => ({ pomodoroPref: { ...s.pomodoroPref, ...mudanca } })),
       setPomodoro: (pomodoro) => set({ pomodoro }),
+      setAbaAtual: (abaAtual) => set({ abaAtual }),
+      criarAba: (nome) => {
+        const a = novaAba(nome)
+        set((s) => ({ abas: [...s.abas, a], abaAtual: a.id }))
+        return a.id
+      },
+      editarAba: (id, mudanca) => set((s) => ({ abas: s.abas.map((a) => (a.id === id ? { ...a, ...mudanca } : a)) })),
+      removerAba: (id) => set((s) => ({ abas: s.abas.filter((a) => a.id !== id), abaAtual: s.abaAtual === id ? GERAL : s.abaAtual })),
+      alternarTopicoNaAba: (aba, topico) =>
+        set((s) => ({
+          abas: s.abas.map((a) => (a.id !== aba ? a : { ...a, topicos: a.topicos.includes(topico) ? a.topicos.filter((t) => t !== topico) : [...a.topicos, topico] })),
+        })),
+      // devolve as abas do programa como eram; as que você criou continuam
+      restaurarAbasPadrao: () => set((s) => ({ abas: [...ABAS_PADRAO, ...s.abas.filter((a) => !a.padrao)] })),
+      alternarSlide: (topico, pagina) =>
+        set((s) => {
+          const atual = s.slidesFixados[topico] ?? []
+          const novo = atual.includes(pagina) ? atual.filter((p) => p !== pagina) : [...atual, pagina]
+          return { slidesFixados: { ...s.slidesFixados, [topico]: novo } }
+        }),
+      salvarFeynman: (id, mudanca) =>
+        set((s) => {
+          const atual = s.feynman[id] ?? { texto: '', conferido: {}, em: 0 }
+          return { feynman: { ...s.feynman, [id]: { ...atual, ...mudanca, em: Date.now() } } }
+        }),
     }),
     {
       name: 'mapa-ia',
@@ -261,6 +315,10 @@ export const useMapa = create<EstadoMapa>()(
         coresMarca: s.coresMarca,
         pomodoroPref: s.pomodoroPref,
         pomodoro: s.pomodoro,
+        abas: s.abas,
+        abaAtual: s.abaAtual,
+        feynman: s.feynman,
+        slidesFixados: s.slidesFixados,
       }),
       // preferências novas que o navegador ainda não tem ganham o valor padrão
       merge: (salvo, atual) => {

@@ -22,6 +22,10 @@ import { calculosDoTopico } from '../content/calculos'
 import { IconeStatus, useStatus } from './Trilha'
 import { CAMADAS_MARCAVEIS, Marcador, MarcasDoTopico, rolarAteMarca } from './Marcas'
 import type { Marca } from '../lib/marcas'
+import { AbasDoTopico } from './Abas'
+import { Explicar } from './Explicar'
+import { Slides } from './Slides'
+import { FiguraDoTopico } from './Figuras'
 
 interface Camada {
   chave: string
@@ -47,9 +51,9 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
   const camadas: Camada[] = c ? [] : [resumo]
   if (c) {
     camadas.push(
-      { chave: 'intuicao', rotulo: 'Pensa assim', convite: '', conteudo: <TextoLeitura>{c.intuicao}</TextoLeitura> },
-      { chave: 'definicao', rotulo: 'Com o nome certo', convite: 'Agora com as palavras da prova', conteudo: <TextoLeitura>{c.definicao}</TextoLeitura> },
-      { chave: 'detalhe', rotulo: 'Mergulho', convite: 'Quero o detalhe técnico', conteudo: <TextoLeitura>{c.detalhe}</TextoLeitura> },
+      { chave: 'intuicao', rotulo: 'Pensa assim', convite: '', conteudo: <><TextoLeitura>{c.intuicao}</TextoLeitura><FiguraDoTopico id={tp.id} camada="intuicao" /></> },
+      { chave: 'definicao', rotulo: 'Com o nome certo', convite: 'Agora com as palavras da prova', conteudo: <><TextoLeitura>{c.definicao}</TextoLeitura><FiguraDoTopico id={tp.id} camada="definicao" /></> },
+      { chave: 'detalhe', rotulo: 'Mergulho', convite: 'Quero o detalhe técnico', conteudo: <><TextoLeitura>{c.detalhe}</TextoLeitura><FiguraDoTopico id={tp.id} camada="detalhe" /></> },
     )
     if (c.cuidado)
       camadas.push({
@@ -278,6 +282,7 @@ export function Topico({ id }: { id: string }) {
           </span>
           {tp.semSlide && <span className="rounded-full bg-[var(--papel-2)] px-2.5 py-0.5 text-[var(--tinta-suave)]">complementar (sem slide)</span>}
           {tp.naoVisto && <span className="rounded-full bg-[var(--papel-2)] px-2.5 py-0.5 text-[var(--tinta-suave)]">extra · não visto em aula</span>}
+          <AbasDoTopico id={id} />
           <button
             onClick={() => alternarVoltar(id)}
             className={`ml-auto rounded-full px-2.5 py-0.5 ${voltar[id] ? 'bg-[var(--alerta-claro)] text-[var(--alerta)]' : 'text-[var(--tinta-suave)] hover:bg-[var(--papel-2)]'}`}
@@ -373,6 +378,9 @@ export function Topico({ id }: { id: string }) {
             </motion.div>
           )}
         </div>
+
+        {!chutando && <Slides id={id} />}
+        {!chutando && <Explicar id={id} cor={u.cor} />}
 
         {tp.fontes.length > 0 && (
           <div className="mt-8 text-xs text-[var(--tinta-suave)]">

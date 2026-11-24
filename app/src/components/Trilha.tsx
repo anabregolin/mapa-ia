@@ -10,6 +10,8 @@ import { topicosQueVoltam } from '../lib/revisita'
 import { BotaoAjustes } from './Ajustes'
 import { LembreteBackup } from './Backup'
 import { BotaoRelembrar } from './Relembrar'
+import { BarraAbas, EditarAba } from './Abas'
+import { GERAL } from '../lib/abas'
 
 export type Status = 'novo' | 'andamento' | 'entendi' | 'voltar'
 
@@ -76,11 +78,11 @@ function LinhaTopico({ tp, ultimo, cor }: { tp: Topico; ultimo: boolean; cor: st
   )
 }
 
-function CartaoModulo({ m, aberto, alternar }: { m: Modulo; aberto: boolean; alternar: () => void }) {
+function CartaoModulo({ m, aberto, alternar, filtro }: { m: Modulo; aberto: boolean; alternar: () => void; filtro: Set<string> | null }) {
   const status = useStatus()
   const extras = useMapa((s) => s.mostrarExtras)
   const u = unidade(m.unidade)
-  const tps = m.topicos.filter((t) => extras || !t.naoVisto)
+  const tps = m.topicos.filter((t) => (filtro ? filtro.has(t.id) : extras || !t.naoVisto))
   const feitos = tps.filter((t) => status(t.id) === 'entendi').length
   const completo = feitos === tps.length
 
@@ -128,17 +130,22 @@ function CartaoModulo({ m, aberto, alternar }: { m: Modulo; aberto: boolean; alt
 }
 
 export function Trilha() {
-  const { ultimo, estudados, voltar, revisitas, estudo, mostrarExtras, setMostrarExtras, selecionar, setRevisaoAberta } = useMapa()
+  const { ultimo, estudados, voltar, revisitas, estudo, mostrarExtras, setMostrarExtras, selecionar, setRevisaoAberta, abas, abaAtual } = useMapa()
   const status = useStatus()
   const treinosHoje = useTreinosHoje()
-  const visiveis = ORDEM.filter((t) => !t.naoVisto)
+  const [editando, setEditando] = useState<string | null>(null)
+  const aba = abaAtual === GERAL ? null : (abas.find((a) => a.id === abaAtual) ?? null)
+  const abaEditada = abas.find((a) => a.id === editando)
+  // numa aba, vale o que ela marca (inclusive extras); na geral, só o que foi visto em aula
+  const filtro = aba ? new Set(aba.topicos) : null
+  const visiveis = filtro ? ORDEM.filter((t) => filtro.has(t.id)) : ORDEM.filter((t) => !t.naoVisto)
   const feitos = visiveis.filter((t) => estudados[t.id]).length
   const paraVoltar = Object.keys(voltar).filter((id) => topicoPorId.has(id))
   const [agora] = useState(() => Date.now())
   const revisitarHoje = topicosQueVoltam(revisitas, estudo.intervalos, agora)
 
   // continuar: o último aberto se ainda não foi entendido; senão o primeiro pendente da trilha
-  const proximo = (ultimo && !estudados[ultimo] && topicoPorId.get(ultimo)) || visiveis.find((t) => status(t.id) !== 'entendi') || null
+  const proximo = (ultimo && !estudados[ultimo] && (!filtro || filtro.has(ultimo)) && topicoPorId.get(ultimo)) || visiveis.find((t) => status(t.id) !== 'entendi') || null
   const moduloDoProximo = proximo?.grupo
   const [abertos, setAbertos] = useState<Record<string, boolean>>(() => (moduloDoProximo ? { [moduloDoProximo]: true } : {}))
 
@@ -180,11 +187,24 @@ export function Trilha() {
       </h1>
       <p className="mt-2 text-[var(--tinta-suave)]">Um tópico de cada vez, do básico ao avançado. Cada um abre em camadas: você só aprofunda quando quiser.</p>
 
-      {/* progresso geral */}
       <div className="mt-6">
+        <BarraAbas editar={setEditando} />
+        {aba && (
+          <p className="mt-2 flex flex-wrap items-center gap-x-2 text-sm text-[var(--tinta-suave)]">
+            {aba.descricao || 'Aba sem descrição.'}
+            <button className="text-[var(--foco)] hover:underline" onClick={() => setEditando(editando === aba.id ? null : aba.id)}>
+              ✎ editar esta aba
+            </button>
+          </p>
+        )}
+        {abaEditada && <EditarAba key={abaEditada.id} aba={abaEditada} fechar={() => setEditando(null)} />}
+      </div>
+
+      {/* progresso da aba (ou geral) */}
+      <div className="mt-5">
         <div className="mb-1.5 flex justify-between text-sm">
           <span className="text-[var(--tinta)]">
-            <strong className="text-[var(--tinta-forte)]">{feitos}</strong> de {visiveis.length} tópicos entendidos
+            <strong className="text-[var(--tinta-forte)]">{feitos}</strong> de {visiveis.length} tópicos entendidos{aba && <> em {aba.nome}</>}
           </span>
           {paraVoltar.length > 0 && <span className="text-[var(--alerta)]">⚑ {paraVoltar.length} para voltar</span>}
         </div>
@@ -193,7 +213,7 @@ export function Trilha() {
             className="h-full rounded-full"
             style={{ background: 'linear-gradient(90deg, var(--foco), var(--coral), var(--sol))' }}
             initial={{ width: 0 }}
-            animate={{ width: `${(feitos / visiveis.length) * 100}%` }}
+            animate={{ width: `${(feitos / Math.max(1, visiveis.length)) * 100}%` }}
             transition={{ duration: 0.8, ease: 'easeOut' }}
           />
         </div>
@@ -249,10 +269,10 @@ export function Trilha() {
 
       <div className="mb-3 mt-10 flex flex-wrap items-center justify-between gap-2">
         <h2 className="text-sm font-semibold uppercase tracking-[0.14em] text-[var(--tinta-suave)]">A trilha</h2>
-        <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--tinta-suave)]">
+        {!aba && <label className="flex cursor-pointer items-center gap-2 text-xs text-[var(--tinta-suave)]">
           <input type="checkbox" checked={mostrarExtras} onChange={(e) => setMostrarExtras(e.target.checked)} className="accent-[var(--foco)]" />
           mostrar extras (não vistos em aula)
-        </label>
+        </label>}
       </div>
       <div className="mb-4 flex flex-wrap gap-x-4 gap-y-1 text-[11px] text-[var(--tinta-suave)]">
         <span>○ não comecei</span>
@@ -262,17 +282,24 @@ export function Trilha() {
         <span>●○○ base · ●●○ aprofunda · ●●● avançado</span>
       </div>
 
+      {aba && visiveis.length === 0 && (
+        <p className="rounded-2xl border border-dashed border-[var(--linha)] px-4 py-6 text-center text-sm text-[var(--tinta-suave)]">
+          Esta aba ainda não tem tópicos. Use “✎ editar esta aba” ou o botão 📑 dentro de um tópico.
+        </p>
+      )}
       <div className="space-y-3">
         {LINHA.map((item) =>
           'tipo' in item ? (
+            aba ? null : (
             <div key={item.titulo} className="flex items-center gap-3 px-2 py-2 text-sm">
               <span className="text-lg">🏁</span>
               <span className="font-semibold text-[var(--tinta-forte)]">{item.titulo}</span>
               <span className="h-px flex-1 bg-[var(--linha)]" />
               <span className="text-xs text-[var(--tinta-suave)]">avaliação</span>
             </div>
-          ) : (
-            <CartaoModulo key={item.id} m={item} aberto={!!abertos[item.id]} alternar={() => setAbertos((a) => ({ ...a, [item.id]: !a[item.id] }))} />
+            )
+          ) : filtro && !item.topicos.some((t) => filtro.has(t.id)) ? null : (
+            <CartaoModulo key={item.id} m={item} filtro={filtro} aberto={!!abertos[item.id]} alternar={() => setAbertos((a) => ({ ...a, [item.id]: !a[item.id] }))} />
           ),
         )}
       </div>
