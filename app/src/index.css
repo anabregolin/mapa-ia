@@ -1,5 +1,7 @@
 @import "tailwindcss";
 @import "@fontsource-variable/lexend";
+@import "@fontsource/atkinson-hyperlegible/400.css";
+@import "@fontsource/atkinson-hyperlegible/700.css";
 
 @theme {
   --color-tinta: var(--tinta);
@@ -86,7 +88,11 @@ html, body, #root { height: 100%; margin: 0; }
 
 /* termos das fórmulas: acendem no hover e somem enquanto a fórmula é montada */
 .formula-termos [data-termo] { cursor: help; border-radius: 3px; transition: opacity .35s, color .2s, background-color .2s; }
-.formula-termos .termo-ativo { color: var(--color-cyan-300); background: color-mix(in srgb, var(--color-cyan-300) 12%, transparent); }
+.formula-termos .termo-ativo { color: var(--foco); background: var(--foco-claro); }
+/* a fórmula fica num campo só dela, grande e com ar em volta */
+.campo-formula { overflow-x: auto; border-radius: 1rem; background: var(--cartao); border: 1px solid var(--linha); padding: .75rem 1rem; font-size: 1.2em; color: var(--tinta-forte); }
+.campo-formula .katex-display { margin: .4em 0; }
+.rotulo-formula { font-size: .7rem; font-weight: 600; text-transform: uppercase; letter-spacing: .12em; color: var(--tinta-suave); }
 .formula-termos .termo-oculto { opacity: .1; }
 
 /* ───────────── Visual novo: claro, calmo, amigável ─────────────
@@ -112,7 +118,24 @@ html, body, #root { height: 100%; margin: 0; }
 }
 
 body { background: var(--papel); color: var(--tinta); }
-.fonte-leitura { font-size: 1.0625rem; line-height: 1.75; letter-spacing: .005em; }
+.fonte-leitura {
+  font-family: var(--leitura-fonte, inherit); font-size: var(--leitura-tamanho, 1.125rem);
+  line-height: var(--leitura-linha, 1.85); letter-spacing: .005em;
+}
+/* parágrafos curtos com respiro entre eles */
+.texto-arejado > * + * { margin-top: var(--leitura-respiro, 1em); }
+.lista-leitura { margin-top: .4em; padding-left: .2em; }
+.lista-leitura li { position: relative; padding-left: 1.4em; }
+.lista-leitura li + li { margin-top: .45em; }
+.lista-leitura li::before {
+  content: ''; position: absolute; left: .3em; top: calc(var(--leitura-linha, 1.85) * .5em - .2em);
+  width: .4em; height: .4em; border-radius: 999px; background: var(--foco); opacity: .55;
+}
+.coluna-leitura { max-width: var(--leitura-largura, 42rem); }
+/* modo calmo: tudo que se mexe fica quieto */
+:root[data-calmo='sim'] *, :root[data-calmo='sim'] *::before, :root[data-calmo='sim'] *::after {
+  animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important;
+}
 .botao-suave {
   border-radius: 999px; padding: .35rem .85rem; font-size: .8125rem; color: var(--tinta);
   background: var(--papel-2); transition: background .2s, transform .15s;

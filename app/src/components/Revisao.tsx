@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, useMemo, useState } from 'react'
-import { CARTOES, ULTIMA_CAIXA, type Cartao, type Nota, type TipoCartao } from '../content/cartoes'
+import { CARTOES, NOME_TIPO, ULTIMA_CAIXA, type Cartao, type Nota, type TipoCartao } from '../content/cartoes'
 import { topicoPorId, UNIDADES, unidadePorId } from '../content/topicos'
 import type { UnidadeId } from '../content/tipos'
 import { useMapa } from '../store/useMapa'
@@ -9,9 +9,7 @@ import { Texto } from './Texto'
 
 const TIPOS: { id: TipoCartao | 'todos'; nome: string }[] = [
   { id: 'todos', nome: 'tudo' },
-  { id: 'conceito', nome: 'conceitos' },
-  { id: 'formula', nome: 'fórmulas' },
-  { id: 'cuidado', nome: 'pegadinhas' },
+  ...(Object.keys(NOME_TIPO) as TipoCartao[]).map((id) => ({ id, nome: NOME_TIPO[id].varios })),
 ]
 
 const NOTAS: { nota: Nota; rotulo: string; tecla: string; classe: string }[] = [
@@ -161,7 +159,7 @@ function Sessao({ fechar }: { fechar: () => void }) {
             >
               <div className="flex items-center justify-between text-[11px] uppercase tracking-[0.15em]">
                 <span style={{ color: cor }}>
-                  {cartao.unidade.toUpperCase()} · {cartao.tipo === 'formula' ? 'fórmula' : cartao.tipo === 'cuidado' ? 'pegadinha' : 'conceito'}
+                  {cartao.unidade.toUpperCase()} · {NOME_TIPO[cartao.tipo].um}
                 </span>
                 <span className="text-slate-500">{cartoes[cartao.id] ? `caixa ${cartoes[cartao.id].caixa + 1}` : 'novo'}</span>
               </div>

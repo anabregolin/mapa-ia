@@ -1,9 +1,10 @@
 // Ferramentas de foco dentro do tópico: anotar, revisitar, palavras-chave e cartões.
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { CARTOES, type Nota as NotaCartao } from '../content/cartoes'
+import { CARTOES, type Cartao, type Nota as NotaCartao } from '../content/cartoes'
+import { topicoPorId } from '../content/topicos'
 import { palavrasDoTopico } from '../content/palavras'
-import { diasDesde, venceu } from '../lib/revisita'
+import { faltaQuanto, haQuanto, venceu, voltaEm } from '../lib/revisita'
 import { useMapa } from '../store/useMapa'
 import { Tex } from './FormulaAnimada'
 import { Texto } from './Texto'
@@ -105,15 +106,15 @@ export function Anotacao({ id }: { id: string }) {
 
 /* ───────────── revisita ───────────── */
 
-/** Aparece no topo quando um tópico entendido "venceu": uma olhada rápida segura a memória. */
+/** Aparece no topo quando um tópico estudado "venceu": uma olhada rápida segura a memória. */
 export function AvisoRevisita({ id, irParaCola }: { id: string; irParaCola: () => void }) {
   const r = useMapa((s) => s.revisitas[id])
-  const estudado = useMapa((s) => !!s.estudados[id])
+  const intervalos = useMapa((s) => s.estudo.intervalos)
   const revisitar = useMapa((s) => s.revisitar)
   const [resposta, setResposta] = useState<'lembrou' | 'esqueceu' | null>(null)
   // decide uma vez ao abrir; se responder, o aviso vira um agradecimento em vez de sumir de repente
-  const [mostrar] = useState(() => estudado && venceu(r, Date.now()))
-  const [dias] = useState(() => (r ? diasDesde(r, Date.now()) : 0))
+  const [mostrar] = useState(() => venceu(r, intervalos, Date.now()))
+  const [quanto] = useState(() => (r ? haQuanto(r, Date.now()) : ''))
   if (!mostrar) return null
   return (
     <motion.div
@@ -123,12 +124,14 @@ export function AvisoRevisita({ id, irParaCola }: { id: string; irParaCola: () =
     >
       {resposta ? (
         <p className="text-[var(--tinta-forte)]">
-          {resposta === 'lembrou' ? '✓ Boa! Ele volta daqui a mais tempo.' : 'Tudo bem, esquecer faz parte. Ele volta em 3 dias; relê as camadas com calma.'}
+          {resposta === 'lembrou'
+            ? `✓ Boa! A próxima volta é ${faltaQuanto(voltaEm(r!, intervalos), Date.now())}.`
+            : `Tudo bem, esquecer faz parte. Relê as camadas com calma; ele volta ${faltaQuanto(voltaEm(r!, intervalos), Date.now())}.`}
         </p>
       ) : (
         <>
           <p className="text-[var(--tinta-forte)]">
-            <strong>Hora de revisitar.</strong> Faz {dias} {dias === 1 ? 'dia' : 'dias'} que você entendeu isto. Tenta lembrar antes de ler, depois confere na cola.
+            <strong>Hora de relembrar.</strong> {quanto.replace('faz', 'Faz')} que você estudou isto. Tenta lembrar antes de ler, depois confere na cola.
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             <button onClick={irParaCola} className="botao-suave">
@@ -171,7 +174,8 @@ const ALTURAS = [16, 30, 44, 58, 72, 86, 23]
 export function PalavrasFlutuantes({ id, cor }: { id: string; cor: string }) {
   const ligadas = useMapa((s) => s.palavrasFlutuantes)
   const palavras = useMemo(() => palavrasDoTopico(id), [id])
-  const parado = useReducedMotion()
+  const calmo = useMapa((s) => s.leitura.calmo)
+  const parado = useReducedMotion() || calmo
   if (!ligadas || !palavras.length) return null
 
   const balao = (p: string, i: number, extra = '') => (
@@ -207,7 +211,7 @@ export function PalavrasFlutuantes({ id, cor }: { id: string; cor: string }) {
               className="absolute"
               style={{
                 top: `${ALTURAS[i % ALTURAS.length]}%`,
-                ...(esquerda ? { right: `calc(50% + 336px + ${24 + (i % 3) * 22}px)` } : { left: `calc(50% + 336px + ${24 + (i % 3) * 22}px)` }),
+                ...(esquerda ? { right: `calc(50% + var(--leitura-largura, 42rem) / 2 + ${24 + (i % 3) * 22}px)` } : { left: `calc(50% + var(--leitura-largura, 42rem) / 2 + ${24 + (i % 3) * 22}px)` }),
               }}
             >
               {balao(p, i, 'shadow-[var(--sombra)]')}
@@ -239,8 +243,8 @@ const BOTOES: { nota: NotaCartao; rotulo: string; estilo: React.CSSProperties }[
 ]
 
 /** Os cartões deste tópico, um de cada vez. As respostas entram na mesma fila da revisão geral. */
-export function CartoesDoTopico({ id }: { id: string }) {
-  const cartoes = useMemo(() => CARTOES.filter((c) => c.topico === id), [id])
+export function CartoesDoTopico({ id, lista }: { id: string; lista?: Cartao[] }) {
+  const cartoes = useMemo(() => lista ?? CARTOES.filter((c) => c.topico === id), [id, lista])
   const responderCartao = useMapa((s) => s.responderCartao)
   const [i, setI] = useState(0)
   const [virado, setVirado] = useState(false)
@@ -283,7 +287,10 @@ export function CartoesDoTopico({ id }: { id: string }) {
           transition={{ duration: 0.25 }}
           className="rounded-2xl border border-[var(--linha)] bg-[var(--papel)] p-4"
         >
-          <p className="font-medium text-[var(--tinta-forte)]">{c.pergunta}</p>
+          {c.topico !== id && <div className="mb-1 text-xs text-[var(--tinta-suave)]">de {topicoPorId.get(c.topico)?.titulo}</div>}
+          <p className="fonte-leitura font-medium text-[var(--tinta-forte)]">
+            <Texto>{c.pergunta}</Texto>
+          </p>
           {virado ? (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mt-3 space-y-2 border-t border-[var(--linha)] pt-3 text-[15px] leading-relaxed text-[var(--tinta)]">
               {c.latex && (

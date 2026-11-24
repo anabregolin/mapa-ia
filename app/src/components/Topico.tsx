@@ -10,9 +10,14 @@ import { NOME_NIVEL, unidade, vizinhosNaTrilha } from '../lib/trilha'
 import { useMapa } from '../store/useMapa'
 import { DemoModal, ItemExercicio } from './Exercicio'
 import { FormulaAnimada } from './FormulaAnimada'
-import { Texto } from './Texto'
+import { TextoLeitura } from './Texto'
+import { BotaoAjustes } from './Ajustes'
+import { Preteste } from './Preteste'
+import { Lembrar } from './Lembrar'
+import { AvisoPausa, BotaoRelembrar } from './Relembrar'
+import { pretestePara } from '../content/preteste'
 import { LinhaTreino } from './Treino'
-import { AlternarPalavras, Anotacao, AvisoRevisita, CartoesDoTopico, PalavrasFlutuantes, temCartoes } from './Ferramentas'
+import { Anotacao, AvisoRevisita, PalavrasFlutuantes, temCartoes } from './Ferramentas'
 import { calculosDoTopico } from '../content/calculos'
 import { IconeStatus, useStatus } from './Trilha'
 
@@ -40,9 +45,9 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
   const camadas: Camada[] = c ? [] : [resumo]
   if (c) {
     camadas.push(
-      { chave: 'intuicao', rotulo: 'Pensa assim', convite: '', conteudo: <p className="fonte-leitura"><Texto>{c.intuicao}</Texto></p> },
-      { chave: 'definicao', rotulo: 'Com o nome certo', convite: 'Agora com as palavras da prova', conteudo: <p className="fonte-leitura"><Texto>{c.definicao}</Texto></p> },
-      { chave: 'detalhe', rotulo: 'Mergulho', convite: 'Quero o detalhe técnico', conteudo: <p className="fonte-leitura"><Texto>{c.detalhe}</Texto></p> },
+      { chave: 'intuicao', rotulo: 'Pensa assim', convite: '', conteudo: <TextoLeitura>{c.intuicao}</TextoLeitura> },
+      { chave: 'definicao', rotulo: 'Com o nome certo', convite: 'Agora com as palavras da prova', conteudo: <TextoLeitura>{c.definicao}</TextoLeitura> },
+      { chave: 'detalhe', rotulo: 'Mergulho', convite: 'Quero o detalhe técnico', conteudo: <TextoLeitura>{c.detalhe}</TextoLeitura> },
     )
     if (c.cuidado)
       camadas.push({
@@ -50,9 +55,7 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
         rotulo: 'Pegadinha',
         convite: 'Onde as pessoas erram na prova?',
         conteudo: (
-          <div className="fonte-leitura rounded-2xl bg-[var(--alerta-claro)] px-4 py-3 text-[var(--tinta-forte)]">
-            <Texto>{c.cuidado}</Texto>
-          </div>
+          <TextoLeitura className="rounded-2xl bg-[var(--alerta-claro)] px-4 py-3 text-[var(--tinta-forte)]">{c.cuidado}</TextoLeitura>
         ),
       })
   }
@@ -62,7 +65,7 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
       rotulo: 'Fórmulas',
       convite: formulas.length > 1 ? `Ver as ${formulas.length} fórmulas, termo a termo` : 'Ver a fórmula, termo a termo',
       conteudo: (
-        <div className="space-y-3">
+        <div className="space-y-6">
           {formulas.map((f) => (
             <FormulaAnimada key={`${tp.id}:${f.id}`} formula={f} />
           ))}
@@ -111,7 +114,7 @@ function montarCamadas(tp: TipoTopico, abrirDemo: (d: Demo) => void): Camada[] {
       ),
     })
   if (temCartoes(tp.id))
-    camadas.push({ chave: 'memoria', rotulo: 'Lembrar', convite: 'Testar minha memória', conteudo: <CartoesDoTopico id={tp.id} /> })
+    camadas.push({ chave: 'memoria', rotulo: 'Lembrar', convite: 'Testar minha memória', conteudo: <Lembrar id={tp.id} /> })
   if (c) camadas.push(resumo)
   return camadas
 }
@@ -183,6 +186,11 @@ export function Topico({ id }: { id: string }) {
   // reabre até onde você já tinha chegado
   const [abertas, setAbertas] = useState(() => Math.min(camadas.length, (profundidade[id] ?? 0) + 1))
   const refs = useRef<(HTMLElement | null)[]>([])
+  // pré-teste só na primeira vez que o tópico abre (decidido na montagem, antes de aprofundar() marcar a visita)
+  const estudo = useMapa((s) => s.estudo)
+  const pretestes = useMapa((s) => s.pretestes)
+  const [chutando, setChutando] = useState(() => estudo.preteste && profundidade[id] === undefined && !pretestes[id] && pretestePara(id).length > 0)
+  const [confirmarTudo, setConfirmarTudo] = useState(false)
   const { anterior, proximo } = vizinhosNaTrilha(id, mostrarExtras)
   const fim = abertas >= camadas.length
   // quanto mais fundo, mais a cor da unidade aparece no fundo da página
@@ -196,6 +204,14 @@ export function Topico({ id }: { id: string }) {
     const n = abertas
     setAbertas(n + 1)
     setTimeout(() => refs.current[n]?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60)
+  }
+
+  // o aviso de pausa leva para a camada "Lembrar" (ou para a cola, se o tópico não tiver cartões)
+  const irParaLembrar = () => {
+    const alvo = Math.max(0, camadas.findIndex((c) => c.chave === 'memoria'))
+    const i = alvo || camadas.length - 1
+    setAbertas((n) => Math.max(n, i + 1))
+    setTimeout(() => refs.current[i]?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80)
   }
 
   // a cola é sempre a última camada
@@ -216,14 +232,15 @@ export function Topico({ id }: { id: string }) {
     >
       {/* barra de cima */}
       <header className="sticky top-0 z-20 border-b border-[var(--linha)] bg-[var(--papel)]/85 backdrop-blur" style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}>
-        <div className="mx-auto flex max-w-2xl items-center gap-2 px-4 py-2.5 sm:px-6">
+        <div className="coluna-leitura mx-auto flex items-center gap-2 px-4 py-2.5 sm:px-6">
           <button className="botao-suave" onClick={() => selecionar(null)}>
             ← trilha
           </button>
           <span className="min-w-0 flex-1 truncate text-xs text-[var(--tinta-suave)]">
             {u.id.toUpperCase()} · {grupoPorId.get(tp.grupo)!.titulo}
           </span>
-          <AlternarPalavras />
+          <BotaoRelembrar />
+          <BotaoAjustes />
           {/* régua de profundidade */}
           <span className="flex items-center gap-1" aria-label={`camada ${abertas} de ${camadas.length}`}>
             {camadas.map((c, i) => (
@@ -239,7 +256,7 @@ export function Topico({ id }: { id: string }) {
         </div>
       </header>
 
-      <main className="relative z-10 mx-auto max-w-2xl px-4 pb-32 pt-8 sm:px-6">
+      <main className="coluna-leitura relative z-10 mx-auto px-4 pb-32 pt-8 sm:px-6">
         <div className="text-xs font-medium uppercase tracking-[0.16em]" style={{ color: u.cor }}>
           {u.titulo}
         </div>
@@ -258,13 +275,20 @@ export function Topico({ id }: { id: string }) {
           </button>
         </div>
 
-        <PalavrasFlutuantes id={id} cor={u.cor} />
-        <AvisoRevisita id={id} irParaCola={irParaCola} />
+        {/* durante o pré-teste, as palavras-chave e as ligações entregariam a resposta */}
+        {!chutando && (
+          <>
+            <PalavrasFlutuantes id={id} cor={u.cor} />
+            <AvisoRevisita id={id} irParaCola={irParaCola} />
+            <Vizinhanca tp={tp} />
+          </>
+        )}
 
-        <Vizinhanca tp={tp} />
+        {!chutando && <AvisoPausa key={id} irParaLembrar={irParaLembrar} />}
+        {chutando && <Preteste id={id} terminar={() => setChutando(false)} />}
 
         {/* as camadas */}
-        <div className="mt-8 space-y-4">
+        <div className={`mt-10 space-y-7 ${chutando ? 'hidden' : ''}`}>
           <AnimatePresence initial={false}>
             {camadas.slice(0, abertas).map((c, i) => (
               <motion.section
@@ -275,9 +299,9 @@ export function Topico({ id }: { id: string }) {
                 initial={{ opacity: 0, y: 24, filter: 'blur(6px)' }}
                 animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                className="scroll-mt-20 rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-5 shadow-[var(--sombra)] sm:p-6"
+                className="scroll-mt-20 rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] px-5 py-6 shadow-[var(--sombra)] sm:px-8 sm:py-8"
               >
-                <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tinta-suave)]">
+                <div className="mb-4 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.14em] text-[var(--tinta-suave)]">
                   <span className="grid h-5 w-5 place-items-center rounded-full text-[10px] text-white" style={{ background: u.cor }}>
                     {i + 1}
                   </span>
@@ -290,15 +314,30 @@ export function Topico({ id }: { id: string }) {
         </div>
 
         {/* aprofundar ou fechar */}
-        <div className="mt-6">
+        <div className={`mt-6 ${chutando ? 'hidden' : ''}`}>
           {!fim ? (
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center">
               <button className="botao-foco" onClick={aprofundarUma}>
                 {camadas[abertas].convite} ↓
               </button>
-              <button className="text-xs text-[var(--tinta-suave)] hover:underline" onClick={() => setAbertas(camadas.length)}>
-                abrir tudo de uma vez
-              </button>
+              {/* longe do botão principal e com confirmação: fácil de clicar sem querer */}
+              <div className="mt-12 text-xs text-[var(--tinta-suave)]">
+                {confirmarTudo ? (
+                  <span className="flex flex-wrap items-center justify-center gap-2">
+                    abrir as {camadas.length - abertas} camadas que faltam?
+                    <button className="botao-suave" onClick={() => (setAbertas(camadas.length), setConfirmarTudo(false))}>
+                      sim, abrir tudo
+                    </button>
+                    <button className="botao-suave" onClick={() => setConfirmarTudo(false)}>
+                      não
+                    </button>
+                  </span>
+                ) : (
+                  <button className="hover:underline" onClick={() => setConfirmarTudo(true)}>
+                    abrir tudo de uma vez
+                  </button>
+                )}
+              </div>
             </div>
           ) : (
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="rounded-3xl border border-[var(--linha)] bg-[var(--cartao)] p-5 text-center shadow-[var(--sombra)]">

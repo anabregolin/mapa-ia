@@ -7,6 +7,8 @@ import { LINHA, NOME_NIVEL, ORDEM, unidade, type Modulo } from '../lib/trilha'
 import { useMapa } from '../store/useMapa'
 import { useTreinosHoje } from './Treino'
 import { topicosQueVoltam } from '../lib/revisita'
+import { BotaoAjustes } from './Ajustes'
+import { BotaoRelembrar } from './Relembrar'
 
 export type Status = 'novo' | 'andamento' | 'entendi' | 'voltar'
 
@@ -125,14 +127,14 @@ function CartaoModulo({ m, aberto, alternar }: { m: Modulo; aberto: boolean; alt
 }
 
 export function Trilha() {
-  const { ultimo, estudados, voltar, revisitas, mostrarExtras, setMostrarExtras, selecionar, setRevisaoAberta } = useMapa()
+  const { ultimo, estudados, voltar, revisitas, estudo, mostrarExtras, setMostrarExtras, selecionar, setRevisaoAberta } = useMapa()
   const status = useStatus()
   const treinosHoje = useTreinosHoje()
   const visiveis = ORDEM.filter((t) => !t.naoVisto)
   const feitos = visiveis.filter((t) => estudados[t.id]).length
   const paraVoltar = Object.keys(voltar).filter((id) => topicoPorId.has(id))
   const [agora] = useState(() => Date.now())
-  const revisitarHoje = topicosQueVoltam(estudados, revisitas, agora)
+  const revisitarHoje = topicosQueVoltam(revisitas, estudo.intervalos, agora)
 
   // continuar: o último aberto se ainda não foi entendido; senão o primeiro pendente da trilha
   const proximo = (ultimo && !estudados[ultimo] && topicoPorId.get(ultimo)) || visiveis.find((t) => status(t.id) !== 'entendi') || null
@@ -168,6 +170,8 @@ export function Trilha() {
         <a className="botao-suave" href="#/mapa">
           🕸 conexões
         </a>
+        <BotaoRelembrar />
+        <BotaoAjustes />
       </nav>
 
       <h1 className="text-3xl font-semibold leading-tight text-[var(--tinta-forte)] sm:text-4xl">

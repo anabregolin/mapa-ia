@@ -4,7 +4,8 @@ import { ETAPAS } from '../content/topicos'
 import { responder, type Nota as NotaCartao, type ProgressoCartao } from '../content/cartoes'
 import type { ProgressoExercicio } from '../content/tipos'
 import { agendar, type ProgressoCalculo, type TentativaCalculo } from '../lib/treino'
-import { proximaRevisita, type Revisita } from '../lib/revisita'
+import { INTERVALOS_PADRAO, MINUTOS_PADRAO, proximaRevisita, type Revisita } from '../lib/revisita'
+import { LEITURA_PADRAO, type PrefLeitura } from '../lib/leitura'
 
 export interface Nota {
   texto: string
@@ -21,6 +22,15 @@ export interface Postit {
   /** tópico de onde a ideia veio (opcional) */
   topico?: string
 }
+
+export interface PrefEstudo {
+  preteste: boolean
+  /** minutos de leitura até o "pare e relembre" */
+  minutosLembrete: number
+  /** voltas depois de estudar, em dias (frações = horas) */
+  intervalos: number[]
+}
+export const ESTUDO_PADRAO: PrefEstudo = { preteste: true, minutosLembrete: MINUTOS_PADRAO, intervalos: INTERVALOS_PADRAO }
 
 export const ULTIMA_ETAPA = ETAPAS[ETAPAS.length - 1].pos
 
@@ -58,6 +68,11 @@ interface EstadoMapa {
   revisitas: Record<string, Revisita>
   quadro: Postit[]
   palavrasFlutuantes: boolean
+  /** como você gosta de ver o texto */
+  leitura: PrefLeitura
+  estudo: PrefEstudo
+  /** resultado do pré-teste de cada tópico (o chute antes de ler) */
+  pretestes: Record<string, { acertos: number; total: number; em: number }>
 
   /** abre um tópico (navega para #/t/<id>) ou volta para a trilha (null) */
   selecionar: (id: string | null) => void
@@ -82,6 +97,9 @@ interface EstadoMapa {
   atualizarPostit: (id: string, mudanca: Partial<Postit>) => void
   removerPostit: (id: string) => void
   restaurarPostit: (p: Postit) => void
+  setLeitura: (mudanca: Partial<PrefLeitura>) => void
+  setEstudo: (mudanca: Partial<PrefEstudo>) => void
+  registrarPreteste: (id: string, acertos: number, total: number) => void
 }
 
 const alternar = (r: Record<string, true>, id: string) => {
@@ -114,6 +132,9 @@ export const useMapa = create<EstadoMapa>()(
       revisitas: {},
       quadro: [],
       palavrasFlutuantes: true,
+      leitura: LEITURA_PADRAO,
+      estudo: ESTUDO_PADRAO,
+      pretestes: {},
 
       selecionar: (id) => {
         location.hash = id ? `#/t/${id}` : '#/'
@@ -126,13 +147,18 @@ export const useMapa = create<EstadoMapa>()(
         set((s) => {
           const estudados = alternar(s.estudados, id)
           const revisitas = { ...s.revisitas }
-          // entendeu agora: a primeira olhada de volta é daqui a 3 dias
+          // entendeu agora: a primeira olhada de volta recomeça a contar
           if (estudados[id]) revisitas[id] = { em: Date.now(), n: 0 }
-          else delete revisitas[id]
           return { estudados, revisitas }
         }),
       alternarVoltar: (id) => set((s) => ({ voltar: alternar(s.voltar, id) })),
-      aprofundar: (id, camada) => set((s) => (camada > (s.profundidade[id] ?? -1) ? { profundidade: { ...s.profundidade, [id]: camada } } : s)),
+      aprofundar: (id, camada) =>
+        set((s) => {
+          if (camada <= (s.profundidade[id] ?? -1)) return s
+          // passou da primeira camada: conta como estudado hoje e entra na fila de relembrar
+          const revisitas = camada >= 1 && !s.revisitas[id] ? { ...s.revisitas, [id]: { em: Date.now(), n: 0 } } : s.revisitas
+          return { profundidade: { ...s.profundidade, [id]: camada }, revisitas }
+        }),
       marcarExercicio: (id, p) =>
         set((s) => {
           const exercicios = { ...s.exercicios }
@@ -162,16 +188,26 @@ export const useMapa = create<EstadoMapa>()(
       atualizarPostit: (id, mudanca) => set((s) => ({ quadro: s.quadro.map((p) => (p.id === id ? { ...p, ...mudanca } : p)) })),
       removerPostit: (id) => set((s) => ({ quadro: s.quadro.filter((p) => p.id !== id) })),
       restaurarPostit: (p) => set((s) => ({ quadro: [...s.quadro, p] })),
+      setLeitura: (mudanca) => set((s) => ({ leitura: { ...s.leitura, ...mudanca } })),
+      setEstudo: (mudanca) => set((s) => ({ estudo: { ...s.estudo, ...mudanca } })),
+      registrarPreteste: (id, acertos, total) => set((s) => ({ pretestes: { ...s.pretestes, [id]: { acertos, total, em: Date.now() } } })),
     }),
     {
       name: 'mapa-ia',
-      version: 1,
+      version: 2,
       // v0 → v1: tópicos entendidos antes de existir a revisita começam a contar a partir de hoje
       migrate: (salvo, versao) => {
         const e = salvo as Partial<EstadoMapa>
         if (versao < 1 && e.estudados) {
           const agora = Date.now()
           e.revisitas = Object.fromEntries(Object.keys(e.estudados).map((id) => [id, { em: agora, n: 0 }]))
+        }
+        // v1 → v2: o relembrar passa a valer para todo tópico lido (não só os marcados como entendidos)
+        if (versao < 2 && e.profundidade) {
+          const agora = Date.now()
+          const revisitas = { ...(e.revisitas ?? {}) }
+          for (const [id, camada] of Object.entries(e.profundidade)) if (camada >= 1 && !revisitas[id]) revisitas[id] = { em: agora, n: 0 }
+          e.revisitas = revisitas
         }
         return e as EstadoMapa
       },
@@ -190,7 +226,15 @@ export const useMapa = create<EstadoMapa>()(
         revisitas: s.revisitas,
         quadro: s.quadro,
         palavrasFlutuantes: s.palavrasFlutuantes,
+        leitura: s.leitura,
+        estudo: s.estudo,
+        pretestes: s.pretestes,
       }),
+      // preferências novas que o navegador ainda não tem ganham o valor padrão
+      merge: (salvo, atual) => {
+        const s = salvo as Partial<EstadoMapa>
+        return { ...atual, ...s, leitura: { ...LEITURA_PADRAO, ...s.leitura }, estudo: { ...ESTUDO_PADRAO, ...s.estudo } }
+      },
     },
   ),
 )

@@ -10,6 +10,7 @@ import { TelaQuadro } from './components/Quadro'
 import { ResolverCalculo, TelaTreino, treinoExiste } from './components/Treino'
 import { topicoPorId } from './content/topicos'
 import { useMapa } from './store/useMapa'
+import { aplicarLeitura } from './lib/leitura'
 
 type Rota = { tela: 'trilha' } | { tela: 'topico'; id: string } | { tela: 'mapa' } | { tela: 'treino' } | { tela: 'quadro' } | { tela: 'calculo'; id: string }
 
@@ -61,6 +62,8 @@ function TelaMapa() {
 
 export default function App() {
   const rota = useRota()
+  const leitura = useMapa((s) => s.leitura)
+  useEffect(() => aplicarLeitura(leitura), [leitura])
   useEffect(() => {
     // os componentes herdados (fórmulas, exercícios, mapa) usam a escala clara
     document.documentElement.dataset.theme = 'light'
