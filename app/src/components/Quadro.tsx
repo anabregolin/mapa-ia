@@ -1,6 +1,7 @@
 // Quadro de brainstorm: post-its soltos que você arrasta, mais a lista de anotações por tópico.
-import { AnimatePresence, motion, useDragControls, useMotionValue } from 'framer-motion'
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { AnimatePresence, MotionConfig, motion, useDragControls, useMotionValue } from 'framer-motion'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCalmo, useSurgir } from '../lib/movimento'
 import { topicoPorId } from '../content/topicos'
 import { voltarDasPaginas } from '../lib/paineis'
 import { unidade } from '../lib/trilha'
@@ -13,23 +14,28 @@ const LARGURA = 1800
 const ALTURA = 1200
 const TAM = 200
 
-const CORES: Record<CorPostit, { fundo: string; nome: string }> = {
-  sol: { fundo: 'color-mix(in srgb, var(--sol) 38%, white)', nome: 'amarelo' },
-  menta: { fundo: 'var(--menta-claro)', nome: 'verde' },
-  foco: { fundo: 'var(--foco-claro)', nome: 'lilás' },
-  coral: { fundo: 'color-mix(in srgb, var(--coral) 28%, white)', nome: 'coral' },
-  papel: { fundo: 'var(--cartao)', nome: 'branco' },
+// fundo: a cor do cartão; ponto: a bolinha que mostra a cor (mais forte, para se ver no próprio cartão)
+const CORES: Record<CorPostit, { fundo: string; ponto: string; nome: string }> = {
+  sol: { fundo: 'color-mix(in srgb, var(--sol) 38%, white)', ponto: 'var(--sol)', nome: 'amarelo' },
+  menta: { fundo: 'var(--menta-claro)', ponto: 'var(--menta)', nome: 'verde' },
+  foco: { fundo: 'var(--foco-claro)', ponto: 'var(--foco)', nome: 'lilás' },
+  coral: { fundo: 'color-mix(in srgb, var(--coral) 28%, white)', ponto: 'var(--coral)', nome: 'coral' },
+  papel: { fundo: 'var(--cartao)', ponto: 'var(--tinta-suave)', nome: 'branco' },
 }
 const ORDEM_CORES = Object.keys(CORES) as CorPostit[]
 
-function Nota({ p, apagar, novo }: { p: Postit; apagar: (p: Postit) => void; novo: boolean }) {
+function Nota({ p, apagar, novo, z, aoTocar }: { p: Postit; apagar: (p: Postit) => void; novo: boolean; z: number; aoTocar: () => void }) {
   const atualizar = useMapa((s) => s.atualizarPostit)
   const selecionar = useMapa((s) => s.selecionar)
+  const calmo = useCalmo()
+  const surgir = useSurgir('cima')
   const controles = useDragControls()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
   const [texto, setTexto] = useState(p.texto)
+  const [paleta, setPaleta] = useState(false)
   const campo = useRef<HTMLTextAreaElement>(null)
+  const caixaPaleta = useRef<HTMLDivElement>(null)
   const tp = p.topico ? topicoPorId.get(p.topico) : undefined
 
   useEffect(() => {
@@ -43,35 +49,97 @@ function Nota({ p, apagar, novo }: { p: Postit; apagar: (p: Postit) => void; nov
     return () => clearTimeout(t)
   }, [texto, p.texto, p.id, atualizar])
 
-  const proximaCor = () => atualizar(p.id, { cor: ORDEM_CORES[(ORDEM_CORES.indexOf(p.cor) + 1) % ORDEM_CORES.length] })
+  // a paleta fecha ao clicar fora dela
+  useEffect(() => {
+    if (!paleta) return
+    const fora = (e: PointerEvent) => {
+      if (!caixaPaleta.current?.contains(e.target as Node)) setPaleta(false)
+    }
+    document.addEventListener('pointerdown', fora)
+    return () => document.removeEventListener('pointerdown', fora)
+  }, [paleta])
 
   return (
     <motion.div
+      data-postit={p.id}
       drag
       dragControls={controles}
       dragListener={false}
       dragMomentum={false}
       dragConstraints={{ left: -p.x, top: -p.y, right: LARGURA - TAM - p.x, bottom: ALTURA - TAM - p.y }}
       dragElastic={0}
+      onPointerDownCapture={aoTocar}
       onDragEnd={() => {
         atualizar(p.id, { x: Math.round(p.x + x.get()), y: Math.round(p.y + y.get()) })
         x.set(0)
         y.set(0)
       }}
-      initial={{ opacity: 0, scale: 0.85 }}
+      initial={calmo ? { opacity: 0 } : { opacity: 0, scale: 0.85 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.85 }}
-      whileDrag={{ scale: 1.04, rotate: -1.5, zIndex: 10 }}
-      className="absolute flex flex-col rounded-2xl shadow-[0_10px_24px_-14px_rgba(36,34,44,.45)]"
-      style={{ left: p.x, top: p.y, width: TAM, minHeight: TAM, x, y, background: CORES[p.cor].fundo }}
+      exit={calmo ? { opacity: 0 } : { opacity: 0, scale: 0.85 }}
+      transition={{ duration: calmo ? 0 : 0.2 }}
+      whileDrag={calmo ? { zIndex: 1000 } : { scale: 1.03, rotate: -1, zIndex: 1000, boxShadow: '0 24px 40px -18px rgba(36,34,44,.5)' }}
+      className="group/nota absolute flex flex-col rounded-2xl shadow-[0_1px_2px_rgba(36,34,44,.08),0_10px_24px_-14px_rgba(36,34,44,.45)] ring-1 ring-black/5"
+      style={{ left: p.x, top: p.y, width: TAM, minHeight: TAM, x, y, zIndex: z, background: CORES[p.cor].fundo }}
     >
-      {/* alça: só ela arrasta, assim dá para selecionar texto */}
-      <div onPointerDown={(e) => controles.start(e)} className="flex cursor-grab touch-none items-center gap-1 px-2 pt-1.5 active:cursor-grabbing" title="arrastar">
-        <span className="flex-1 select-none text-center text-[var(--tinta-suave)]">⋯</span>
-        <button onPointerDown={(e) => e.stopPropagation()} onClick={proximaCor} aria-label={`cor: ${CORES[p.cor].nome}, trocar`} className="h-6 w-6 rounded-full text-xs hover:bg-black/5">
-          ◐
-        </button>
-        <button onPointerDown={(e) => e.stopPropagation()} onClick={() => apagar(p)} aria-label="apagar" className="h-6 w-6 rounded-full text-sm text-[var(--tinta-suave)] hover:bg-black/5">
+      {/* alça: só ela arrasta, assim dá para selecionar o texto */}
+      <div
+        onPointerDown={(e) => {
+          // sem isso, arrastar seleciona o texto das ideias por onde o mouse passa
+          e.preventDefault()
+          controles.start(e)
+        }}
+        className="flex cursor-grab touch-none items-center gap-0.5 rounded-t-2xl bg-black/[.04] py-1 pl-2 pr-1 active:cursor-grabbing"
+        title="arraste para mover"
+      >
+        <span className="mr-auto select-none text-sm leading-none tracking-tighter text-[var(--tinta-suave)] opacity-70" aria-hidden>
+          ⠿
+        </span>
+        <div ref={caixaPaleta} className="relative">
+          <button
+            onPointerDown={(e) => e.stopPropagation()}
+            onClick={() => setPaleta(!paleta)}
+            aria-label={`cor: ${CORES[p.cor].nome}. Trocar a cor`}
+            aria-expanded={paleta}
+            title="trocar a cor"
+            className="grid h-7 w-7 place-items-center rounded-full hover:bg-black/5"
+          >
+            <span className="h-3.5 w-3.5 rounded-full ring-2 ring-white" style={{ background: CORES[p.cor].ponto }} />
+          </button>
+          <AnimatePresence>
+            {paleta && (
+              <motion.div
+                key="paleta"
+                {...surgir}
+                onPointerDown={(e) => e.stopPropagation()}
+                className="absolute right-0 top-full z-20 mt-1 flex gap-1 rounded-full bg-[var(--cartao)] p-1.5 shadow-[var(--sombra)] ring-1 ring-[var(--linha)]"
+                style={{ transformOrigin: 'top right' }}
+              >
+                {ORDEM_CORES.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => {
+                      atualizar(p.id, { cor: c })
+                      setPaleta(false)
+                    }}
+                    aria-label={CORES[c].nome}
+                    aria-pressed={p.cor === c}
+                    title={CORES[c].nome}
+                    className={`h-6 w-6 rounded-full ring-1 ring-black/10 transition-transform hover:scale-110 ${p.cor === c ? 'outline outline-2 outline-offset-2 outline-[var(--foco)]' : ''}`}
+                    style={{ background: CORES[c].ponto }}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        <button
+          onPointerDown={(e) => e.stopPropagation()}
+          onClick={() => apagar(p)}
+          aria-label="apagar esta ideia"
+          title="apagar"
+          className="grid h-7 w-7 place-items-center rounded-full text-base leading-none text-[var(--tinta-suave)] hover:bg-black/5 hover:text-[var(--tinta-forte)]"
+        >
           ×
         </button>
       </div>
@@ -81,8 +149,9 @@ function Nota({ p, apagar, novo }: { p: Postit; apagar: (p: Postit) => void; nov
         onChange={(e) => setTexto(e.target.value)}
         onBlur={() => texto !== p.texto && atualizar(p.id, { texto })}
         placeholder="uma ideia…"
-        aria-label="texto do post-it"
-        className="flex-1 resize-none bg-transparent px-3 pb-2 text-[15px] leading-snug text-[var(--tinta-forte)] outline-none placeholder:text-[var(--tinta-suave)]"
+        aria-label="texto da ideia"
+        // cresce com o texto (onde o navegador sabe fazer isso); senão rola por dentro
+        className="min-h-[8.5rem] flex-1 resize-none bg-transparent px-3.5 pb-3 pt-2 text-[15px] leading-snug text-[var(--tinta-forte)] outline-none [field-sizing:content] placeholder:text-[var(--tinta-suave)]"
       />
       {tp && (
         <button onClick={() => selecionar(tp.id)} className="mx-2 mb-2 truncate rounded-full bg-white/60 px-2 py-0.5 text-left text-[11px] text-[var(--tinta)] hover:bg-white">
@@ -102,7 +171,11 @@ function PostitsLidos({ ps }: { ps: Postit[] }) {
   return (
     <div className="mt-2 grid grid-cols-2 gap-2 sm:grid-cols-3">
       {ps.map((p) => (
-        <div key={p.id} className="whitespace-pre-wrap rounded-xl p-3 text-sm leading-snug text-[var(--tinta-forte)] shadow-[var(--sombra)]" style={{ background: CORES[p.cor].fundo }}>
+        <div
+          key={p.id}
+          className="whitespace-pre-wrap rounded-xl p-3 text-sm leading-snug text-[var(--tinta-forte)] shadow-[var(--sombra)]"
+          style={{ background: CORES[p.cor].fundo }}
+        >
           {p.texto}
         </div>
       ))}
@@ -128,8 +201,9 @@ function AvisoDesfazer({ aviso, limpar }: { aviso: Desfazer | null; limpar: () =
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: 40, opacity: 0 }}
           role="status"
-          className="fixed inset-x-0 bottom-5 z-40 mx-auto flex w-fit items-center gap-3 rounded-full bg-[var(--tinta-forte)] px-4 py-2 text-sm text-white shadow-lg"
-          style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
+          // acima do rodapé fixo (--rodape-fixo já inclui a área segura do celular)
+          style={{ bottom: 'calc(var(--rodape-fixo, env(safe-area-inset-bottom, 0px)) + 1.25rem)' }}
+          className="fixed inset-x-0 z-40 mx-auto flex w-fit items-center gap-3 rounded-full bg-[var(--tinta-forte)] px-4 py-2 text-sm text-white shadow-lg"
         >
           {aviso.texto}
           <button
@@ -158,7 +232,7 @@ const PARTES = [
 /** As abas da página de anotações. O caderno é uma tela própria (com páginas), mas mostra as mesmas abas. */
 export function AbasAnotacoes({ atual }: { atual: (typeof PARTES)[number]['id'] }) {
   return (
-    <nav className="flex gap-1 overflow-x-auto" aria-label="partes das anotações">
+    <nav className="flex gap-1 overflow-x-auto sem-barra" aria-label="partes das anotações">
       {PARTES.map((a) => (
         <a
           key={a.id}
@@ -227,7 +301,10 @@ function PaginaAnotacoes() {
     .map((id) => {
       const n = notas[id]?.texto.trim() && !!notas[id].arquivada === arquivadas ? notas[id] : undefined
       const nota = filtro === 'tudo' || filtro === 'notas' || arquivadas ? n : undefined
-      const ms = filtro === 'postits' || filtro === 'notas' ? [] : marcas.filter((m) => m.topico === id && !!m.arquivada === arquivadas && (arquivadas || passa(filtro, m))).sort((a, b) => a.em - b.em)
+      const ms =
+        filtro === 'postits' || filtro === 'notas'
+          ? []
+          : marcas.filter((m) => m.topico === id && !!m.arquivada === arquivadas && (arquivadas || passa(filtro, m))).sort((a, b) => a.em - b.em)
       const ps = mostraPostits ? postits.filter((p) => p.topico === id) : []
       // post-it não guarda data: um grupo só com post-its vai para o fim
       const recente = Math.max(nota?.em ?? 0, ...ms.map((m) => m.em))
@@ -244,7 +321,11 @@ function PaginaAnotacoes() {
   }
   const acoesMarca = (m: Marca) => (
     <>
-      <button className={botaoAcao} onClick={() => atualizarMarca(m.id, { arquivada: m.arquivada ? undefined : true })} title={m.arquivada ? 'volta para a lista' : 'sai da lista; o grifo continua no texto'}>
+      <button
+        className={botaoAcao}
+        onClick={() => atualizarMarca(m.id, { arquivada: m.arquivada ? undefined : true })}
+        title={m.arquivada ? 'volta para a lista' : 'sai da lista; o grifo continua no texto'}
+      >
         {m.arquivada ? '↩ desarquivar' : '🗄 arquivar'}
       </button>
       <button
@@ -270,7 +351,13 @@ function PaginaAnotacoes() {
   const botaoFiltro = 'flex items-center gap-2 rounded-xl px-3 py-2 text-left text-sm transition-colors'
   const inativo = 'bg-[var(--cartao)] text-[var(--tinta)] ring-1 ring-[var(--linha)] hover:ring-[var(--tinta-suave)] lg:bg-transparent lg:ring-0 lg:hover:bg-[var(--papel-2)]'
   const opcao = (f: Filtro, icone: React.ReactNode, rotulo: string, n: number) => (
-    <button key={f} role="tab" aria-selected={filtro === f} onClick={() => setFiltro(f)} className={`${botaoFiltro} ${filtro === f ? 'bg-[var(--foco)] font-medium text-white shadow-[var(--sombra)]' : inativo}`}>
+    <button
+      key={f}
+      role="tab"
+      aria-selected={filtro === f}
+      onClick={() => setFiltro(f)}
+      className={`${botaoFiltro} ${filtro === f ? 'bg-[var(--foco)] font-medium text-white shadow-[var(--sombra)]' : inativo}`}
+    >
       <span aria-hidden className="shrink-0">
         {icone}
       </span>
@@ -290,9 +377,7 @@ function PaginaAnotacoes() {
           <div className="min-w-0">
             <div className="text-xs font-medium text-[var(--tinta-suave)]">o que você escreveu e marcou</div>
             <h1 className="text-3xl font-bold tracking-tight text-[var(--tinta-forte)] sm:text-4xl">Anotações</h1>
-            <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[var(--tinta)]">
-              {total ? <>{resumo.join(' · ')}.</> : 'Nada ainda.'}
-            </p>
+            <p className="mt-1.5 max-w-xl text-sm leading-relaxed text-[var(--tinta)]">{total ? <>{resumo.join(' · ')}.</> : 'Nada ainda.'}</p>
           </div>
           <div className="grid w-full shrink-0 grid-cols-2 gap-2 md:w-64">
             {PARTES.filter((p) => p.id !== 'tudo').map((p) => (
@@ -304,7 +389,9 @@ function PaginaAnotacoes() {
                   </span>
                 </span>
                 <span className="mt-1 block text-sm font-semibold text-[var(--tinta-forte)]">{p.nome}</span>
-                <span className="block text-xs text-[var(--tinta-suave)]">{p.id === 'quadro' ? `${quadro.length} post-it${quadro.length === 1 ? '' : 's'}` : 'páginas livres'}</span>
+                <span className="block text-xs text-[var(--tinta-suave)]">
+                  {p.id === 'quadro' ? `${quadro.length} post-it${quadro.length === 1 ? '' : 's'}` : 'páginas livres'}
+                </span>
               </a>
             ))}
           </div>
@@ -371,7 +458,11 @@ function PaginaAnotacoes() {
                         <p className="line-clamp-4 whitespace-pre-wrap text-sm text-[var(--tinta)]">{nota.texto}</p>
                       </button>
                       <div className="mt-2 flex flex-wrap justify-end gap-1">
-                        <button className={botaoAcao} onClick={() => arquivarNota(id, !nota.arquivada)} title={nota.arquivada ? 'volta para a lista' : 'sai da lista; continua no tópico'}>
+                        <button
+                          className={botaoAcao}
+                          onClick={() => arquivarNota(id, !nota.arquivada)}
+                          title={nota.arquivada ? 'volta para a lista' : 'sai da lista; continua no tópico'}
+                        >
                           {nota.arquivada ? '↩ desarquivar' : '🗄 arquivar'}
                         </button>
                         <button className={botaoAcao} onClick={() => apagarNota(id)}>
@@ -405,15 +496,6 @@ function PaginaAnotacoes() {
 
 /** Página cheia de anotações: tudo por tópico (notas, marcas e post-its) ou o quadro de post-its. */
 export function TelaQuadro({ aba }: { aba: 'tudo' | 'quadro' }) {
-  const quadro = useMapa((s) => s.quadro)
-  const adicionar = useMapa((s) => s.adicionarPostit)
-  const remover = useMapa((s) => s.removerPostit)
-  const restaurar = useMapa((s) => s.restaurarPostit)
-  const [aviso, setAviso] = useState<Desfazer | null>(null)
-  const limparAviso = useCallback(() => setAviso(null), [])
-  const [novo, setNovo] = useState<string | null>(null)
-  const area = useRef<HTMLDivElement>(null)
-
   useEffect(() => {
     const esc = (e: KeyboardEvent) => {
       if (e.key !== 'Escape' || (e.target as HTMLElement).closest?.('input, select, textarea, [contenteditable]')) return
@@ -423,16 +505,6 @@ export function TelaQuadro({ aba }: { aba: 'tudo' | 'quadro' }) {
     return () => window.removeEventListener('keydown', esc)
   }, [])
 
-  const nova = () => {
-    // aparece no meio do que está visível, com um leve desvio para não empilhar
-    const el = area.current
-    const cx = el ? el.scrollLeft + el.clientWidth / 2 - TAM / 2 : 60
-    const cy = el ? el.scrollTop + el.clientHeight / 2 - TAM / 2 : 60
-    const d = (quadro.length % 5) * 18
-    const id = adicionar({ x: Math.max(8, Math.min(LARGURA - TAM, cx + d)), y: Math.max(8, Math.min(ALTURA - TAM, cy + d)), texto: '', cor: ORDEM_CORES[quadro.length % ORDEM_CORES.length] })
-    setNovo(id)
-  }
-
   if (aba === 'tudo')
     return (
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="min-h-dvh bg-[var(--papel)] text-[var(--tinta)]">
@@ -440,10 +512,205 @@ export function TelaQuadro({ aba }: { aba: 'tudo' | 'quadro' }) {
         <PaginaAnotacoes />
       </motion.div>
     )
+  return <Quadro />
+}
+
+const ZOOM_MIN = 0.4
+const ZOOM_MAX = 1.5
+/** folga em volta do quadro, para a borda dele aparecer */
+const MARGEM = 32
+
+/** O quadro de ideias: uma folha pontilhada que dá para arrastar, aproximar e afastar. */
+function Quadro() {
+  const quadro = useMapa((s) => s.quadro)
+  const adicionar = useMapa((s) => s.adicionarPostit)
+  const atualizar = useMapa((s) => s.atualizarPostit)
+  const remover = useMapa((s) => s.removerPostit)
+  const restaurar = useMapa((s) => s.restaurarPostit)
+  const calmo = useCalmo()
+  const [aviso, setAviso] = useState<Desfazer | null>(null)
+  const limparAviso = useCallback(() => setAviso(null), [])
+  const [novo, setNovo] = useState<string | null>(null)
+  const [zoom, setZoom] = useState(1)
+  const [arrastando, setArrastando] = useState(false)
+  // quem foi tocado por último fica por cima (só na tela, não é salvo)
+  const [ordem, setOrdem] = useState<string[]>([])
+  const area = useRef<HTMLDivElement>(null)
+  const folha = useRef<HTMLDivElement>(null)
+  const zoomAtual = useRef(zoom)
+  // ponto da folha que deve ficar parado na tela depois de mudar o zoom
+  const fixar = useRef<{ fx: number; fy: number; tx: number; ty: number } | null>(null)
+
+  /** onde a folha começa dentro da área rolável (muda com o zoom, porque ela fica centrada quando é menor) */
+  const origem = () => ({ x: (folha.current?.offsetLeft ?? 0) + MARGEM, y: (folha.current?.offsetTop ?? 0) + MARGEM })
+
+  const posicionar = useCallback(() => {
+    const el = area.current
+    const f = fixar.current
+    if (!el || !f) return
+    fixar.current = null
+    const o = origem()
+    el.scrollTo({ left: o.x + f.fx * zoomAtual.current - f.tx, top: o.y + f.fy * zoomAtual.current - f.ty })
+  }, [])
+
+  useLayoutEffect(() => {
+    zoomAtual.current = zoom
+    posicionar()
+  }, [zoom, posicionar])
+
+  /** Muda o zoom mantendo parado o ponto (tx, ty) da tela; sem ponto, o meio. */
+  const zoomPara = useCallback(
+    (valor: number, tx?: number, ty?: number) => {
+      const el = area.current
+      if (!el) return
+      const z = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(valor * 100) / 100))
+      const px = tx ?? el.clientWidth / 2
+      const py = ty ?? el.clientHeight / 2
+      const o = origem()
+      fixar.current = { fx: (el.scrollLeft + px - o.x) / zoomAtual.current, fy: (el.scrollTop + py - o.y) / zoomAtual.current, tx: px, ty: py }
+      if (z === zoomAtual.current) posicionar()
+      else setZoom(z)
+    },
+    [posicionar],
+  )
+
+  /** Enquadra todas as ideias (ou o começo da folha, se não houver nenhuma). */
+  const verTudo = useCallback(
+    (ps: Postit[] = useMapa.getState().quadro) => {
+      const el = area.current
+      if (!el) return
+      if (!ps.length) {
+        fixar.current = { fx: 0, fy: 0, tx: MARGEM, ty: MARGEM }
+        if (zoomAtual.current === 1) posicionar()
+        else setZoom(1)
+        return
+      }
+      const alturas = (p: Postit) => (folha.current?.querySelector<HTMLElement>(`[data-postit="${p.id}"]`)?.offsetHeight ?? TAM) + 0
+      const x0 = Math.min(...ps.map((p) => p.x))
+      const y0 = Math.min(...ps.map((p) => p.y))
+      const x1 = Math.max(...ps.map((p) => p.x + TAM))
+      const y1 = Math.max(...ps.map((p) => p.y + alturas(p)))
+      const folga = 48
+      const z = Math.min(1, Math.max(ZOOM_MIN, Math.min((el.clientWidth - folga * 2) / (x1 - x0), (el.clientHeight - folga * 2) / (y1 - y0))))
+      const zr = Math.round(z * 100) / 100
+      fixar.current = { fx: (x0 + x1) / 2, fy: (y0 + y1) / 2, tx: el.clientWidth / 2, ty: el.clientHeight / 2 }
+      if (zr === zoomAtual.current) posicionar()
+      else setZoom(zr)
+    },
+    [posicionar],
+  )
+
+  // ao abrir: enquadra o que já existe
+  useEffect(() => {
+    const t = requestAnimationFrame(() => verTudo())
+    return () => cancelAnimationFrame(t)
+  }, [verTudo])
+
+  // Ctrl + roda (ou pinça no touchpad) aproxima e afasta no ponto do mouse
+  useEffect(() => {
+    const el = area.current
+    if (!el) return
+    const roda = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return
+      e.preventDefault()
+      const r = el.getBoundingClientRect()
+      zoomPara(zoomAtual.current * Math.exp(-e.deltaY * 0.0015), e.clientX - r.left, e.clientY - r.top)
+    }
+    el.addEventListener('wheel', roda, { passive: false })
+    return () => el.removeEventListener('wheel', roda)
+  }, [zoomPara])
+
+  /** ponto da tela → ponto da folha */
+  const naFolha = (clientX: number, clientY: number) => {
+    const el = area.current!
+    const r = el.getBoundingClientRect()
+    const o = origem()
+    return { x: (el.scrollLeft + clientX - r.left - o.x) / zoom, y: (el.scrollTop + clientY - r.top - o.y) / zoom }
+  }
+
+  const criar = (cx: number, cy: number) => {
+    const id = adicionar({
+      x: Math.round(Math.max(8, Math.min(LARGURA - TAM - 8, cx))),
+      y: Math.round(Math.max(8, Math.min(ALTURA - TAM - 8, cy))),
+      texto: '',
+      cor: ORDEM_CORES[quadro.length % ORDEM_CORES.length],
+    })
+    setNovo(id)
+    setOrdem((o) => [...o, id])
+  }
+
+  const nova = () => {
+    // no meio do que está visível, com um leve desvio para não empilhar
+    const el = area.current
+    if (!el) return criar(60, 60)
+    const r = el.getBoundingClientRect()
+    const m = naFolha(r.left + el.clientWidth / 2, r.top + el.clientHeight / 2)
+    const d = (quadro.length % 5) * 18
+    criar(m.x - TAM / 2 + d, m.y - TAM / 2 + d)
+  }
+
+  // arrastar o fundo com o mouse anda pelo quadro (no toque, o dedo já rola)
+  const fundo = (alvo: EventTarget) => alvo === area.current || alvo === folha.current || (alvo as HTMLElement).dataset?.fundo === 'sim'
+  const inicioArrasto = useRef<{ x: number; y: number; sl: number; st: number } | null>(null)
+  const aoApertar = (e: React.PointerEvent) => {
+    if (e.pointerType !== 'mouse' || e.button !== 0 || !fundo(e.target)) return
+    const el = area.current!
+    inicioArrasto.current = { x: e.clientX, y: e.clientY, sl: el.scrollLeft, st: el.scrollTop }
+    el.setPointerCapture(e.pointerId)
+    setArrastando(true)
+  }
+  const aoMover = (e: React.PointerEvent) => {
+    const i = inicioArrasto.current
+    if (!i) return
+    area.current!.scrollTo({ left: i.sl - (e.clientX - i.x), top: i.st - (e.clientY - i.y) })
+  }
+  const aoSoltar = () => {
+    inicioArrasto.current = null
+    setArrastando(false)
+  }
+
+  /** Junta as ideias em colunas, uma por cor, na ordem em que estavam (de cima para baixo). Dá para desfazer. */
+  const arrumarPorCor = () => {
+    const antes = quadro.map((p) => ({ id: p.id, x: p.x, y: p.y }))
+    const altura = (p: Postit) => folha.current?.querySelector<HTMLElement>(`[data-postit="${p.id}"]`)?.offsetHeight ?? TAM
+    const GX = 32
+    const GY = 20
+    let col = 0
+    const novas: Postit[] = []
+    for (const c of ORDEM_CORES) {
+      const daCor = quadro.filter((p) => p.cor === c).sort((a, b) => a.y - b.y || a.x - b.x)
+      if (!daCor.length) continue
+      let y = 40
+      for (const p of daCor) {
+        const h = altura(p)
+        // coluna cheia: continua na do lado
+        if (y + h > ALTURA - 16 && y > 40) {
+          col++
+          y = 40
+        }
+        const q = { ...p, x: Math.min(LARGURA - TAM - 8, 40 + col * (TAM + GX)), y }
+        atualizar(p.id, { x: q.x, y: q.y })
+        novas.push(q)
+        y += h + GY
+      }
+      col++
+    }
+    setAviso({ texto: 'ideias arrumadas por cor', fazer: () => antes.forEach((a) => atualizar(a.id, { x: a.x, y: a.y })) })
+    requestAnimationFrame(() => verTudo(novas))
+  }
+
+  const botaoBarra =
+    'inline-flex h-8 min-w-8 items-center justify-center whitespace-nowrap rounded-full px-2 text-sm text-[var(--tinta)] transition-colors hover:bg-[var(--papel-2)] disabled:opacity-40 disabled:hover:bg-transparent'
+  const vazio = quadro.length === 0
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-dvh flex-col bg-[var(--papel)]">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="flex h-[calc(100dvh-var(--rodape-fixo,0px))] flex-col bg-[var(--papel)]">
       <BarraTopo onde="quadro">
+        {!vazio && (
+          <span className="hidden text-xs text-[var(--tinta-suave)] sm:inline">
+            {quadro.length} {quadro.length === 1 ? 'ideia' : 'ideias'}
+          </span>
+        )}
         <button className="botao-foco shrink-0 !py-1.5 text-sm" onClick={nova}>
           + ideia
         </button>
@@ -454,27 +721,133 @@ export function TelaQuadro({ aba }: { aba: 'tudo' | 'quadro' }) {
         </div>
       </div>
 
-      <div ref={area} className="relative flex-1 overflow-auto">
-        <div className="relative" style={{ width: LARGURA, height: ALTURA, backgroundImage: 'radial-gradient(var(--linha) 1.2px, transparent 1.2px)', backgroundSize: '24px 24px' }}>
-          {quadro.length === 0 && (
-            <div className="absolute left-6 top-6 max-w-xs rounded-2xl bg-[var(--cartao)] p-4 text-sm text-[var(--tinta-suave)] shadow-[var(--sombra)]">
-              Despeja aqui tudo o que vier na cabeça, sem ordem. Depois arrasta pela alça <strong>⋯</strong> para agrupar o que combina. ◐ troca a cor.
-            </div>
-          )}
-          <AnimatePresence>
-            {quadro.map((p) => (
-              <Nota
-                key={p.id}
-                p={p}
-                novo={p.id === novo}
-                apagar={(q) => {
-                  remover(q.id)
-                  setAviso({ texto: 'post-it apagado', fazer: () => restaurar(q) })
+      <div className="relative min-h-0 flex-1">
+        <div
+          ref={area}
+          onPointerDown={aoApertar}
+          onPointerMove={aoMover}
+          onPointerUp={aoSoltar}
+          onPointerCancel={aoSoltar}
+          onDoubleClick={(e) => {
+            if (!fundo(e.target)) return
+            const m = naFolha(e.clientX, e.clientY)
+            criar(m.x - TAM / 2, m.y - 20)
+          }}
+          // sem barras de rolagem: anda-se arrastando o fundo, rolando ou com o dedo
+          className={`absolute inset-0 overflow-auto bg-[var(--papel-2)] sem-barra ${arrastando ? 'cursor-grabbing select-none' : 'cursor-grab'}`}
+        >
+          <div ref={folha} className="relative mx-auto" style={{ width: LARGURA * zoom + MARGEM * 2, height: ALTURA * zoom + MARGEM * 2 }}>
+            <MotionConfig transformPagePoint={(p) => ({ x: p.x / zoom, y: p.y / zoom })}>
+              <div
+                data-fundo="sim"
+                className="absolute origin-top-left rounded-3xl bg-[var(--papel)] shadow-[0_0_0_1px_var(--linha),0_12px_40px_-24px_rgba(36,34,44,.35)]"
+                style={{
+                  left: MARGEM,
+                  top: MARGEM,
+                  width: LARGURA,
+                  height: ALTURA,
+                  transform: `scale(${zoom})`,
+                  backgroundImage: 'radial-gradient(color-mix(in srgb, var(--tinta-suave) 35%, transparent) 1.2px, transparent 1.2px)',
+                  backgroundSize: '24px 24px',
+                  backgroundPosition: '12px 12px',
                 }}
-              />
-            ))}
-          </AnimatePresence>
+              >
+                <AnimatePresence>
+                  {quadro.map((p) => (
+                    <Nota
+                      key={p.id}
+                      p={p}
+                      novo={p.id === novo}
+                      z={1 + ordem.indexOf(p.id) + 1}
+                      aoTocar={() => setOrdem((o) => (o[o.length - 1] === p.id ? o : [...o.filter((i) => i !== p.id), p.id]))}
+                      apagar={(q) => {
+                        remover(q.id)
+                        setAviso({ texto: 'ideia apagada', fazer: () => restaurar(q) })
+                      }}
+                    />
+                  ))}
+                </AnimatePresence>
+              </div>
+            </MotionConfig>
+          </div>
         </div>
+
+        {/* quadro vazio: um convite no meio da tela, não um aviso no canto */}
+        <AnimatePresence>
+          {vazio && (
+            <motion.div
+              key="vazio"
+              initial={{ opacity: 0, y: calmo ? 0 : 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: calmo ? 0 : 0.22 }}
+              className="pointer-events-none absolute inset-0 grid place-items-center p-5"
+            >
+              <div className="pointer-events-auto w-full max-w-sm rounded-3xl bg-[var(--cartao)] p-6 text-center shadow-[var(--sombra)] ring-1 ring-[var(--linha)]">
+                <div className="text-3xl" aria-hidden>
+                  💭
+                </div>
+                <h2 className="mt-2 text-lg font-semibold text-[var(--tinta-forte)]">Seu quadro de ideias</h2>
+                <p className="mt-1 text-sm leading-relaxed text-[var(--tinta-suave)]">Despeje tudo o que vier na cabeça, sem ordem. Depois agrupe o que combina.</p>
+                <button className="botao-foco mt-4" onClick={nova}>
+                  + primeira ideia
+                </button>
+                <ul className="mt-5 space-y-1.5 border-t border-[var(--linha)] pt-4 text-left text-xs text-[var(--tinta-suave)]">
+                  <li>
+                    <span className="inline-block w-6 text-center" aria-hidden>
+                      ⠿
+                    </span>
+                    arraste pela alça de cima para mover
+                  </li>
+                  <li>
+                    <span className="inline-block w-6 text-center" aria-hidden>
+                      ●
+                    </span>
+                    a bolinha troca a cor
+                  </li>
+                  <li>
+                    <span className="inline-block w-6 text-center" aria-hidden>
+                      ✥
+                    </span>
+                    arraste o fundo para andar · Ctrl + roda aproxima
+                  </li>
+                  <li>
+                    <span className="inline-block w-6 text-center" aria-hidden>
+                      ⊕
+                    </span>
+                    dois cliques no fundo criam uma ideia ali
+                  </li>
+                </ul>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* zoom e organização no canto de cima (embaixo fica o aviso de desfazer) */}
+        {!vazio && (
+          <div
+            role="toolbar"
+            aria-label="ver o quadro"
+            className="absolute right-3 top-3 z-10 flex items-center gap-0.5 rounded-full bg-[var(--cartao)] p-1 shadow-[var(--sombra)] ring-1 ring-[var(--linha)]"
+          >
+            <button className={botaoBarra} onClick={() => zoomPara(zoom - 0.1)} disabled={zoom <= ZOOM_MIN} aria-label="afastar" title="afastar (Ctrl + roda)">
+              −
+            </button>
+            <button className={`${botaoBarra} w-14 tabular-nums text-xs`} onClick={() => zoomPara(1)} title="voltar a 100%">
+              {Math.round(zoom * 100)}%
+            </button>
+            <button className={botaoBarra} onClick={() => zoomPara(zoom + 0.1)} disabled={zoom >= ZOOM_MAX} aria-label="aproximar" title="aproximar (Ctrl + roda)">
+              +
+            </button>
+            <span className="mx-1 h-5 w-px bg-[var(--linha)]" aria-hidden />
+            <button className={botaoBarra} onClick={() => verTudo()} title="enquadrar todas as ideias">
+              ⤢ <span className="ml-1 hidden sm:inline">ver tudo</span>
+            </button>
+            <button className={botaoBarra} onClick={arrumarPorCor} title="junta as ideias em colunas, uma por cor (dá para desfazer)">
+              ▦ <span className="ml-1 hidden sm:inline">arrumar por cor</span>
+            </button>
+          </div>
+        )}
       </div>
       <AvisoDesfazer aviso={aviso} limpar={limparAviso} />
     </motion.div>
