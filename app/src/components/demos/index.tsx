@@ -4,6 +4,7 @@ import { lazy, type ReactNode } from 'react'
 const DemoBusca = lazy(() => import('./DemoBusca').then((m) => ({ default: m.DemoBusca })))
 const DemoArvore = lazy(() => import('./DemoArvore').then((m) => ({ default: m.DemoArvore })))
 const DemoHill = lazy(() => import('./DemoHill').then((m) => ({ default: m.DemoHill })))
+const DemoGini = lazy(() => import('./DemoGini').then((m) => ({ default: m.DemoGini })))
 const DemoKNN = lazy(() => import('./DemoKNN').then((m) => ({ default: m.DemoKNN })))
 
 /** Demos feitas no próprio app: o campo `url` da demo é a chave aqui. */
@@ -15,4 +16,5 @@ export const DEMOS_INTERNAS: Record<string, () => ReactNode> = {
   'arvore:e1': () => <DemoArvore arvoreInicial="e1" />,
   hill: () => <DemoHill />,
   knn: () => <DemoKNN />,
+  gini: () => <DemoGini />,
 }

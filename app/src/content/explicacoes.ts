@@ -284,7 +284,7 @@ export const EXPLICACOES: Record<string, Camadas> = {
   'u4.incerteza': {
     intuicao: L`No mundo real quase nada é certo. Em vez de "é verdade", o agente diz "acredito 80% que é verdade".`,
     definicao: L`IA clássica (lógica) trabalha com verdadeiro/falso; IA probabilística trabalha com **graus de crença** entre 0 e 1.`,
-    detalhe: L`A incerteza vem de observação parcial, sensores com ruído, resultados não determinísticos e preguiça/ignorância (é impossível listar todas as exceções de uma regra).`,
+    detalhe: L`A IA clássica (busca, A*, planejamento) supõe estados conhecidos, ações determinísticas, ambiente observável e consequências previsíveis. No mundo real o sensor erra, você não sabe exatamente o estado atual, uma ação pode falhar e a informação é incompleta. O resumo da aula: na IA clássica o agente **sabe**; na probabilística o agente **acredita** e atualiza a crença com evidências.`,
   },
   'u4.prob-basica': {
     intuicao: L`Probabilidade = quantos casos favoráveis em relação ao total, quando tudo é igualmente provável.`,
@@ -328,7 +328,7 @@ export const EXPLICACOES: Record<string, Camadas> = {
   // ── U5 · Fundamentos ──────────────────────────────────────────────
   'u5.ml': {
     intuicao: L`Em vez de escrever a regra, você mostra exemplos com a resposta certa e o computador descobre a regra.`,
-    definicao: L`Programação tradicional: regras + dados → respostas. Aprendizado de máquina: dados + respostas → modelo (as regras). Um programa aprende quando melhora numa tarefa T, medida por P, com a experiência E (Mitchell).`,
+    definicao: L`Programação tradicional: dados + regras → saída. Aprendizado de máquina: dados + respostas → modelo; depois, modelo + dados novos → resposta. Na definição da aula: a área da IA que permite que sistemas aprendam automaticamente a partir de dados, sem serem programados explicitamente para cada situação.`,
     detalhe: L`O modelo aprendido é então usado em dados novos. Todo o desafio é generalizar: acertar casos que não estavam no treino.`,
   },
   'u5.paradigmas': {
@@ -344,7 +344,7 @@ export const EXPLICACOES: Record<string, Camadas> = {
   'u5.fitting': {
     intuicao: L`Decorar a prova não é aprender a matéria. Um modelo também pode "decorar" o treino.`,
     definicao: L`**Underfitting**: modelo simples demais, erra no treino e no teste. **Overfitting**: modelo complexo demais, acerta o treino (até o ruído) e erra no teste. **Generalização**: ir bem em dados novos.`,
-    detalhe: L`Sinal de overfitting: erro de treino continua caindo enquanto o de validação começa a subir. Remédios: mais dados, modelo mais simples, regularização, poda (árvores), early stopping (redes).`,
+    detalhe: L`Na aula: underfitting = ruim no treino **e** no teste ("pouco aprendizado"); overfitting = excelente no treino e ruim no teste ("memorizou os dados", inclusive o ruído). Para árvores, a aula 24 cita a **poda** como remédio. Fora dos slides (vale saber, mas não é o foco da prova): o erro de validação sobe enquanto o de treino cai; outros remédios são mais dados, modelo mais simples, regularização e early stopping.`,
   },
   'u5.bias': {
     intuicao: L`Para generalizar, todo algoritmo precisa apostar em algo sobre o mundo. Sem aposta, nada a aprender.`,
@@ -371,7 +371,7 @@ export const EXPLICACOES: Record<string, Camadas> = {
   'u5.distancias': {
     intuicao: L`Euclidiana é a régua em linha reta; Manhattan é andar pelas quadras de uma cidade.`,
     definicao: L`Minkowski: $d = \left(\sum |x_i - y_i|^p\right)^{1/p}$. $p = 1$ Manhattan, $p = 2$ Euclidiana, $p \to \infty$ a maior diferença entre coordenadas (Chebyshev).`,
-    detalhe: L`Quanto maior o $p$, mais a maior diferença domina o resultado. A(1,2)–B(4,6): Manhattan 7, Euclidiana 5, $p = 3$ ≈ 4,498, $p = \infty$ = 4. Atributos em escalas diferentes precisam ser **normalizados** antes.`,
+    detalhe: L`Quanto maior o $p$, mais a maior diferença domina o resultado. A(1,2)–B(4,6): Manhattan 7, Euclidiana 5, $p = 3$ ≈ 4,498, $p = \infty$ = 4. Atributos em escalas diferentes precisam ser **normalizados** antes. **Minkowski normalizada** (aula 21, p. 40-43): com valores ausentes, ignora os atributos que faltam em algum dos dois pontos e divide pelo número de atributos usados. É uma alternativa à imputação.`,
   },
   'u5.binarios': {
     intuicao: L`Para vetores de 0 e 1: contar onde concordam. A dúvida é se "os dois não têm" deve contar como parecido.`,
@@ -380,8 +380,8 @@ export const EXPLICACOES: Record<string, Camadas> = {
   },
   'u5.knn': {
     intuicao: L`Diga-me com quem andas: a classe de um ponto novo é a da maioria dos seus vizinhos mais próximos.`,
-    definicao: L`Calcula a distância do exemplo novo a todos os de treino, pega os $k$ mais próximos e decide por **voto da maioria** (classificação) ou **média** (regressão). Variante: voto ponderado por $1/d$.`,
-    detalhe: L`$k$ pequeno → sensível a ruído (overfitting); $k$ grande → fronteiras suaves demais (underfitting). Use $k$ ímpar em 2 classes para evitar empate. É **lazy**: não treina, mas prever é caro. Sofre com a **maldição da dimensionalidade**: em muitas dimensões, todos os pontos ficam quase à mesma distância.`,
+    definicao: L`Precisa de três coisas: base de treino, medida de distância e o valor de $k$. Calcula a distância do exemplo novo a todos os de treino, ordena, pega os $k$ mais próximos e decide por **voto da maioria** (classificação) ou **média** dos valores (predição/regressão). Variante da aula: ponderar cada voto pela distância, para o vizinho mais perto pesar mais (o peso usual é $1/d$, mas o slide não fixa a fórmula).`,
+    detalhe: L`$k$ pequeno → modelo flexível demais, sensível a ruído (overfitting); $k$ grande demais → olha quase todos os pontos (underfitting). Sensível à **escala**: normalize antes (re-escalar para 0–1 ou padronizar com média 0 e desvio 1). Também é sensível à medida de distância escolhida e a atributos irrelevantes. É **lazy**: não constrói modelo, então prever é caro em bases grandes. Sofre com a **maldição da dimensionalidade**: em muitas dimensões, todas as distâncias ficam parecidas. Fora dos slides: $k$ ímpar evita empate com 2 classes.`,
     cuidado: L`$k$ não tem relação com o número de classes (lista 5, Q5).`,
   },
 
@@ -389,12 +389,12 @@ export const EXPLICACOES: Record<string, Camadas> = {
   'u5.arvore': {
     intuicao: L`Um fluxograma de perguntas: "tem nuvens? → a umidade é alta? → vai chover".`,
     definicao: L`Nós internos testam um atributo, ramos são os resultados do teste e folhas dão a classe (ou valor, na regressão). Cada caminho da raiz a uma folha é uma regra "se… então".`,
-    detalhe: L`Vantagens: fácil de interpretar, aceita atributos de tipos diferentes, não precisa normalizar. Desvantagens: instável (pequenas mudanças nos dados mudam a árvore) e tende a overfitting se crescer demais. Achar a árvore ótima é NP-difícil, por isso usam-se heurísticas gulosas.`,
+    detalhe: L`Vantagens (aula 24, p. 61): fácil de interpretar e explicar, captura relações não lineares e serve para classificação e regressão. Limitações: overfitting se a árvore for muito profunda (precisa de poda), e depende da qualidade dos dados. Várias árvores se ajustam aos mesmos dados, e achar a ótima é NP-difícil, por isso usam-se heurísticas gulosas (top-down). Fora dos slides: é instável (pouca mudança nos dados muda a árvore) e não precisa normalizar atributos.`,
   },
   'u5.hunt': {
     intuicao: L`Divide os dados por pergunta, de cima para baixo, até cada grupo ficar "puro".`,
     definicao: L`Algoritmo de Hunt: se todos os exemplos do nó são da mesma classe, vira folha; senão, escolhe o atributo que **mais reduz a incerteza** e divide; repete em cada filho.`,
-    detalhe: L`Divisões: binária, múltipla (um ramo por valor) ou por limiar em atributos contínuos ($x \le 30$). Critérios para escolher o atributo: entropia/ganho de informação, índice Gini ou erro de classificação.`,
+    detalhe: L`Divisões: binária, múltipla (um ramo por valor) ou por limiar em atributos contínuos ($x \le 30$). Para escolher o atributo, a aula usa o **índice Gini** e a **entropia** (ganho de informação). A estratégia é gulosa: escolhe a melhor divisão agora, sem voltar atrás.`,
   },
   'u5.gini': {
     intuicao: L`Mede a chance de errar se você rotular um exemplo ao acaso, de acordo com a proporção das classes no nó.`,
@@ -404,7 +404,7 @@ export const EXPLICACOES: Record<string, Camadas> = {
   'u5.entropia': {
     intuicao: L`Mede a "surpresa" média: um nó todo de uma classe não surpreende (0); meio a meio surpreende ao máximo (1).`,
     definicao: L`$E(t) = -\sum_j p_j \log_2 p_j$. **Ganho de informação** $= E(\text{pai}) - \sum_i \frac{n_i}{n} E(i)$.`,
-    detalhe: L`Máximo $\log_2 c$. Escolhe-se o atributo de **maior** ganho. Ganho favorece atributos com muitos valores (ex.: um ID único dá ganho máximo e é inútil); a razão de ganho corrige isso. A ideia vem da teoria da informação de Shannon.`,
+    detalhe: L`Máximo $\log_2 c$. Escolhe-se o atributo de **maior** ganho. A ideia vem da teoria da informação de Shannon. Fora dos slides: o ganho favorece atributos com muitos valores (um ID único dá ganho máximo e é inútil), e a razão de ganho corrige isso.`,
   },
 
   // ── U5 · Complementar ─────────────────────────────────────────────

@@ -1,6 +1,7 @@
 // Gravações da explicação (Feynman). Ficam no IndexedDB deste navegador:
 // áudio é grande demais para o localStorage e não sai do computador.
-// Não entram no backup em JSON; cada uma pode ser baixada como arquivo.
+// Entram no backup em JSON (lib/backup.ts) e cada uma também pode ser baixada como arquivo.
+// As cópias automáticas no localStorage NÃO levam áudio: não cabe.
 
 export interface Gravacao {
   id: string
@@ -50,3 +51,24 @@ export const guardarGravacao = (g: Gravacao) => pedir<IDBValidKey>('readwrite', 
 export const apagarGravacao = (id: string) => pedir<undefined>('readwrite', (l) => l.delete(id))
 
 export const extensao = (tipo: string) => (tipo.includes('ogg') ? 'ogg' : tipo.includes('mp4') ? 'm4a' : 'webm')
+
+export const todasGravacoes = () => pedir<Gravacao[]>('readonly', (l) => l.getAll())
+
+/** Guarda várias de uma vez (restaurar backup). Mesmo id = substitui; as outras ficam. */
+export async function guardarVarias(gs: Gravacao[]) {
+  if (!gs.length) return
+  const db = await abrir()
+  await new Promise<void>((ok, erro) => {
+    const tx = db.transaction(LOJA, 'readwrite')
+    const loja = tx.objectStore(LOJA)
+    gs.forEach((g) => loja.put(g))
+    tx.oncomplete = () => {
+      db.close()
+      ok()
+    }
+    tx.onerror = () => {
+      db.close()
+      erro(tx.error)
+    }
+  })
+}

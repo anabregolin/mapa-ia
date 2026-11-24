@@ -124,7 +124,7 @@ function Gravador({ topico }: { topico: string }) {
       )}
       {lista.length > 0 && (
         <p className="mt-3 text-[11px] text-[var(--tinta-suave)]">
-          ⚠ Os áudios não entram no backup em JSON. Se quiser guardar um, use “baixar”.
+          Os áudios ficam só neste navegador e entram no backup em JSON (painel Aa). Para guardar um solto, use “baixar”.
         </p>
       )}
     </div>

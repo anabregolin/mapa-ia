@@ -5,6 +5,8 @@
 //    que protegem contra um erro do app ou uma importação errada, mas NÃO contra limpar os dados do site;
 // 3) pedido ao navegador de armazenamento persistente, para ele não apagar sozinho quando faltar espaço.
 
+import { guardarVarias, todasGravacoes, type Gravacao } from './gravacoes'
+
 const CHAVE = 'mapa-ia'
 const CHAVE_COPIAS = 'mapa-ia:copias'
 const CHAVE_ULTIMO = 'mapa-ia:ultimo-backup'
@@ -23,6 +25,37 @@ interface ArquivoBackup {
   salvoEm: string
   /** o valor da chave 'mapa-ia' já como objeto ({ state, version }) */
   dados: { state: Record<string, unknown>; version: number }
+  /** gravações da explicação (IndexedDB), com o áudio em base64. Backups antigos não têm. */
+  audios?: AudioSalvo[]
+}
+
+interface AudioSalvo {
+  id: string
+  topico: string
+  em: number
+  duracao: number
+  tipo: string
+  base64: string
+}
+
+const paraBase64 = (b: Blob) =>
+  new Promise<string>((ok, erro) => {
+    const r = new FileReader()
+    r.onload = () => ok(String(r.result).split(',')[1] ?? '')
+    r.onerror = () => erro(r.error)
+    r.readAsDataURL(b)
+  })
+
+function deBase64(s: string, tipo: string): Blob {
+  const bin = atob(s)
+  const bytes = new Uint8Array(bin.length)
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i)
+  return new Blob([bytes], { type: tipo })
+}
+
+const audioValido = (a: unknown): a is AudioSalvo => {
+  const x = a as AudioSalvo
+  return !!x && typeof x.id === 'string' && typeof x.topico === 'string' && typeof x.em === 'number' && typeof x.duracao === 'number' && typeof x.tipo === 'string' && typeof x.base64 === 'string'
 }
 
 const ler = (k: string) => {
@@ -100,12 +133,21 @@ export function temProgresso(): boolean {
 
 const doisDigitos = (n: number) => String(n).padStart(2, '0')
 
-/** Baixa um arquivo .json com tudo. */
-export function exportar() {
+/** Baixa um arquivo .json com tudo, gravações de áudio incluídas. Devolve quantas gravações foram. */
+export async function exportar(): Promise<number> {
   const cru = ler(CHAVE)
   if (!cru) throw new Error('Ainda não há nada salvo para exportar.')
+  let gravacoes: Gravacao[] = []
+  try {
+    gravacoes = await todasGravacoes()
+  } catch {
+    /* sem IndexedDB (aba anônima, bloqueado): sai o backup sem áudio */
+  }
+  const audios = await Promise.all(
+    gravacoes.map(async (g) => ({ id: g.id, topico: g.topico, em: g.em, duracao: g.duracao, tipo: g.blob.type, base64: await paraBase64(g.blob) })),
+  )
   const agora = new Date()
-  const arquivo: ArquivoBackup = { app: 'mapa-ia', formato: 1, salvoEm: agora.toISOString(), dados: JSON.parse(cru) }
+  const arquivo: ArquivoBackup = { app: 'mapa-ia', formato: 1, salvoEm: agora.toISOString(), dados: JSON.parse(cru), audios }
   const blob = new Blob([JSON.stringify(arquivo, null, 1)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -120,6 +162,7 @@ export function exportar() {
   } catch {
     /* sem espaço: o arquivo saiu do mesmo jeito */
   }
+  return audios.length
 }
 
 export interface Resumo {
@@ -128,6 +171,8 @@ export interface Resumo {
   notas: number
   cartoes: number
   postits: number
+  /** só se souber (backup em arquivo); o de agora fica no IndexedDB */
+  audios?: number
 }
 
 function resumir(state: Record<string, unknown>, salvoEm: Date | null): Resumo {
@@ -144,7 +189,7 @@ export function resumoAtual(): Resumo {
 }
 
 /** Lê e confere um arquivo de backup. Não muda nada ainda. */
-export async function lerArquivo(arquivo: File): Promise<{ resumo: Resumo; aplicar: () => void }> {
+export async function lerArquivo(arquivo: File): Promise<{ resumo: Resumo; aplicar: () => Promise<void> }> {
   let obj: Partial<ArquivoBackup>
   try {
     obj = JSON.parse(await arquivo.text())
@@ -154,9 +199,12 @@ export async function lerArquivo(arquivo: File): Promise<{ resumo: Resumo; aplic
   const dados = obj?.dados
   if (obj?.app !== 'mapa-ia' || !dados || typeof dados.state !== 'object' || dados.state === null || typeof dados.version !== 'number')
     throw new Error('Esse arquivo não é um backup do Mapa de IA.')
+  const audios = Array.isArray(obj.audios) ? obj.audios.filter(audioValido) : []
   return {
-    resumo: resumir(dados.state, obj.salvoEm ? new Date(obj.salvoEm) : null),
-    aplicar: () => {
+    resumo: { ...resumir(dados.state, obj.salvoEm ? new Date(obj.salvoEm) : null), audios: audios.length },
+    aplicar: async () => {
+      // áudio primeiro: se falhar, nada do progresso mudou ainda
+      await guardarVarias(audios.map((a) => ({ id: a.id, topico: a.topico, em: a.em, duracao: a.duracao, blob: deBase64(a.base64, a.tipo) })))
       guardarCopia('antes de importar')
       localStorage.setItem(CHAVE, JSON.stringify(dados))
       location.reload()

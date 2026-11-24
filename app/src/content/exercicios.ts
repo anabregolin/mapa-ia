@@ -461,6 +461,7 @@ export const DEMOS: Demo[] = [
   { id: 'd.arvore-e1', titulo: 'Minimax e alfa-beta passo a passo (E1)', topicos: ['u2.minimax', 'u2.alfabeta'], url: 'arvore:e1', componente: true },
   { id: 'd.hill', titulo: 'Hill Climbing na rede da Q11', topicos: ['u2.hill'], url: 'hill', componente: true },
   { id: 'd.knn', titulo: 'KNN: arraste o ponto (lista 5, Q3)', topicos: ['u5.knn', 'u5.distancias'], url: 'knn', componente: true },
+  { id: 'd.gini', titulo: 'Monte a árvore: Gini e entropia a cada divisão', topicos: ['u5.gini', 'u5.entropia', 'u5.hunt', 'u5.arvore'], url: 'gini', componente: true },
   { id: 'd.hc-sa', titulo: 'Simulação HC e SA', topicos: ['u2.hill', 'u2.sa'], url: 'demos/simulacao-busca-local-hc-sa.html' },
   { id: 'd.alfabeta', titulo: 'Demonstração da poda alfa-beta', topicos: ['u2.alfabeta'], url: 'demos/demo-poda-alfa-beta.html' },
   { id: 'd.velha', titulo: 'Jogo da velha (minimax)', topicos: ['u2.minimax'], url: 'demos/jogo-da-velha-minimax.html' },

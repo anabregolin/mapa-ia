@@ -18,6 +18,7 @@ function LinhaResumo({ r }: { r: Resumo }) {
     <span>
       {plural(r.topicos, 'tópico aberto', 'tópicos abertos')} · {plural(r.notas, 'anotação', 'anotações')} · {plural(r.cartoes, 'cartão respondido', 'cartões respondidos')} ·{' '}
       {plural(r.postits, 'post-it', 'post-its')}
+      {r.audios !== undefined && ` · ${plural(r.audios, 'gravação', 'gravações')}`}
     </span>
   )
 }
@@ -26,7 +27,9 @@ function LinhaResumo({ r }: { r: Resumo }) {
 export function AjustesBackup() {
   const [ultimo, setUltimo] = useState(ultimoBackup)
   const [erro, setErro] = useState<string | null>(null)
-  const [pendente, setPendente] = useState<{ resumo: Resumo; aplicar: () => void } | null>(null)
+  const [pendente, setPendente] = useState<{ resumo: Resumo; aplicar: () => Promise<void> } | null>(null)
+  const [ocupado, setOcupado] = useState(false)
+  const [aviso, setAviso] = useState<string | null>(null)
   const [copiaEscolhida, setCopiaEscolhida] = useState<Copia | null>(null)
   const [verCopias, setVerCopias] = useState(false)
   const [persistente, setPersistente] = useState<boolean | null>(null)
@@ -37,13 +40,27 @@ export function AjustesBackup() {
     armazenamentoPersistente().then(setPersistente)
   }, [])
 
-  const baixar = () => {
+  const baixar = async () => {
+    setOcupado(true)
     try {
-      exportar()
+      const n = await exportar()
       setUltimo(ultimoBackup())
       setErro(null)
+      setAviso(n ? `Backup baixado com ${plural(n, 'gravação', 'gravações')} de áudio dentro.` : 'Backup baixado.')
     } catch (e) {
       setErro((e as Error).message)
+    }
+    setOcupado(false)
+  }
+
+  const aplicar = async () => {
+    if (!pendente) return
+    setOcupado(true)
+    try {
+      await pendente.aplicar()
+    } catch (e) {
+      setErro(`Não consegui guardar as gravações do backup, então não mudei nada. (${(e as Error).message})`)
+      setOcupado(false)
     }
   }
 
@@ -72,8 +89,8 @@ export function AjustesBackup() {
       </p>
 
       <div className="flex flex-wrap gap-2">
-        <button className="botao-foco" onClick={baixar}>
-          ⬇ baixar backup
+        <button className="botao-foco" onClick={baixar} disabled={ocupado}>
+          {ocupado ? 'preparando…' : '⬇ baixar backup'}
         </button>
         <button className="botao-suave" onClick={() => entrada.current?.click()}>
           ⬆ restaurar de um arquivo
@@ -81,6 +98,7 @@ export function AjustesBackup() {
         <input ref={entrada} type="file" accept="application/json,.json" className="hidden" onChange={(e) => escolherArquivo(e.target.files?.[0])} />
       </div>
 
+      {aviso && !erro && <p className="text-xs text-[var(--tinta-suave)]">✓ {aviso}</p>}
       {erro && <p className="rounded-xl bg-[var(--alerta-claro)] px-3 py-2 text-sm text-[var(--tinta-forte)]">{erro}</p>}
 
       {pendente && (
@@ -95,9 +113,14 @@ export function AjustesBackup() {
             Agora: <LinhaResumo r={resumoAtual()} />
           </p>
           <p className="mt-1 text-xs">O de agora não some: vira uma cópia automática, e dá para voltar nele aqui embaixo.</p>
+          {!!pendente.resumo.audios && (
+            <p className="mt-1 text-xs">
+              As gravações do backup são <strong>somadas</strong> às que já estão aqui (nenhuma é apagada). Elas não entram na cópia automática, então desfazer depois não as tira.
+            </p>
+          )}
           <div className="mt-2 flex gap-2">
-            <button className="botao-foco" onClick={pendente.aplicar}>
-              sim, substituir
+            <button className="botao-foco" onClick={aplicar} disabled={ocupado}>
+              {ocupado ? 'restaurando…' : 'sim, substituir'}
             </button>
             <button className="botao-suave" onClick={() => setPendente(null)}>
               cancelar
@@ -113,8 +136,8 @@ export function AjustesBackup() {
         {verCopias && (
           <div className="mt-2 space-y-2">
             <p className="text-xs text-[var(--tinta-suave)]">
-              Uma por dia (as últimas 7) e uma antes de cada restauração. Servem para desfazer um engano, mas somem junto se você limpar os dados do site. Por isso o arquivo baixado ainda é o
-              que vale.
+              Uma por dia (as últimas 7) e uma antes de cada restauração. Servem para desfazer um engano, mas somem junto se você limpar os dados do site, e não guardam as gravações de
+              áudio. Por isso o arquivo baixado ainda é o que vale.
             </p>
             {!copias.length && <p className="text-xs text-[var(--tinta-suave)]">Nenhuma ainda.</p>}
             <ul className="space-y-1">
@@ -185,10 +208,7 @@ export function LembreteBackup() {
       </span>
       <button
         className="botao-foco"
-        onClick={() => {
-          exportar()
-          setUltimo(ultimoBackup())
-        }}
+        onClick={() => exportar().then(() => setUltimo(ultimoBackup()))}
       >
         baixar backup
       </button>
